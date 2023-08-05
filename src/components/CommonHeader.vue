@@ -1,0 +1,86 @@
+<template>
+	<div class="CommonHeader-wrap">
+		<img src="../static/svg/HeaderLogo.svg" />
+		<div class="user-info">
+			<img class="message" src="../static/svg/HeaderMessage.svg" />
+			<el-dropdown class="user-head">
+				<img :src="userHead" />
+				<template #dropdown>
+					<el-dropdown-menu>
+						<el-dropdown-item>
+							<div class="choice">
+								<img src="../static/svg/HeaderPersonalCenter.svg" />
+								<span>个人中心</span>
+							</div>
+						</el-dropdown-item>
+						<el-dropdown-item>
+							<div class="choice">
+								<img src="../static/svg/HeaderExit.svg" />
+								<span>退出登录</span>
+							</div>
+						</el-dropdown-item>
+					</el-dropdown-menu>
+				</template>
+			</el-dropdown>
+		</div>
+	</div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const userHead = ref<string>('https://dummyimage.com/400X400');
+</script>
+
+<style scoped lang="less">
+.CommonHeader-wrap {
+	position: relative;
+	width: 1310px;
+	height: 60px;
+	padding: 0 20px;
+	background: #ffffff;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	.user-info {
+		display: flex;
+		align-items: center;
+		.message {
+			margin-right: 40px;
+			cursor: pointer;
+		}
+		.user-head {
+			width: 40px;
+			height: 40px;
+			border-radius: 20px;
+			overflow: hidden;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			img {
+				width: 40px;
+				height: 40px;
+			}
+
+			span {
+				font-family: Microsoft YaHei;
+				font-size: 14px;
+				font-weight: normal;
+				color: #3d3d3d;
+			}
+		}
+	}
+}
+
+.choice {
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	img {
+		margin-right: 10px;
+	}
+}
+</style>

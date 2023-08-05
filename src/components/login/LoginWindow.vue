@@ -1,0 +1,259 @@
+<template>
+	<div class="LoginWindow-wrap">
+		<div v-if="loginType === 0" class="content">
+			<span class="title">登录</span>
+			<el-form :model="userLoginForm" :rules="loginRules">
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>邮箱</span>
+					<el-form-item prop="email">
+						<el-input v-model="userLoginForm.email" placeholder="请输入邮箱" style="width: 250px" />
+					</el-form-item>
+				</el-row>
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>密码</span>
+					<el-form-item prop="password">
+						<el-input v-model="userLoginForm.password" placeholder="请输入密码" style="width: 250px" />
+					</el-form-item>
+				</el-row>
+			</el-form>
+			<span class="tip">点击切换<span @click="loginType = 1">手机号登录</span></span>
+			<el-row type="flex" justify="center">
+				<div @click="loginType = 2" class="button">
+					<span>注册</span>
+				</div>
+				<div @click="toPageHome" class="button">
+					<span>登录</span>
+				</div>
+			</el-row>
+		</div>
+		<div v-if="loginType === 1" class="content">
+			<span class="title">登录</span>
+			<el-form :model="userLoginForm" :rules="loginRules">
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>手机号</span>
+					<el-form-item prop="phone_number">
+						<el-input v-model="userLoginForm.phone_number" placeholder="请输入手机号" style="width: 250px" />
+					</el-form-item>
+				</el-row>
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>验证码</span>
+					<div style="width: 250px; display: flex; justify-content: space-between">
+						<el-form-item prop="verify_code">
+							<el-input v-model="userLoginForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
+						</el-form-item>
+						<el-button @click="sendVerifyCode" color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus"
+							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
+							<span v-else class="button-text">
+								已发送
+								{{ verifyCodeTimer + 's' }}
+							</span></el-button
+						>
+					</div>
+				</el-row>
+			</el-form>
+
+			<span class="tip">点击切换<span @click="loginType = 0">邮箱登录</span></span>
+			<el-row type="flex" justify="center">
+				<div class="button">
+					<span @click="loginType = 2">注册</span>
+				</div>
+				<div @click="toPageHome" class="button">
+					<span>登录</span>
+				</div>
+			</el-row>
+		</div>
+		<div v-if="loginType === 2" class="content">
+			<span class="title">注册</span>
+			<el-form :model="userRegisterForm" :rules="registerRules">
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>手机号</span>
+					<el-form-item prop="phone_number">
+						<el-input v-model="userRegisterForm.phone_number" placeholder="请输入手机号" style="width: 250px" />
+					</el-form-item>
+				</el-row>
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>验证码</span>
+					<div style="width: 250px; display: flex; justify-content: space-between">
+						<el-form-item prop="verify_code">
+							<el-input v-model="userRegisterForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
+						</el-form-item>
+						<el-button @click="sendVerifyCode" color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus"
+							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
+							<span v-else class="button-text">
+								已发送
+								{{ verifyCodeTimer + 's' }}
+							</span></el-button
+						>
+					</div>
+				</el-row>
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>密码</span>
+					<el-form-item prop="password">
+						<el-input v-model="userRegisterForm.password" placeholder="请输入密码" style="width: 250px" />
+					</el-form-item>
+				</el-row>
+				<el-row type="flex" justify="space-between" class="form-box">
+					<span>确认密码</span>
+					<el-form-item prop="password_again">
+						<el-input v-model="userRegisterForm.password_again" placeholder="请再输入一遍密码" style="width: 250px" />
+					</el-form-item>
+				</el-row>
+			</el-form>
+			<el-row type="flex" justify="center">
+				<div class="button">
+					<span>注册</span>
+				</div>
+				<div class="button">
+					<span @click="loginType = 0">返回登录</span>
+				</div>
+			</el-row>
+		</div>
+	</div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import type { FormInstance, FormRules } from 'element-plus';
+
+interface LoginRuleForm {
+	email?: string;
+	password?: string;
+	phone_number?: string;
+	verify_code?: string;
+}
+interface RegisterRuleForm {
+	password?: string;
+	password_again?: string;
+	phone_number?: string;
+	verify_code?: string;
+}
+
+const router = useRouter();
+// el-form表单验证规则
+const loginRules = reactive<FormRules<LoginRuleForm>>({
+	email: [{ required: true, message: '使用邮箱登录时，请输入完整的邮箱', trigger: 'blur' }],
+	password: [{ required: true, message: '使用邮箱登录时，请输入密码', trigger: 'blur' }],
+	phone_number: [{ required: true, message: '使用手机号登录时，请输入完整的手机号', trigger: 'blur' }],
+	verify_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+});
+const registerRules = reactive<FormRules<RegisterRuleForm>>({
+	phone_number: [{ required: true, message: '请填写完整的手机号', trigger: 'blur' }],
+	verify_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+	password: [{ required: true, message: '请设置密码', trigger: 'blur' }],
+	password_again: [{ required: true, message: '两次密码不一致！', trigger: 'blur' }],
+});
+
+let userLoginForm = ref({
+	email: '',
+	password: '',
+	phone_number: '',
+	verify_code: '',
+});
+let userRegisterForm = ref({
+	password: '',
+	password_again: '',
+	phone_number: '',
+	verify_code: '',
+});
+let loginType = ref<number>(0);
+let verifyCodeStatus = ref<boolean>(false);
+let verifyCodeTimer = ref<number>(60);
+
+const sendVerifyCode = () => {
+	verifyCodeStatus.value = true;
+	let timer = setInterval(() => {
+		verifyCodeTimer.value--;
+		if (verifyCodeTimer.value === 0) {
+			clearInterval(timer);
+			verifyCodeStatus.value = false;
+			verifyCodeTimer.value = 60;
+		}
+	}, 1000);
+};
+
+const toPageHome = () => {
+	router.push({ name: 'home' });
+};
+</script>
+
+<style scoped lang="less">
+.LoginWindow-wrap {
+	position: relative;
+	width: 400px;
+	padding: 40px 0 100px;
+	border-radius: 50px;
+	background: #ffffff;
+	.content {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		.title {
+			font-family: Microsoft YaHei;
+			font-size: 36px;
+			font-weight: normal;
+			color: #3d3d3d;
+		}
+		.form-box {
+			margin-top: 40px;
+			align-items: center;
+			width: 330px;
+			span {
+				font-family: Microsoft YaHei;
+				font-size: 18px;
+				font-weight: normal;
+				color: #3d3d3d;
+			}
+			.button-text {
+				font-family: Microsoft YaHei;
+				font-size: 14px;
+				font-weight: normal;
+				color: #ffffff;
+			}
+		}
+		.tip {
+			margin-top: 20px;
+			font-family: Source Han Sans CN;
+			font-size: 12px;
+			font-weight: normal;
+			color: #3d3d3d;
+			span {
+				cursor: pointer;
+			}
+			span:hover {
+				color: #59a8b9;
+			}
+		}
+		.button {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: 60px 10px 0;
+			width: 135px;
+			height: 45px;
+			border-radius: 25px;
+			background: #59a8b9;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			span {
+				font-family: Source Han Sans CN;
+				font-size: 16px;
+				font-weight: normal;
+				color: #ffffff;
+			}
+		}
+		.button:hover {
+			box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
+		}
+	}
+}
+
+.el-input {
+	height: 40px;
+}
+
+.el-form-item {
+	margin: 0;
+}
+</style>
