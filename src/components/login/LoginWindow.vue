@@ -18,10 +18,10 @@
 			</el-form>
 			<span class="tip">点击切换<span @click="loginType = 1">手机号登录</span></span>
 			<el-row type="flex" justify="center">
-				<div @click="loginType = 2" class="button">
+				<div class="button" @click="loginType = 2">
 					<span>注册</span>
 				</div>
-				<div @click="toPageHome" class="button">
+				<div class="button" @click="toPageHome">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -41,7 +41,7 @@
 						<el-form-item prop="verify_code">
 							<el-input v-model="userLoginForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
 						</el-form-item>
-						<el-button @click="sendVerifyCode" color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus"
+						<el-button style="height: 40px" color="#59A8B9" :disabled="verifyCodeStatus" @click="sendVerifyCode"
 							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
 							<span v-else class="button-text">
 								已发送
@@ -57,7 +57,7 @@
 				<div class="button">
 					<span @click="loginType = 2">注册</span>
 				</div>
-				<div @click="toPageHome" class="button">
+				<div class="button" @click="toPageHome">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -77,7 +77,7 @@
 						<el-form-item prop="verify_code">
 							<el-input v-model="userRegisterForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
 						</el-form-item>
-						<el-button @click="sendVerifyCode" color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus"
+						<el-button color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus" @click="sendVerifyCode"
 							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
 							<span v-else class="button-text">
 								已发送
@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import type { FormInstance, FormRules } from 'element-plus';
+import type { FormRules } from 'element-plus';
 
 interface LoginRuleForm {
 	email?: string;
