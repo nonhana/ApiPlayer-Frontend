@@ -1,9 +1,9 @@
 <template>
 	<div>
-		<span>home</span>
+		<span>login</span>
 	</div>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
+
 <style scoped></style>
