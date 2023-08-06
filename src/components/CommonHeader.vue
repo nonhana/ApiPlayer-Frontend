@@ -3,17 +3,17 @@
 		<img src="../static/svg/HeaderLogo.svg" />
 		<div class="user-info">
 			<img class="message" src="../static/svg/HeaderMessage.svg" />
-			<el-dropdown class="user-head">
-				<img :src="userHead" />
+			<el-dropdown class="user-head" @command="userAction">
+				<img :src="userInfo.user_img" />
 				<template #dropdown>
 					<el-dropdown-menu>
-						<el-dropdown-item>
+						<el-dropdown-item command="1">
 							<div class="choice">
 								<img src="../static/svg/HeaderPersonalCenter.svg" />
 								<span>个人中心</span>
 							</div>
 						</el-dropdown-item>
-						<el-dropdown-item>
+						<el-dropdown-item command="2">
 							<div class="choice">
 								<img src="../static/svg/HeaderExit.svg" />
 								<span>退出登录</span>
@@ -27,9 +27,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import type { UserInfo } from '../utils/types';
 
-const userHead = ref<string>('https://dummyimage.com/400X400');
+const router = useRouter();
+const userInfo: UserInfo = JSON.parse(localStorage.getItem('userInfo') as string);
+
+const userAction = (command: string) => {
+	switch (command) {
+		case '1':
+			router.push({
+				path: `/personalCenter/${userInfo.user_id}`,
+			});
+			break;
+		case '2':
+			localStorage.clear();
+			router.push({
+				name: 'login',
+			});
+			break;
+	}
+};
 </script>
 
 <style scoped lang="less">
@@ -75,7 +93,7 @@ const userHead = ref<string>('https://dummyimage.com/400X400');
 }
 
 .choice {
-	padding: 10px;
+	padding: 5px 10px;
 	display: flex;
 	justify-content: center;
 	align-items: center;

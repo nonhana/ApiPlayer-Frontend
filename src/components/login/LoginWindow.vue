@@ -114,6 +114,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useBaseStore } from '../../store/index';
+import type { UserInfo } from '../../utils/types';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
 
@@ -131,6 +133,7 @@ interface RegisterRuleForm {
 	verify_code: string;
 }
 
+const store = useBaseStore();
 // el-form自定义表单验证规则：确认密码是否一致
 const checkPassword = (_: any, value: any, callback: any) => {
 	if (value.trim().length == 0) {
@@ -194,6 +197,16 @@ const login = (type: number) => {
 				type: 'error',
 			});
 		} else {
+			const userInfo: UserInfo = {
+				user_id: 0,
+				user_name: 'John Doe',
+				user_img: 'https://dummyimage.com/400X400',
+				user_email: 'zhouxiang757@gmail.com',
+				user_phone: '123-456-7890',
+				user_sign: 'A passionate developer and lifelong learner.',
+			};
+			localStorage.setItem('userInfo', JSON.stringify(userInfo));
+			store.setUserInfo(userInfo);
 			router.push({ name: 'home' });
 			ElNotification({
 				title: '登录成功',
@@ -209,6 +222,16 @@ const login = (type: number) => {
 				type: 'error',
 			});
 		} else {
+			const userInfo: UserInfo = {
+				user_id: 0,
+				user_name: 'John Doe',
+				user_img: 'https://dummyimage.com/400X400',
+				user_email: 'zhouxiang757@gmail.com',
+				user_phone: '123-456-7890',
+				user_sign: 'A passionate developer and lifelong learner.',
+			};
+			localStorage.setItem('userInfo', JSON.stringify(userInfo));
+			store.setUserInfo(userInfo);
 			router.push({ name: 'home' });
 			ElNotification({
 				title: '登录成功',
