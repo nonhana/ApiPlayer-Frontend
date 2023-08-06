@@ -12,7 +12,7 @@
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>密码</span>
 					<el-form-item prop="password">
-						<el-input v-model="userLoginForm.password" placeholder="请输入密码" style="width: 250px" />
+						<el-input v-model="userLoginForm.password" placeholder="请输入密码" type="password" style="width: 250px" />
 					</el-form-item>
 				</el-row>
 			</el-form>
@@ -21,7 +21,7 @@
 				<div class="button" @click="loginType = 2">
 					<span>注册</span>
 				</div>
-				<div class="button" @click="toPageHome">
+				<div class="button" @click="login(0)">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -57,7 +57,7 @@
 				<div class="button">
 					<span @click="loginType = 2">注册</span>
 				</div>
-				<div class="button" @click="toPageHome">
+				<div class="button" @click="login(1)">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -89,13 +89,13 @@
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>密码</span>
 					<el-form-item prop="password">
-						<el-input v-model="userRegisterForm.password" placeholder="请输入密码" style="width: 250px" />
+						<el-input v-model="userRegisterForm.password" placeholder="请输入密码" type="password" style="width: 250px" />
 					</el-form-item>
 				</el-row>
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>确认密码</span>
 					<el-form-item prop="password_again">
-						<el-input v-model="userRegisterForm.password_again" placeholder="请再输入一遍密码" style="width: 250px" />
+						<el-input v-model="userRegisterForm.password_again" placeholder="请再输入一遍密码" type="password" style="width: 250px" />
 					</el-form-item>
 				</el-row>
 			</el-form>
@@ -112,10 +112,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import type { FormRules } from 'element-plus';
+import { ElNotification } from 'element-plus';
 
+// 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
 	email?: string;
 	password?: string;
@@ -123,26 +125,37 @@ interface LoginRuleForm {
 	verify_code?: string;
 }
 interface RegisterRuleForm {
-	password?: string;
-	password_again?: string;
-	phone_number?: string;
-	verify_code?: string;
+	password: string;
+	password_again: string;
+	phone_number: string;
+	verify_code: string;
 }
 
-const router = useRouter();
-// el-form表单验证规则
+// el-form自定义表单验证规则：确认密码是否一致
+const checkPassword = (_: any, value: any, callback: any) => {
+	if (value.trim().length == 0) {
+		callback(new Error('确认密码不能为空'));
+	} else if (value != userRegisterForm.value.password) {
+		callback(new Error('两次密码不一致'));
+	} else {
+		callback();
+	}
+};
+// el-form表单验证规则：登录
 const loginRules = reactive<FormRules<LoginRuleForm>>({
 	email: [{ required: true, message: '使用邮箱登录时，请输入完整的邮箱', trigger: 'blur' }],
 	password: [{ required: true, message: '使用邮箱登录时，请输入密码', trigger: 'blur' }],
 	phone_number: [{ required: true, message: '使用手机号登录时，请输入完整的手机号', trigger: 'blur' }],
 	verify_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
 });
+// el-form表单验证规则：注册
 const registerRules = reactive<FormRules<RegisterRuleForm>>({
 	phone_number: [{ required: true, message: '请填写完整的手机号', trigger: 'blur' }],
 	verify_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
 	password: [{ required: true, message: '请设置密码', trigger: 'blur' }],
-	password_again: [{ required: true, message: '两次密码不一致！', trigger: 'blur' }],
+	password_again: [{ validator: checkPassword, trigger: 'blur' }],
 });
+const router = useRouter();
 
 let userLoginForm = ref({
 	email: '',
@@ -159,10 +172,11 @@ let userRegisterForm = ref({
 let loginType = ref<number>(0);
 let verifyCodeStatus = ref<boolean>(false);
 let verifyCodeTimer = ref<number>(60);
+let timer: any = null;
 
 const sendVerifyCode = () => {
 	verifyCodeStatus.value = true;
-	let timer = setInterval(() => {
+	timer = setInterval(() => {
 		verifyCodeTimer.value--;
 		if (verifyCodeTimer.value === 0) {
 			clearInterval(timer);
@@ -171,10 +185,69 @@ const sendVerifyCode = () => {
 		}
 	}, 1000);
 };
-
-const toPageHome = () => {
-	router.push({ name: 'home' });
+const login = (type: number) => {
+	if (type === 0) {
+		if (userLoginForm.value.email === '' || userLoginForm.value.password === '') {
+			ElNotification({
+				title: '登录失败',
+				message: '邮箱或密码不完整',
+				type: 'error',
+			});
+		} else {
+			router.push({ name: 'home' });
+			ElNotification({
+				title: '登录成功',
+				message: '欢迎回来！',
+				type: 'success',
+			});
+		}
+	} else {
+		if (userLoginForm.value.phone_number === '' || userLoginForm.value.verify_code === '') {
+			ElNotification({
+				title: '登录失败',
+				message: '电话号码或验证码不完整',
+				type: 'error',
+			});
+		} else {
+			router.push({ name: 'home' });
+			ElNotification({
+				title: '登录成功',
+				message: '欢迎回来！',
+				type: 'success',
+			});
+		}
+	}
 };
+
+watch(loginType, (newV, _) => {
+	// 恢复计时器
+	clearInterval(timer);
+	verifyCodeStatus.value = false;
+	verifyCodeTimer.value = 60;
+	// 切换登录方式时，清空表单数据
+	if (newV === 0) {
+		userLoginForm.value = {
+			email: '',
+			password: '',
+			phone_number: '',
+			verify_code: '',
+		};
+	} else if (newV === 1) {
+		userLoginForm.value = {
+			email: '',
+			password: '',
+			phone_number: '',
+			verify_code: '',
+		};
+	} else {
+		userRegisterForm.value = {
+			password: '',
+			password_again: '',
+			phone_number: '',
+			verify_code: '',
+		};
+	}
+});
 </script>
 
 <style scoped lang="less">
