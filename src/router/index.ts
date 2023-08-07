@@ -14,6 +14,23 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/home',
 		name: 'home',
 		component: () => import('../views/home/index.vue'),
+		children: [
+			{
+				path: '/mainWindow/:id',
+				name: 'mainWindow',
+				component: () => import('../views/home/mainWindow/index.vue'),
+			},
+			{
+				path: '/recentlyVisited',
+				name: 'recentlyVisited',
+				component: () => import('../views/home/recentlyVisited/index.vue'),
+			},
+		],
+	},
+	{
+		path: '/personalCenter',
+		name: 'personalCenter',
+		component: () => import('../views/personalCenter/index.vue'),
 	},
 ];
 
