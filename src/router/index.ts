@@ -28,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
 		],
 	},
 	{
-		path: '/personalCenter',
+		path: '/personalCenter/:id',
 		name: 'personalCenter',
 		component: () => import('../views/personalCenter/index.vue'),
 	},
