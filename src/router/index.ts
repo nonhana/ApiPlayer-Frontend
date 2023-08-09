@@ -20,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'personalCenter',
 		component: () => import('../views/personalCenter/index.vue'),
 	},
+	{
+		path: '/interface',
+		name: 'interface',
+		component: () => import('../views/interfaceDoc/index.vue'),
+	},
 ];
 
 const router = createRouter({
