@@ -16,14 +16,14 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('../views/home/index.vue'),
 		children: [
 			{
-				path: '/mainWindow/:id',
+				path: '/home/mainWindow/:id?',
 				name: 'mainWindow',
-				component: () => import('../views/home/mainWindow/index.vue'),
+				component: () => import('../components/home/mainWindow/mainWindow.vue'),
 			},
 			{
-				path: '/recentlyVisited',
+				path: '/home/recentlyVisited',
 				name: 'recentlyVisited',
-				component: () => import('../views/home/recentlyVisited/index.vue'),
+				component: () => import('../components/home/RecentlyVisited/index.vue'),
 			},
 		],
 	},

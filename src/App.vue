@@ -13,7 +13,7 @@ import { useRoute } from 'vue-router';
 import CommonHeader from './components/CommonHeader.vue';
 
 const route = useRoute();
-const classList: string[] = ['app', 'login'];
+const classList: string[] = ['app', 'login', 'home'];
 
 let classIndex = ref<number>(0);
 

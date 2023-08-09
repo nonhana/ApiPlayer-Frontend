@@ -10,15 +10,24 @@ interface UserInfo {
 	user_sign: string;
 }
 
+interface LastVisitedListItem {
+	projectName: string;
+	lastVisitedTime: string;
+}
+
 export const useBaseStore = defineStore(Names.Base, {
 	state: () => {
 		return {
 			user_info: <UserInfo>{},
+			lastVisitedList: [] as LastVisitedListItem[],
 		};
 	},
 	actions: {
 		setUserInfo(info: UserInfo) {
 			this.user_info = info;
+		},
+		setLastVisitedList(list: LastVisitedListItem[]) {
+			this.lastVisitedList = list;
 		},
 	},
 });

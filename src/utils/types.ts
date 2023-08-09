@@ -7,3 +7,8 @@ export interface UserInfo {
 	user_phone: string;
 	user_sign: string;
 }
+
+export interface LastVisitedListItem {
+	projectName: string;
+	lastVisitedTime: string;
+}

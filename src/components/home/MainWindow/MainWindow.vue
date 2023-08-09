@@ -1,7 +1,7 @@
 <template>
 	<div class="main-window">
 		<el-row>
-			<div class="head">console.log(undefined)</div>
+			<header class="head">{{ props.title }} console.log(undefined)</header>
 		</el-row>
 		<el-row>
 			<div>123</div>
@@ -13,9 +13,9 @@
 <script lang="ts" setup>
 // import { ref } from 'vue';
 
-// const props = defineProps({
-
-// })
+const props = defineProps<{
+	title: string;
+}>();
 </script>
 
 <style lang="less" scoped>
