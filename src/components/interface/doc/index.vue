@@ -25,12 +25,14 @@
 			<el-col :span="1"></el-col>
 			<el-text class="mx-1">目录 {{ apiInfo.dictionary_id }}</el-text>
 		</el-row>
+		<el-row></el-row>
 		<el-row>
 			<span>接口说明</span>
 		</el-row>
 		<el-row>
 			<el-text class="mx-1"> {{ apiInfo.api_desc }}</el-text>
 		</el-row>
+		<el-row></el-row>
 		<el-row>
 			<span>请求参数</span>
 		</el-row>
@@ -45,6 +47,7 @@
 			</el-row>
 			<el-row></el-row>
 		</div>
+		<el-row></el-row>
 		<el-row>
 			<span>返回响应</span>
 		</el-row>
