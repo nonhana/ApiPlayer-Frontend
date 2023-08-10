@@ -17,11 +17,6 @@ import Edit from './edit/index.vue';
 import Test from './test/index.vue';
 
 const activeName = ref('first');
-let a = api_response":{
-"http_status":94,
-"response_name":"改次品织克党",
-"response_body":"esse Lorem Excepteur qui in"
-}
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
 	console.log(tab, event);
