@@ -11,8 +11,13 @@
 										<img src="./imgs/Team.png" alt="" style="width: 18px; margin-right: 4px" />
 										<span>我的团队</span>
 									</template>
-									<el-menu-item index="1-1"> console.log(undefined)</el-menu-item>
-									<el-menu-item index="1-2" @click="clickMyTeamHandler('1')"> 个人空间</el-menu-item>
+
+									<div v-for="(team, idx) in teamList" :key="team.team_id" @click="clickMyTeamHandler(team.team_id)">
+										<el-menu-item :index="1 - idx"> {{ team.team_name }}</el-menu-item>
+									</div>
+
+									<!-- <el-menu-item index="1-1"> console.log(undefined)</el-menu-item>
+									<el-menu-item index="1-2" @click="clickMyTeamHandler('1')"> 个人空间</el-menu-item> -->
 									<!-- <el-menu-item-group style="margin-left: -5px">
 										<template #title>
 											<el-icon><Plus style="font-size: 14px; margin-left: -2px" /></el-icon>
@@ -54,7 +59,53 @@ import { Plus } from '@element-plus/icons-vue';
 import NewTeam from './NewTeam/NewTeam.vue';
 // import MainWindow from './MainWindow/MainWindow.vue';
 
+interface TeamListItem {
+	team_id: number;
+	team_name: string;
+}
+
 const router = useRouter();
+
+let teamList = ref<Array<TeamListItem>>([
+	{
+		team_id: 58,
+		team_name: '西示题况等组',
+	},
+	{
+		team_id: 18,
+		team_name: '年件更同六对',
+	},
+	{
+		team_id: 43,
+		team_name: '九任为见万文',
+	},
+	{
+		team_id: 56,
+		team_name: '起要温酸使据也',
+	},
+]);
+
+const getTeamList = (): TeamListItem[] => {
+	return [
+		{
+			team_id: 58,
+			team_name: '西示题况等组',
+		},
+		{
+			team_id: 18,
+			team_name: '年件更同六对',
+		},
+		{
+			team_id: 43,
+			team_name: '九任为见万文',
+		},
+		{
+			team_id: 56,
+			team_name: '起要温酸使据也',
+		},
+	];
+};
+teamList = ref(getTeamList());
 
 const handleOpen = (key: string, keyPath: string[]) => {
 	console.log(key, keyPath);
@@ -78,7 +129,7 @@ const recentlyVisitedClick = () => {
 	router.push({ name: 'recentlyVisited' });
 };
 
-const clickMyTeamHandler = (id: string) => {
+const clickMyTeamHandler = (id: number) => {
 	router.push({ path: `/home/mainWindow/${id}` });
 };
 </script>
