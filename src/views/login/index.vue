@@ -17,6 +17,7 @@ import LoginWindow from '../../components/login/LoginWindow.vue';
 .index {
 	width: 100%;
 	height: 100vh;
+	background: linear-gradient(180deg, #59a8b9 0%, rgba(245, 245, 245, 0) 100%);
 	.window {
 		position: absolute;
 		left: 65%;
