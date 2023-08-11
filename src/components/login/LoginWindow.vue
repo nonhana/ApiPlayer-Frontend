@@ -207,7 +207,8 @@ const login = (type: number) => {
 			};
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
 			store.setUserInfo(userInfo);
-			router.push({ name: 'home' });
+			// router.push({ name: 'home' });
+			router.push({ name: 'main' });
 			ElNotification({
 				title: '登录成功',
 				message: '欢迎回来！',
@@ -232,7 +233,8 @@ const login = (type: number) => {
 			};
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
 			store.setUserInfo(userInfo);
-			router.push({ name: 'home' });
+			// router.push({ name: 'home' });
+			router.push({ name: 'main' });
 			ElNotification({
 				title: '登录成功',
 				message: '欢迎回来！',

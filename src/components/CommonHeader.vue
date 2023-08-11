@@ -53,13 +53,15 @@ const userAction = (command: string) => {
 <style scoped lang="less">
 .CommonHeader-wrap {
 	position: relative;
-	width: 1310px;
+	width: 100%;
+	// width: 1310px;
 	height: 60px;
 	padding: 0 20px;
 	background: #ffffff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	border-bottom: 0.8px solid #f2f4f7;
 	.user-info {
 		display: flex;
 		align-items: center;

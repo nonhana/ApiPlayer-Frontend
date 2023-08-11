@@ -16,7 +16,25 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('../views/home/index.vue'),
 	},
 	{
-		path: '/personalCenter/:user_id',
+		path: '/main',
+		name: 'main',
+		component: () => import('../views/main/index.vue'),
+		redirect: '/team',
+		children: [
+			{
+				path: '/team',
+				name: 'team',
+				component: () => import('../views/team/index.vue'),
+			},
+			{
+				path: '/recentVisit',
+				name: 'recentVisit',
+				component: () => import('../views/recentVisit/index.vue'),
+			},
+		],
+	},
+	{
+		path: '/personalCenter/:id',
 		name: 'personalCenter',
 		component: () => import('../views/personalCenter/index.vue'),
 	},
