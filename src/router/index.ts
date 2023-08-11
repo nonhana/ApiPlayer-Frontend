@@ -16,12 +16,12 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('../views/home/index.vue'),
 	},
 	{
-		path: '/personalCenter/:id',
+		path: '/personalCenter/:user_id',
 		name: 'personalCenter',
 		component: () => import('../views/personalCenter/index.vue'),
 	},
 	{
-		path: '/interface',
+		path: '/interface/:api_id',
 		name: 'interface',
 		component: () => import('../views/interfaceDoc/index.vue'),
 	},

@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
 interface Tree {
 	label: string;
 	children?: Tree[];
@@ -119,6 +118,7 @@ const defaultProps = {
 	label: 'label',
 };
 </script>
+
 <style scoped lang="less">
 .index {
 	width: 1000px;

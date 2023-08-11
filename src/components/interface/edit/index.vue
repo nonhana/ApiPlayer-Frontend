@@ -77,7 +77,7 @@ function runApi() {}
 function deleteApi() {}
 </script>
 
-<style lang="less">
+<style scoped lang="less">
 .index {
 	width: 1000px;
 
