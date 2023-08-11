@@ -10,29 +10,46 @@
 			<el-row v-if="isEmpty"></el-row>
 			<el-row class="main">
 				<el-tabs v-model="activeName" class="tabs" @tab-click="tabHandleClick">
-					<el-tab-pane label="团队项目" name="first"></el-tab-pane>
-					<el-tab-pane label="成员/权限" name="second">Config</el-tab-pane>
-					<el-tab-pane label="团队设置" name="third">Role</el-tab-pane>
+					<el-tab-pane label="团队项目" name="first">
+						<TeamProject />
+					</el-tab-pane>
+					<el-tab-pane label="成员/权限" name="second"><MemberPermission /></el-tab-pane>
+					<el-tab-pane label="团队设置" name="third"><TeamSetting /></el-tab-pane>
 				</el-tabs>
+				<div v-if="isTeamProject && responseTeamInfo?.project_list.length != 0" class="tools">
+					<div>
+						<el-input :prefix-icon="Search" placeholder="搜索"></el-input>
+					</div>
+					<div class="impProject"><img src="../../../static/svg/Import.svg" alt="" /></div>
+					<div class="newProject" @click="newProject">+</div>
+				</div>
 			</el-row>
-			<el-row>123</el-row>
+			<!-- <el-row>123</el-row> -->
 		</div>
 	</div>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+// import { useRoute, useRouter } from 'vue-router';
 import type { TabsPaneContext } from 'element-plus';
+import { Search } from '@element-plus/icons-vue';
+import TeamProject from './TeamProject/index.vue';
+import MemberPermission from './MemberPermission/index.vue';
+import TeamSetting from './TeamSetting/index.vue';
 
-const router = useRouter();
-const route = useRoute();
-console.log(route.params.id, router);
+// const router = useRouter();
+// const route = useRoute();
+// console.log(route.params.id, router);
 
 const activeName = ref('first');
 
-const tabHandleClick = (tab: TabsPaneContext, event: Event) => {
-	console.log(tab, event);
+const tabHandleClick = (tab: TabsPaneContext) => {
+	if (tab.paneName === 'first') {
+		isTeamProject.value = true;
+	} else if (tab.paneName == 'second' || tab.paneName == 'third') {
+		isTeamProject.value = false;
+	}
 };
 
 interface MemberList {
@@ -49,16 +66,13 @@ interface ProjectList {
 	project_name: string;
 }
 
-/**
- * 团队信息
- */
 interface TeamInfo {
 	team_desc: string;
 	team_id: string;
 	team_name: string;
 	team_user_name: string;
 }
-interface ResponseTeamInfo {
+interface TeamDetailedInfo {
 	member_list: MemberList[];
 	project_list: ProjectList[];
 	result_code: number;
@@ -66,7 +80,7 @@ interface ResponseTeamInfo {
 	team_info: TeamInfo;
 }
 
-let responseTeamInfo = reactive<ResponseTeamInfo>({
+let responseTeamInfo = reactive<TeamDetailedInfo>({
 	member_list: [],
 	project_list: [],
 	result_code: 0,
@@ -74,7 +88,7 @@ let responseTeamInfo = reactive<ResponseTeamInfo>({
 	team_info: {} as TeamInfo,
 });
 
-const teamId = route.params.id;
+// const teamId = route.params.id;
 
 const getTeamInfo = () => {
 	const teamData = {
@@ -90,26 +104,26 @@ const getTeamInfo = () => {
 			},
 		],
 		project_list: [
-			{
-				project_id: 10,
-				project_name: '在段风列参',
-				project_img: 'http://dummyimage.com/400x400',
-			},
-			{
-				project_id: 61,
-				project_name: '传观加',
-				project_img: 'http://dummyimage.com/400x400',
-			},
-			{
-				project_id: 67,
-				project_name: '时资二两',
-				project_img: 'http://dummyimage.com/400x400',
-			},
-			{
-				project_id: 77,
-				project_name: '儿路们类',
-				project_img: 'http://dummyimage.com/400x400',
-			},
+			// {
+			// 	project_id: 10,
+			// 	project_name: '在段风列参',
+			// 	project_img: 'http://dummyimage.com/400x400',
+			// },
+			// {
+			// 	project_id: 61,
+			// 	project_name: '传观加',
+			// 	project_img: 'http://dummyimage.com/400x400',
+			// },
+			// {
+			// 	project_id: 67,
+			// 	project_name: '时资二两',
+			// 	project_img: 'http://dummyimage.com/400x400',
+			// },
+			// {
+			// 	project_id: 77,
+			// 	project_name: '儿路们类',
+			// 	project_img: 'http://dummyimage.com/400x400',
+			// },
 		],
 		team_info: {
 			team_id: '95',
@@ -118,6 +132,7 @@ const getTeamInfo = () => {
 			team_user_name: '团队所有者',
 		},
 	};
+	// const teamData = {};
 	Object.assign(responseTeamInfo, teamData);
 };
 getTeamInfo();
@@ -128,6 +143,10 @@ getTeamInfo();
 
 // 是否显示没有团队时的页面
 const isEmpty = ref(false);
+
+const newProject = () => {};
+
+let isTeamProject = ref(true);
 </script>
 
 <style lang="less" scoped>
@@ -165,11 +184,54 @@ const isEmpty = ref(false);
 		}
 
 		.main {
+			display: flex;
+			flex-wrap: nowrap;
+			justify-content: space-between;
+			width: 100%;
+			.tabs {
+				padding: 0;
+				// background-color: #f6f6f7;
+			}
 			.tabs > .el-tabs__content {
 				padding: 32px;
 				color: #6b778c;
 				font-size: 32px;
 				font-weight: 600;
+			}
+			.el-tab-pane {
+				display: flex;
+				flex-direction: row;
+				justify-content: flex-start;
+			}
+			.tools {
+				align-self: center;
+				align-items: center;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-evenly;
+				margin-right: 20px;
+
+				.newProject {
+					width: 36px;
+					height: 36px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					background-color: #9373ee;
+					border-radius: 5px;
+					font-size: 30px;
+					color: #c9b9f7;
+					padding-bottom: 5px;
+					box-sizing: border-box;
+				}
+				.impProject {
+					width: 32px;
+					height: 32px;
+					border: 1px solid #e2dff2;
+					margin: 0 15px;
+					background-color: #fff;
+					border-radius: 5px;
+				}
 			}
 		}
 	}

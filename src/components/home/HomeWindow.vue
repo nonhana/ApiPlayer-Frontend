@@ -152,7 +152,7 @@ const clickMyTeamHandler = (id: number) => {
 		height: 100vh;
 		opacity: 1;
 
-		background-color: #fff;
+		background-color: #fcfcfd;
 	}
 
 	.el-main {
