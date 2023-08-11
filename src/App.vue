@@ -1,6 +1,5 @@
 <template>
 	<div :class="classList[classIndex]">
-		<CommonHeader v-if="classIndex !== 1" />
 		<el-row type="flex" justify="center">
 			<router-view></router-view>
 		</el-row>
