@@ -148,7 +148,7 @@ const clickMyTeamHandler = (id: number) => {
 	}
 
 	aside {
-		width: 300px;
+		width: 320px;
 		height: 100vh;
 		opacity: 1;
 

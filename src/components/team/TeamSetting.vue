@@ -10,7 +10,7 @@
 		</el-form>
 		<template #footer>
 			<span class="dialog-footer">
-				<el-button type="default" size="large" auto-insert-space @click="changeTeamName = false">取消</el-button>
+				<el-button type="default" size="large" auto-insert-space @click="changeTeamName">取消</el-button>
 				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeTeamName">保 存</el-button>
 			</span>
 		</template>

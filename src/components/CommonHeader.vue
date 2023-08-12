@@ -1,6 +1,6 @@
 <template>
 	<div class="CommonHeader-wrap">
-		<img src="../static/svg/HeaderLogo.svg" />
+		<img src="../static/svg/HeaderLogo.svg" @click="userAction('3')" />
 		<div class="user-info">
 			<img class="message" src="../static/svg/HeaderMessage.svg" />
 			<el-dropdown class="user-head" @command="userAction">
@@ -46,6 +46,11 @@ const userAction = (command: string) => {
 				name: 'login',
 			});
 			break;
+		case '3':
+			router.push({
+				path: '/main',
+			});
+			break;
 	}
 };
 </script>
@@ -53,10 +58,10 @@ const userAction = (command: string) => {
 <style scoped lang="less">
 .CommonHeader-wrap {
 	position: relative;
-	width: 100%;
-	// width: 1310px;
+	// width: 100%;
+	width: 1310px;
 	height: 60px;
-	padding: 0 20px;
+	padding: 0 0;
 	background: #ffffff;
 	display: flex;
 	justify-content: space-between;
