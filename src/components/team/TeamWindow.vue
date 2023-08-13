@@ -33,14 +33,14 @@
 				<!-- <el-input v-model="searchContent" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" />
 				<el-button type="primary" color="#59A8B9" auto-insert-space :icon="Plus" class="create-btn" @click="createProject">新建项目</el-button> -->
 			</div>
-			<!-- <div class="middle-right">
+			<div v-if="isShowMiddleRight" class="middle-right">
 				<div>
 					<el-input v-model="searchContent" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" />
 				</div>
 				<div>
 					<el-button type="primary" color="#59A8B9" auto-insert-space :icon="Plus" class="create-btn" @click="createProject">新建项目</el-button>
 				</div>
-			</div> -->
+			</div>
 		</div>
 	</div>
 </template>
@@ -56,8 +56,13 @@ const activeName = ref('first');
 const searchContent = ref<string>('');
 const dialogVisible = ref<boolean>(false);
 const projectName = ref<string>('');
+const isShowMiddleRight = ref<boolean>(true);
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-	console.log(tab, event);
+	if (tab.paneName === 'first') {
+		isShowMiddleRight.value = true;
+	} else if (tab.paneName == 'second' || tab.paneName == 'third') {
+		isShowMiddleRight.value = false;
+	}
 };
 const createProject = () => {
 	dialogVisible.value = true;
@@ -95,8 +100,16 @@ const confirmCreate = () => {
 			width: 100%;
 		}
 		.middle-right {
+			position: absolute;
+			right: 50px;
 			display: flex;
 			gap: 10px;
+		}
+
+		:deep(.el-input__inner) {
+			&::placeholder {
+				text-align: center;
+			}
 		}
 	}
 }

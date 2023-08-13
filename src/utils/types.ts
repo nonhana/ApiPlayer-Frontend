@@ -7,3 +7,11 @@ export interface UserInfo {
 	user_phone: string;
 	user_sign: string;
 }
+
+export interface RecentlyVisitedListItem {
+	project_id: number;
+	project_name: string;
+	project_img: string;
+	project_visited_date: string;
+}
+
