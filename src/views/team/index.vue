@@ -4,7 +4,6 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
 import TeamWindow from '../../components/team/TeamWindow.vue';
 </script>
 

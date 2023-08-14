@@ -14,6 +14,18 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/home',
 		name: 'home',
 		component: () => import('../views/home/index.vue'),
+		children: [
+			{
+				path: '/home/mainWindow/:id?',
+				name: 'mainWindow',
+				component: () => import('../components/home/mainWindow/mainWindow.vue'),
+			},
+			{
+				path: '/home/recentlyVisited',
+				name: 'recentlyVisited',
+				component: () => import('../components/home/RecentlyVisited/index.vue'),
+			},
+		],
 	},
 	{
 		path: '/main',
@@ -34,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
 		],
 	},
 	{
-		path: '/personalCenter/:id',
+		path: '/personalCenter/:user_id',
 		name: 'personalCenter',
 		component: () => import('../views/personalCenter/index.vue'),
 	},

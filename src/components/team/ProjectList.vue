@@ -49,7 +49,13 @@
 import { ref, reactive } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
-const projectList = reactive<object>([
+
+interface Project {
+	avatar: string;
+	name: string;
+}
+
+const projectList = reactive<Project[]>([
 	{
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
@@ -104,7 +110,7 @@ const rules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
 });
 
-const deleteProject = (index) => {
+const deleteProject = (index: number) => {
 	ElMessageBox.confirm('项目' + projectList[index].name + '将被删除', '警告', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
@@ -123,11 +129,11 @@ const deleteProject = (index) => {
 			});
 		});
 };
-const changeProject = (index) => {
+const changeProject = (index: number) => {
 	projectName.value = projectList[index].name;
 	dialogVisible.value = true;
 };
-const confirmChange = (index) => {
+const confirmChange = () => {
 	dialogVisible.value = false;
 };
 </script>

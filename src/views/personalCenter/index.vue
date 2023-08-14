@@ -1,18 +1,27 @@
 <template>
 	<div class="index">
-		<MainWindow />
+		<CommonHeader />
+		<div class="index-main">
+			<MainWindow />
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import MainWindow from '../../components/personalCenter/MainWindow.vue';
+import CommonHeader from '../../components/CommonHeader.vue';
 </script>
 
 <style scoped lang="less">
 .index {
 	width: 100%;
-	margin: 30px 0;
+	// margin: 30px 0;
 	display: flex;
 	justify-content: center;
+	flex-direction: column;
+	.index-main {
+		display: flex;
+		justify-content: center;
+	}
 }
 </style>

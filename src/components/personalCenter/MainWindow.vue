@@ -420,6 +420,7 @@ onBeforeMount(() => {
 	border-radius: 20px;
 	background: #ffffff;
 	transition: all 0.3s ease;
+	top: 20px;
 	.title {
 		margin-right: 104px;
 		width: 75px;
