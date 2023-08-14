@@ -4,7 +4,7 @@
 			<div class="visit-name">最近访问</div>
 		</div>
 		<div class="visit-container">
-			<div v-for="(item, index) in projectList" :key="index" class="project">
+			<div v-for="(item, index) in projectList" :key="index" class="project" @click="clickHandler">
 				<div class="project-img">
 					<el-image shape="square" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
 						<template #error>
@@ -24,8 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import type { TableColumnCtx, TableInstance } from 'element-plus';
+// import { ref, reactive } from 'vue';
+// import type { TableColumnCtx, TableInstance } from 'element-plus';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 interface Project {
 	avatar: string;
 	name: string;
@@ -43,6 +47,12 @@ const projectList: Project[] = [
 		time: '2023-08-11 13:34:12',
 	},
 ];
+
+const clickHandler = () => {
+	console.log(111);
+	router.push({ path: '/interface' });
+};
+
 const timeAgo = (dateTime: string) => {
 	const minute = 1000 * 60;
 	const hour = minute * 60;

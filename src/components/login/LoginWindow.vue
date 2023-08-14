@@ -21,7 +21,7 @@
 				<div class="button" @click="loginType = 2">
 					<span>注册</span>
 				</div>
-				<div class="button" @click="login(0)">
+				<div class="button" @click="myLogin(0)">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -57,7 +57,7 @@
 				<div class="button">
 					<span @click="loginType = 2">注册</span>
 				</div>
-				<div class="button" @click="login(1)">
+				<div class="button" @click="myLogin(1)">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -66,7 +66,7 @@
 			<span class="title">注册</span>
 			<el-form :model="userRegisterForm" :rules="registerRules">
 				<el-row type="flex" justify="space-between" class="form-box">
-					<span>手机号</span>
+					<span>邮箱</span>
 					<el-form-item prop="phone_number">
 						<el-input v-model="userRegisterForm.phone_number" placeholder="请输入手机号" style="width: 250px" />
 					</el-form-item>
@@ -78,7 +78,7 @@
 							<el-input v-model="userRegisterForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
 						</el-form-item>
 						<el-button color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus" @click="sendVerifyCode"
-							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
+							><span v-if="!verifyCodeStatus" class="button-text" @click="mySendCaptcha">发送验证码</span>
 							<span v-else class="button-text">
 								已发送
 								{{ verifyCodeTimer + 's' }}
@@ -100,7 +100,7 @@
 				</el-row>
 			</el-form>
 			<el-row type="flex" justify="center">
-				<div class="button">
+				<div class="button" @click="myRegister">
 					<span>注册</span>
 				</div>
 				<div class="button">
@@ -118,6 +118,8 @@ import { useBaseStore } from '../../store/index';
 import type { UserInfo } from '../../utils/types';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
+
+import { login, register, sendCaptcha } from '../../api/users.ts';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
@@ -188,7 +190,15 @@ const sendVerifyCode = () => {
 		}
 	}, 1000);
 };
-const login = (type: number) => {
+
+const mySendCaptcha = () => {
+	sendCaptcha({ email: userRegisterForm.value.phone_number }).then(
+		() => {},
+		() => {}
+	);
+};
+
+const myLogin = (type: number) => {
 	if (type === 0) {
 		if (userLoginForm.value.email === '' || userLoginForm.value.password === '') {
 			ElNotification({
@@ -201,19 +211,34 @@ const login = (type: number) => {
 				user_id: 0,
 				user_name: 'John Doe',
 				user_img: 'https://dummyimage.com/400X400',
-				user_email: 'zhouxiang757@gmail.com',
+				user_email: userLoginForm.value.email,
 				user_phone: '123-456-7890',
 				user_sign: 'A passionate developer and lifelong learner.',
 			};
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
 			store.setUserInfo(userInfo);
-			// router.push({ name: 'home' });
-			router.push({ name: 'main' });
-			ElNotification({
-				title: '登录成功',
-				message: '欢迎回来！',
-				type: 'success',
-			});
+
+			login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(
+				(res) => {
+					if (res.data) {
+						localStorage.setItem('token', res.data.result.token);
+						// router.push({ name: 'home' });
+						router.push({ name: 'main' });
+						ElNotification({
+							title: '登录成功',
+							message: '欢迎回来！',
+							type: 'success',
+						});
+					}
+				},
+				() => {
+					ElNotification({
+						title: '登录失败',
+						message: '请求服务器失败',
+						type: 'error',
+					});
+				}
+			);
 		}
 	} else {
 		if (userLoginForm.value.phone_number === '' || userLoginForm.value.verify_code === '') {
@@ -225,22 +250,102 @@ const login = (type: number) => {
 		} else {
 			const userInfo: UserInfo = {
 				user_id: 0,
-				user_name: 'John Doe',
+				user_name: '',
 				user_img: 'https://dummyimage.com/400X400',
-				user_email: 'zhouxiang757@gmail.com',
-				user_phone: '123-456-7890',
+				user_email: '',
+				user_phone: userLoginForm.value.phone_number,
 				user_sign: 'A passionate developer and lifelong learner.',
 			};
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
 			store.setUserInfo(userInfo);
-			// router.push({ name: 'home' });
-			router.push({ name: 'main' });
-			ElNotification({
-				title: '登录成功',
-				message: '欢迎回来！',
-				type: 'success',
-			});
+
+			login({ email: userLoginForm.value.phone_number, password: userLoginForm.value.verify_code }).then(
+				(res) => {
+					if (res.data) {
+						console.log(res.data);
+						localStorage.setItem('token', res.data.result.token);
+						// router.push({ name: 'home' });
+						router.push({ name: 'main' });
+						ElNotification({
+							title: '登录成功',
+							message: '欢迎回来！',
+							type: 'success',
+						});
+					}
+				},
+				() => {
+					ElNotification({
+						title: '登录失败',
+						message: '请求服务器失败',
+						type: 'error',
+					});
+				}
+			);
+
+			// // router.push({ name: 'home' });
+			// router.push({ name: 'main' });
+			// ElNotification({
+			// 	title: '登录成功',
+			// 	message: '欢迎回来！',
+			// 	type: 'success',
+			// });
 		}
+	}
+};
+
+const myRegister = () => {
+	if (
+		userRegisterForm.value.phone_number === '' ||
+		userRegisterForm.value.password === '' ||
+		userRegisterForm.value.password !== userRegisterForm.value.password_again
+	) {
+		ElNotification({
+			title: '登录失败',
+			message: '邮箱或密码不完整',
+			type: 'error',
+		});
+	} else if (userRegisterForm.value.verify_code === '') {
+		ElNotification({
+			title: '登录失败',
+			message: '验证码错误',
+			type: 'error',
+		});
+	} else {
+		const userInfo: UserInfo = {
+			user_id: 0,
+			user_name: '',
+			user_img: 'https://dummyimage.com/400X400',
+			user_email: '',
+			user_phone: userRegisterForm.value.phone_number,
+			user_sign: 'A passionate developer and lifelong learner.',
+		};
+		localStorage.setItem('userInfo', JSON.stringify(userInfo));
+		store.setUserInfo(userInfo);
+
+		register({
+			captcha: userRegisterForm.value.verify_code,
+			email: userRegisterForm.value.phone_number,
+			password: userLoginForm.value.password,
+		}).then(
+			(res) => {
+				if (res.data) {
+					loginType.value = 0;
+					ElNotification({
+						title: '注册成功',
+						message: '请登录！',
+						type: 'success',
+					});
+				}
+			},
+			() => {
+				ElNotification({
+					title: '注册失败',
+					message: '请求服务器失败',
+					type: 'error',
+				});
+			}
+		);
 	}
 };
 

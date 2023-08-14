@@ -11,7 +11,26 @@
 					</div>
 				</transition>
 				<input v-show="false" ref="fileRef" type="file" @change="fileChange" />
-				<img :src="userInfo!.user_img" />
+				<!-- <img :src="userInfo!.user_img" /> -->
+				<el-image :src="userInfo!.user_img">
+					<template #error>
+						<div
+							class="image-slot"
+							style="
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								width: 100px;
+								height: 100px;
+								background: var(--el-fill-color-light);
+								color: var(--el-text-color-secondary);
+								font-size: 30px;
+							"
+						>
+							<el-icon><icon-picture /></el-icon>
+						</div>
+					</template>
+				</el-image>
 			</div>
 		</el-row>
 		<el-divider></el-divider>
@@ -109,7 +128,7 @@
 		</el-dialog>
 		<el-dialog v-model="windowShowList[1]" title="修改名称" width="500px" :before-close="handleClose">
 			<div>
-				<el-input v-model="userInfo!.user_name"></el-input>
+				<el-input v-model="userName"></el-input>
 			</div>
 			<template #footer>
 				<span class="dialog-footer">
@@ -221,12 +240,12 @@
 		</el-dialog>
 		<el-dialog v-model="windowShowList[5]" title="修改个性签名" width="500px" :before-close="handleClose">
 			<div>
-				<el-input v-model="userInfo!.user_sign"></el-input>
+				<el-input v-model="userSign"></el-input>
 			</div>
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="changeAction(0)">取消</el-button>
-					<el-button color="#59A8B9" @click="changeAction(1)"><span style="color: #fff">确认</span></el-button>
+					<el-button color="#59A8B9" @click="changeAction(2)"><span style="color: #fff">确认</span></el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -238,11 +257,15 @@ import { ref, onBeforeMount, watch } from 'vue';
 import type { UserInfo } from '../../utils/types';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
+import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '../../api/users.ts';
+import { Picture as IconPicture } from '@element-plus/icons-vue';
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
 
 let userInfo = ref<UserInfo>();
+let userSign = ref<string>();
+let userName = ref<string>();
 let showTemplate = ref<boolean>(false);
 let windowShowList = ref<boolean[]>([false, false, false, false, false, false]);
 let sourceFile: File | null | undefined = null;
@@ -292,14 +315,23 @@ const uploadFile = () => {
 const fileChange = () => {
 	windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
-	sourceFileURL = URL.createObjectURL(sourceFile as Blob);
+	if (sourceFile) {
+		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
+	}
 };
 // 确认裁剪
 const confirmCropper = async () => {
 	windowShowList.value[0] = false;
 	croppedFile = await cropper?.getFile();
-	croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
-	userInfo.value!.user_img = croppedFileURL.value;
+	if (croppedFile) {
+		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
+		console.log(croppedFileURL.value);
+		uploadAvatar({ avatar: croppedFileURL.value }).then((res) => {
+			console.log(res);
+			userInfo.value!.user_img = res.data.result.avatar;
+			// userInfo.value!.user_img = croppedFileURL.value;
+		});
+	}
 };
 // 修改个人资料
 const changeAction = (type: number) => {
@@ -307,12 +339,33 @@ const changeAction = (type: number) => {
 		windowShowList.value = [false, false, false, false, false, false];
 		userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
 		ElMessage.info('已取消');
-	} else {
+	} else if (type === 1) {
 		windowShowList.value = [false, false, false, false, false, false];
-		localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
-		ElMessage.success('修改成功');
+		updateUserInfo({ username: userName.value }).then(
+			() => {
+				userInfo.value!.user_name = userName.value!;
+				localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+				ElMessage.success('修改成功');
+			},
+			() => {
+				ElMessage.error('修改失败');
+			}
+		);
+	} else if (type === 2) {
+		windowShowList.value = [false, false, false, false, false, false];
+		updateUserInfo({ introduce: userSign.value }).then(
+			() => {
+				userInfo.value!.user_sign = userSign.value!;
+				localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+				ElMessage.success('修改成功');
+			},
+			() => {
+				ElMessage.error('修改失败');
+			}
+		);
 	}
 };
+
 // 发送验证码
 const sendVerifyCode = (type: number) => {
 	if (type === 0) {
@@ -326,6 +379,10 @@ const sendVerifyCode = (type: number) => {
 			}
 		}, 1000);
 	} else if (type === 1) {
+		sendCaptcha({ email: emailChangeInfo.value.email }).then(
+			() => {},
+			() => {}
+		);
 		emailChangeInfo.value.verify_code_status = true;
 		emailChangeInfo.value.timer = setInterval(() => {
 			emailChangeInfo.value.verify_code_timer--;
@@ -369,21 +426,44 @@ const confirmPwdChange = () => {
 };
 // 确认修改邮箱
 const confrimEmailChange = () => {
-	ElMessage.success('修改成功');
 	windowShowList.value[3] = false;
-	clearInterval(emailChangeInfo.value.timer);
-	emailChangeInfo.value = {
-		email: '',
-		verify_code: '',
-		verify_code_status: false,
-		verify_code_timer: 60,
-		timer: 0,
-	};
+	// 邮箱格式校验
+	// if () {
+
+	// }
+
+	updateUserInfo({ email: emailChangeInfo.value.email }).then(
+		() => {
+			userInfo.value!.user_email = emailChangeInfo.value.email;
+			localStorage.setItem('userInfo', JSON.stringify(userInfo));
+			ElMessage.success('修改成功');
+			clearInterval(emailChangeInfo.value.timer);
+			emailChangeInfo.value = {
+				email: '',
+				verify_code: '',
+				verify_code_status: false,
+				verify_code_timer: 60,
+				timer: 0,
+			};
+		},
+		() => {
+			ElMessage.error('修改失败');
+			clearInterval(emailChangeInfo.value.timer);
+			emailChangeInfo.value = {
+				email: '',
+				verify_code: '',
+				verify_code_status: false,
+				verify_code_timer: 60,
+				timer: 0,
+			};
+		}
+	);
 };
 // 确认修改手机号
 const confirmPhoneNumberChange = () => {
 	ElMessage.success('修改成功');
 	windowShowList.value[4] = false;
+	userInfo.value!.user_phone = phoneNumberChangeInfo.value.phone_number;
 	clearInterval(phoneNumberChangeInfo.value.timer);
 	phoneNumberChangeInfo.value = {
 		phone_number: '',
@@ -408,7 +488,26 @@ watch(
 );
 
 onBeforeMount(() => {
-	userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+	if (localStorage.getItem('userInfo')) {
+		userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+	} else {
+		getUserInfo().then(
+			(res) => {
+				// userInfo.value = res.data.result.userInfo;
+				userInfo.value!.user_email = res.data.result.userInfo.email;
+				userInfo.value!.user_name = res.data.result.userInfo.username;
+				userInfo.value!.user_sign = res.data.result.userInfo.introduce;
+				userInfo.value!.user_img = res.data.result.userInfo.avatar;
+				// console.log(res.data.result.userInfo);
+			},
+			() => {
+				userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+			}
+		);
+		// userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+		userSign.value = userInfo.value?.user_sign;
+		userName.value = userInfo.value?.user_name;
+	}
 });
 </script>
 

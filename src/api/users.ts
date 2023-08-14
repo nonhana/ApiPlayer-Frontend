@@ -13,10 +13,50 @@ export const register = (paramsList: { captcha: string; email: string; password:
 };
 
 // 用户登录
+// export const login = (paramsList: { email: string; password: string }) => {
+// 	return myAxios({
+// 		url: '/users/login',
+// 		method: 'GET',
+// 		params: paramsList,
+// 	});
+// };
+
 export const login = (paramsList: { email: string; password: string }) => {
 	return myAxios({
 		url: '/users/login',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+export const sendCaptcha = (paramsList: { email: string }) => {
+	return myAxios({
+		url: '/users/send-captcha',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+export const getUserInfo = () => {
+	return myAxios({
+		url: '/users/info',
 		method: 'GET',
-		params: paramsList,
+		params: {},
+		// params: paramsList,
+	});
+};
+
+export const updateUserInfo = (paramsList: { email?: string; introduce?: string; username?: string }) => {
+	return myAxios({
+		url: '/users/update-info',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+export const uploadAvatar = (paramsList: { avatar?: string }) => {
+	return myAxios({
+		url: '/users/upload-avatar',
+		method: 'POST',
+		data: paramsList,
 	});
 };
