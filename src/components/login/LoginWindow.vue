@@ -209,18 +209,31 @@ const myLogin = (type: number) => {
 		} else {
 			const userInfo: UserInfo = {
 				user_id: 0,
-				user_name: 'John Doe',
-				user_img: 'https://dummyimage.com/400X400',
+				user_name: '',
+				user_img: '',
 				user_email: userLoginForm.value.email,
-				user_phone: '123-456-7890',
-				user_sign: 'A passionate developer and lifelong learner.',
+				user_phone: '',
+				user_sign: '',
 			};
-			localStorage.setItem('userInfo', JSON.stringify(userInfo));
-			store.setUserInfo(userInfo);
-
 			login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(
 				(res) => {
 					if (res.data) {
+						const datas: {
+							user_id: number;
+							user_name: string;
+							user_img: string;
+							user_email: string;
+							user_introduce: string;
+						} = res.data.result.user_info;
+
+						userInfo.user_id = datas.user_id;
+						userInfo.user_name = datas.user_name;
+						userInfo.user_img = datas.user_img;
+						userInfo.user_email = datas.user_email;
+						userInfo.user_sign = datas.user_introduce;
+
+						localStorage.setItem('userInfo', JSON.stringify(userInfo));
+						store.setUserInfo(userInfo);
 						localStorage.setItem('token', res.data.result.token);
 						// router.push({ name: 'home' });
 						router.push({ name: 'main' });

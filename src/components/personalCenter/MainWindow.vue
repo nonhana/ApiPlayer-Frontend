@@ -4,7 +4,14 @@
 			<div class="title">
 				<span>头像</span>
 			</div>
-			<div class="user-head" @mouseenter="showTemplate = true" @mouseleave="showTemplate = false">
+			<div
+				class="user-head"
+				@mouseenter="
+					showTemplate = true
+					// console.log(111);
+				"
+				@mouseleave="showTemplate = false"
+			>
 				<transition name="fade">
 					<div v-if="showTemplate" class="template" @click="uploadFile">
 						<span>重新选取头像</span>
@@ -263,7 +270,14 @@ import { Picture as IconPicture } from '@element-plus/icons-vue';
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
 
-let userInfo = ref<UserInfo>();
+let userInfo = ref<UserInfo>({
+	user_id: 0,
+	user_name: '',
+	user_img: '',
+	user_email: '',
+	user_phone: '',
+	user_sign: '',
+});
 let userSign = ref<string>();
 let userName = ref<string>();
 let showTemplate = ref<boolean>(false);
@@ -313,9 +327,10 @@ const uploadFile = () => {
 };
 // 监听文件变化
 const fileChange = () => {
-	windowShowList.value[0] = true;
+	// windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
-	if (sourceFile) {
+	if (sourceFile != null) {
+		windowShowList.value[0] = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
 	}
 };
@@ -325,9 +340,7 @@ const confirmCropper = async () => {
 	croppedFile = await cropper?.getFile();
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
-		console.log(croppedFileURL.value);
 		uploadAvatar({ avatar: croppedFileURL.value }).then((res) => {
-			console.log(res);
 			userInfo.value!.user_img = res.data.result.avatar;
 			// userInfo.value!.user_img = croppedFileURL.value;
 		});
@@ -490,6 +503,8 @@ watch(
 onBeforeMount(() => {
 	if (localStorage.getItem('userInfo')) {
 		userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+		userSign.value = userInfo.value?.user_sign;
+		userName.value = userInfo.value?.user_name;
 	} else {
 		getUserInfo().then(
 			(res) => {
@@ -604,6 +619,7 @@ onBeforeMount(() => {
 			font-weight: normal;
 			color: #ffffff;
 		}
+		z-index: 10;
 	}
 }
 /* transition动画样式 */
