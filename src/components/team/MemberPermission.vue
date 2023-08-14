@@ -32,13 +32,7 @@
 		</template>
 		<div class="user-info">
 			<div class="avatar">
-				<el-image shape="circle" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
-					<template #error>
-						<div class="image-slot">
-							<el-icon><Picture /></el-icon>
-						</div>
-					</template>
-				</el-image>
+				<el-avatar :size="40" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png" />
 			</div>
 			<div class="info">
 				<div class="username">{{ user.name }}</div>
@@ -93,7 +87,7 @@
 						<div>
 							游客
 							<el-tooltip content="游客只能访问与其明确共享的项目" placement="top">
-								<el-icon><QuestionFilled /></el-icon>
+								<el-icon class="pointer"><QuestionFilled /></el-icon>
 							</el-tooltip>
 						</div>
 					</template>
@@ -134,7 +128,7 @@
 					width="240px"
 					:filters="[
 						{ text: '团队所有者', value: '团队所有者' },
-						{ text: '团队管理者', value: '团队管理者' },
+						{ text: '团队管理员', value: '团队管理员' },
 						{ text: '团队成员', value: '团队成员' },
 						{ text: '游客', value: '游客' },
 						{ text: '待定', value: '待定' },
@@ -150,7 +144,7 @@
 				<el-table-column prop="changeTime" label="最近修改" sortable width="240px" :formatter="timeAgo" />
 				<el-table-column label="" width="40">
 					<template #default="scope">
-						<el-icon @click="settingMember(scope.row)"><Setting /></el-icon>
+						<el-icon class="pointer" @click="settingMember(scope.row)"><Setting /></el-icon>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -399,6 +393,9 @@ const timeAgo = (row: User, column: TableColumnCtx<User>) => {
 		padding: 20px;
 		border: 1px solid #f2f4f7;
 		border-radius: 8px;
+		.pointer {
+			cursor: pointer;
+		}
 	}
 }
 

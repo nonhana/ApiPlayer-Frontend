@@ -147,6 +147,7 @@ const confirmChange = (index) => {
 		border: 1px solid #f2f4f7;
 		border-radius: 8px;
 		padding: 16px;
+		cursor: pointer;
 		.dialog-title {
 			color: rgba(16, 24, 40, 0.8);
 			font-size: 16px;

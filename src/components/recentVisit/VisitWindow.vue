@@ -106,12 +106,12 @@ const timeAgo = (dateTime: string) => {
 	.visit-container {
 		display: flex;
 		flex-direction: column;
-		// gap: 30px;
 		.project {
 			display: flex;
 			gap: 15px;
 			padding: 16px 8px 16px 16px;
 			border-bottom: 1px solid #f2f4f7;
+			cursor: pointer;
 			.project-img {
 				width: 40px;
 				height: 40px;
