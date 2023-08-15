@@ -72,10 +72,12 @@
 		<el-row>
 			<el-row>
 				<el-tabs v-model="responseActiveName" type="card" class="res-tabs">
-					<div v-for="(item, index) in apiInfo.api_response" :key="index">
+					<div v-for="(item, index) in apiInfo.api_response_edit" :key="index">
 						<el-tab-pane :label="item.response_name" :name="item.id">
 							<div>HTTP状态码：{{ item.http_status }} &nbsp;&nbsp;&nbsp; 响应组件成功名称：{{ item.response_name }}</div>
-							<div>sdfg</div>
+							<div>
+								<ParamsAndHeader :requestData="item.response_body"></ParamsAndHeader>
+							</div>
 						</el-tab-pane>
 					</div>
 				</el-tabs>
@@ -257,6 +259,42 @@ let apiInfo = ref({
 			response_name: '改次品织克党',
 			id: 'dfgh',
 			response_body: 'esse Lorem Excepteur qui in',
+		},
+	],
+	api_response_edit: [
+		{
+			http_status: 200,
+			response_name: '成功',
+			id: 'sdfghjsdfgh',
+			response_body: [
+				{
+					param_name: '写件查细声当',
+					param_type: 57,
+					param_desc: 'ut',
+				},
+				{
+					param_name: '起七做从',
+					param_type: 6,
+					param_desc: 'et ad sint cupidatat enim',
+				},
+			],
+		},
+		{
+			http_status: 94,
+			response_name: 'sdfghjdfgh',
+			id: 'dfgh',
+			response_body: [
+				{
+					param_name: 'dfghjsdfg',
+					param_type: 57,
+					param_desc: 'handlert',
+				},
+				{
+					param_name: 'ksgghf',
+					param_type: 6,
+					param_desc: 'hhhhhhhhhhh',
+				},
+			],
 		},
 	],
 });

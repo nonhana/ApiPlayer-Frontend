@@ -5,6 +5,7 @@
 				<el-tab-pane label="文档" name="first"> <Doc></Doc> </el-tab-pane>
 				<el-tab-pane label="修改文档" name="second"> <Edit></Edit> </el-tab-pane>
 				<el-tab-pane label="运行" name="third"> <Test></Test> </el-tab-pane>
+				<el-tab-pane label="测试" name="fourth"> <Tmp></Tmp> </el-tab-pane>
 			</el-tabs>
 		</el-col>
 	</el-row>
@@ -15,6 +16,7 @@ import type { TabsPaneContext } from 'element-plus';
 import Doc from './doc/index.vue';
 import Edit from './edit/index.vue';
 import Test from './test/index.vue';
+import Tmp from './tmp/index.vue';
 
 const activeName = ref('first');
 
