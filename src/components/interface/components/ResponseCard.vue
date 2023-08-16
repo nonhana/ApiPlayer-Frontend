@@ -18,7 +18,7 @@
 					</div>
 				</template>
 				<div>
-					<el-tree default-expand-all :data="data" :props="defaultProps" @node-click="handleNodeClick" />
+					<el-tree default-expand-all :data="TreeData" @node-click="handleNodeClick" />
 				</div>
 			</el-card>
 		</el-col>
@@ -41,6 +41,7 @@ interface Tree {
 	label: string;
 	children?: Tree[];
 }
+
 const props = defineProps({
 	context: {
 		type: Object, // 参数类型
@@ -51,71 +52,59 @@ const props = defineProps({
 	},
 });
 
-const handleNodeClick = (data: Tree) => {
-	console.log(data);
-};
-
-const data: Tree[] = [
+const TreeData = [
 	{
-		label: 'Level one 1',
+		id: 1,
+		label: '一级 1',
 		children: [
 			{
-				label: 'Level two 1-1',
+				id: 4,
+				label: '二级 1-1',
 				children: [
 					{
-						label: 'Level three 1-1-1',
+						id: 9,
+						label: '三级 1-1-1',
+					},
+					{
+						id: 10,
+						label: '三级 1-1-2',
 					},
 				],
 			},
 		],
 	},
 	{
-		label: 'Level one 2',
+		id: 2,
+		label: '一级 2',
 		children: [
 			{
-				label: 'Level two 2-1',
-				children: [
-					{
-						label: 'Level three 2-1-1',
-					},
-				],
+				id: 5,
+				label: '二级 2-1',
 			},
 			{
-				label: 'Level two 2-2',
-				children: [
-					{
-						label: 'Level three 2-2-1',
-					},
-				],
+				id: 6,
+				label: '二级 2-2',
 			},
 		],
 	},
 	{
-		label: 'Level one 3',
+		id: 3,
+		label: '一级 3',
 		children: [
 			{
-				label: 'Level two 3-1',
-				children: [
-					{
-						label: 'Level three 3-1-1',
-					},
-				],
+				id: 7,
+				label: '二级 3-1',
 			},
 			{
-				label: 'Level two 3-2',
-				children: [
-					{
-						label: 'Level three 3-2-1',
-					},
-				],
+				id: 8,
+				label: '二级 3-2',
 			},
 		],
 	},
 ];
 
-const defaultProps = {
-	children: 'children',
-	label: 'label',
+const handleNodeClick = (data: Tree) => {
+	console.log(data);
 };
 </script>
 

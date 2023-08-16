@@ -54,7 +54,7 @@
 		<el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs" @tab-click="handleClick">
 				<div v-for="(item, index) in apiInfo.api_response" :key="index">
-					<el-tab-pane :label="item.response_body" :name="item.response_body">
+					<el-tab-pane :label="item.response_name" :name="item.id">
 						<ResponseCard :context="item"></ResponseCard>
 					</el-tab-pane>
 				</div>
@@ -155,17 +155,75 @@ let apiInfo = ref({
 		{
 			http_status: 200,
 			response_name: '成功',
-			response_body: 'success',
+			id: 'sdfghjsdfgh',
+			response_body: [
+				{
+					label: 'Level one 1',
+					children: [
+						{
+							label: 'Level two 1-1',
+							children: [
+								{
+									label: 'Level three 1-1-1',
+								},
+							],
+						},
+					],
+				},
+				{
+					label: 'Level one 2',
+					children: [
+						{
+							label: 'Level two 2-1',
+							children: [
+								{
+									label: 'Level three 2-1-1',
+								},
+							],
+						},
+						{
+							label: 'Level two 2-2',
+							children: [
+								{
+									label: 'Level three 2-2-1',
+								},
+							],
+						},
+					],
+				},
+				{
+					label: 'Level one 3',
+					children: [
+						{
+							label: 'Level two 3-1',
+							children: [
+								{
+									label: 'Level three 3-1-1',
+								},
+							],
+						},
+						{
+							label: 'Level two 3-2',
+							children: [
+								{
+									label: 'Level three 3-2-1',
+								},
+							],
+						},
+					],
+				},
+			],
 		},
 		{
 			http_status: 94,
 			response_name: '改次品织克党',
+			id: 'dfgh',
 			response_body: 'esse Lorem Excepteur qui in',
 		},
 	],
 });
 
-const activeName = apiInfo.value.api_response[0].response_body;
+const activeName = apiInfo.value.api_response[0].id;
 </script>
 
 <style lang="less">
