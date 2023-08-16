@@ -46,23 +46,23 @@
 		<el-row>
 			<el-tabs v-model="activeName" class="edit-tabs">
 				<el-tab-pane label="Parmas" name="first">
-					<ParamsAndHeader :requestData="apiInfo.api_request[0].params_list"></ParamsAndHeader>
+					<ParamsAndHeader :request-data="apiInfo.api_request[0].params_list"></ParamsAndHeader>
 				</el-tab-pane>
 				<el-tab-pane label="Body" name="second">
 					<el-tabs v-model="bodyActiveName" type="card" class="body-tabs">
 						<el-tab-pane label="form-data" name="bodyFirst">
-							<ParamsAndHeader :requestData="apiInfo.api_request[0].params_list"></ParamsAndHeader>
+							<ParamsAndHeader :request-data="apiInfo.api_request[0].params_list"></ParamsAndHeader>
 						</el-tab-pane>
 						<el-tab-pane label="x-www-form-unlencoded" name="bodySecond">
-							<ParamsAndHeader :requestData="apiInfo.api_request[1].params_list"></ParamsAndHeader>
+							<ParamsAndHeader :request-data="apiInfo.api_request[1].params_list"></ParamsAndHeader>
 						</el-tab-pane>
 					</el-tabs>
 				</el-tab-pane>
 				<el-tab-pane label="Cookie" name="third">
-					<ParamsAndHeader :requestData="apiInfo.api_request[0].params_list"></ParamsAndHeader>
+					<ParamsAndHeader :request-data="apiInfo.api_request[0].params_list"></ParamsAndHeader>
 				</el-tab-pane>
 				<el-tab-pane label="Header" name="fourth">
-					<ParamsAndHeader :requestData="apiInfo.api_request[1].params_list"></ParamsAndHeader>
+					<ParamsAndHeader :request-data="apiInfo.api_request[1].params_list"></ParamsAndHeader>
 				</el-tab-pane>
 			</el-tabs>
 		</el-row>
@@ -76,7 +76,7 @@
 						<el-tab-pane :label="item.response_name" :name="item.id">
 							<div>HTTP状态码：{{ item.http_status }} &nbsp;&nbsp;&nbsp; 响应组件成功名称：{{ item.response_name }}</div>
 							<div>
-								<ParamsAndHeader :requestData="item.response_body"></ParamsAndHeader>
+								<ParamsAndHeader :request-data="item.response_body"></ParamsAndHeader>
 							</div>
 						</el-tab-pane>
 					</div>
