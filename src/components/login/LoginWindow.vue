@@ -120,6 +120,7 @@ import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
 
 import { login, register, sendCaptcha } from '../../api/users.ts';
+import { validateEmail } from '../../utils/validate.ts';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
@@ -200,10 +201,10 @@ const mySendCaptcha = () => {
 
 const myLogin = (type: number) => {
 	if (type === 0) {
-		if (userLoginForm.value.email === '' || userLoginForm.value.password === '') {
+		if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
 			ElNotification({
 				title: '登录失败',
-				message: '邮箱或密码不完整',
+				message: '邮箱或密码不正确',
 				type: 'error',
 			});
 		} else {

@@ -266,6 +266,7 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '../../api/users.ts';
 import { Picture as IconPicture } from '@element-plus/icons-vue';
+import { validateEmail } from '../../utils/validate.ts';
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
@@ -392,19 +393,24 @@ const sendVerifyCode = (type: number) => {
 			}
 		}, 1000);
 	} else if (type === 1) {
-		sendCaptcha({ email: emailChangeInfo.value.email }).then(
-			() => {},
-			() => {}
-		);
-		emailChangeInfo.value.verify_code_status = true;
-		emailChangeInfo.value.timer = setInterval(() => {
-			emailChangeInfo.value.verify_code_timer--;
-			if (emailChangeInfo.value.verify_code_timer === 0) {
-				clearInterval(emailChangeInfo.value.timer);
-				emailChangeInfo.value.verify_code_status = false;
-				emailChangeInfo.value.verify_code_timer = 60;
-			}
-		}, 1000);
+		// 邮箱格式校验
+		if (validateEmail(emailChangeInfo.value.email) == true) {
+			sendCaptcha({ email: emailChangeInfo.value.email }).then(
+				() => {},
+				() => {}
+			);
+			emailChangeInfo.value.verify_code_status = true;
+			emailChangeInfo.value.timer = setInterval(() => {
+				emailChangeInfo.value.verify_code_timer--;
+				if (emailChangeInfo.value.verify_code_timer === 0) {
+					clearInterval(emailChangeInfo.value.timer);
+					emailChangeInfo.value.verify_code_status = false;
+					emailChangeInfo.value.verify_code_timer = 60;
+				}
+			}, 1000);
+		} else {
+			ElMessage.error('邮箱格式错误');
+		}
 	} else if (type === 2) {
 		phoneNumberChangeInfo.value.verify_code_status = true;
 		phoneNumberChangeInfo.value.timer = setInterval(() => {
@@ -439,38 +445,42 @@ const confirmPwdChange = () => {
 };
 // 确认修改邮箱
 const confrimEmailChange = () => {
-	windowShowList.value[3] = false;
 	// 邮箱格式校验
-	// if () {
-
-	// }
-
-	updateUserInfo({ email: emailChangeInfo.value.email }).then(
-		() => {
-			userInfo.value!.user_email = emailChangeInfo.value.email;
-			localStorage.setItem('userInfo', JSON.stringify(userInfo));
-			ElMessage.success('修改成功');
-			clearInterval(emailChangeInfo.value.timer);
-			emailChangeInfo.value = {
-				email: '',
-				verify_code: '',
-				verify_code_status: false,
-				verify_code_timer: 60,
-				timer: 0,
-			};
-		},
-		() => {
-			ElMessage.error('修改失败');
-			clearInterval(emailChangeInfo.value.timer);
-			emailChangeInfo.value = {
-				email: '',
-				verify_code: '',
-				verify_code_status: false,
-				verify_code_timer: 60,
-				timer: 0,
-			};
+	if (validateEmail(emailChangeInfo.value.email) == true) {
+		if (emailChangeInfo.value.verify_code == '') {
+			ElMessage.error('请填写验证码');
+		} else {
+			windowShowList.value[3] = false;
+			updateUserInfo({ email: emailChangeInfo.value.email }).then(
+				() => {
+					userInfo.value!.user_email = emailChangeInfo.value.email;
+					localStorage.setItem('userInfo', JSON.stringify(userInfo));
+					ElMessage.success('修改成功');
+					clearInterval(emailChangeInfo.value.timer);
+					emailChangeInfo.value = {
+						email: '',
+						verify_code: '',
+						verify_code_status: false,
+						verify_code_timer: 60,
+						timer: 0,
+					};
+				},
+				() => {
+					ElMessage.error('修改失败');
+					clearInterval(emailChangeInfo.value.timer);
+					emailChangeInfo.value = {
+						email: '',
+						verify_code: '',
+						verify_code_status: false,
+						verify_code_timer: 60,
+						timer: 0,
+					};
+				}
+			);
 		}
-	);
+	} else {
+		ElMessage.error('邮箱格式错误');
+	}
 };
 // 确认修改手机号
 const confirmPhoneNumberChange = () => {
