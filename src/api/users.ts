@@ -20,3 +20,12 @@ export const login = (paramsList: { email: string; password: string }) => {
 		params: paramsList,
 	});
 };
+
+//搜索用户
+export const searchUser = (paramsList: { username: string }) => {
+	return myAxios({
+		url: '/users/searchuser',
+		method: 'GET',
+		params: paramsList,
+	});
+};

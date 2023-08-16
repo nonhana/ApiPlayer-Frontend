@@ -10,7 +10,7 @@
 	</el-row>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import Doc from './doc/index.vue';
 import Edit from './edit/index.vue';

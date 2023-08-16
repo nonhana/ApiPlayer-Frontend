@@ -16,7 +16,7 @@
 		</template>
 	</el-dialog>
 	<div class="project-wrap">
-		<div v-for="(project, index) in projectList" :key="index" class="project">
+		<div v-for="(project, index) in projectList" :key="index" class="project" @click="goDetail(index)">
 			<div class="project-header">
 				<div class="project-img">
 					<el-image shape="square" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
@@ -47,52 +47,47 @@
 </template>
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { addRecentProject } from '../../api/projects';
+import { teamInfo } from '../../api/teams';
 
 interface Project {
+	id: number;
 	avatar: string;
 	name: string;
 }
 
+const router = useRouter();
 const projectList = reactive<Project[]>([
 	{
+		id: 1,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 	},
 	{
+		id: 2,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 	},
 	{
+		id: 3,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 	},
 	{
+		id: 4,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 	},
 	{
+		id: 5,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 	},
 	{
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
+		id: 6,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 	},
@@ -110,6 +105,9 @@ const rules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
 });
 
+const goDetail = (index: number) => {
+	router.push({ path: `/interface/${projectList[index].id}` });
+};
 const deleteProject = (index: number) => {
 	ElMessageBox.confirm('项目' + projectList[index].name + '将被删除', '警告', {
 		confirmButtonText: '确定',

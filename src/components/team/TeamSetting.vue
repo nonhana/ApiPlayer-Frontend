@@ -10,8 +10,24 @@
 		</el-form>
 		<template #footer>
 			<span class="dialog-footer">
-				<el-button type="default" size="large" auto-insert-space @click="changeTeamName">取消</el-button>
+				<el-button type="default" size="large" auto-insert-space @click="changeTeamNameDialog = false">取消</el-button>
 				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeTeamName">保 存</el-button>
+			</span>
+		</template>
+	</el-dialog>
+	<el-dialog v-model="changeTeamDescDialog" title="修改团队描述" width="28%">
+		<template #header>
+			<div class="dialog-title">团队描述</div>
+		</template>
+		<el-form ref="teamFormRef" :model="teamForm" :rules="teamRules" status-icon label-position="top" label-width="100px">
+			<el-form-item label="名称" prop="name">
+				<el-input v-model="teamName" placeholder="" autocomplete="off" size="large" />
+			</el-form-item>
+		</el-form>
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button type="default" size="large" auto-insert-space @click="changeTeamDescDialog = false">取消</el-button>
+				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeTeamDesc">保 存</el-button>
 			</span>
 		</template>
 	</el-dialog>
@@ -84,6 +100,18 @@
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
+							<div class="label title">团队描述</div>
+							<div class="label description"></div>
+						</div>
+					</div>
+					<div>
+						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamDesc">编 辑</el-button>
+					</div>
+				</div>
+				<el-divider />
+				<div class="list">
+					<div class="left">
+						<div class="left-content">
 							<div class="label title">我的团队内昵称</div>
 							<div class="label description">G4S</div>
 						</div>
@@ -95,8 +123,10 @@
 			</div>
 		</div>
 		<div class="container">
-			<div class="container-header">危险区域</div>
-			<div class="content">
+			<div class="container-header warning">
+				<el-icon size="15"><WarnTriangleFilled /></el-icon>危险区域
+			</div>
+			<div class="content warning-content">
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
@@ -117,7 +147,7 @@
 						</div>
 					</div>
 					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="deleteTeam">解 散</el-button>
+						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="handleDeleteTeam">解 散</el-button>
 					</div>
 				</div>
 			</div>
@@ -128,9 +158,12 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
+import { teamInfo, updateTeam, deleteTeam } from '../../api/teams';
+
 const deleteTeamDialog = ref(false);
 const changeTeamDialog = ref(false);
 const changeTeamNameDialog = ref(false);
+const changeTeamDescDialog = ref(false);
 const changeMyNameDialog = ref(false);
 const teamName = ref('个人空间');
 const myName = ref('');
@@ -160,6 +193,12 @@ const changeTeamName = () => {
 const confirmChangeTeamName = () => {
 	changeTeamNameDialog.value = false;
 };
+const changeTeamDesc = () => {
+	changeTeamDescDialog.value = true;
+};
+const confirmChangeTeamDesc = () => {
+	changeTeamDescDialog.value = false;
+};
 const changeMyName = () => {
 	changeMyNameDialog.value = true;
 };
@@ -172,7 +211,7 @@ const changeLeader = () => {
 const confirmChangeLeader = () => {
 	changeTeamDialog.value = false;
 };
-const deleteTeam = () => {
+const handleDeleteTeam = () => {
 	deleteTeamDialog.value = true;
 };
 const confirmDelete = () => {
@@ -188,6 +227,11 @@ const confirmDelete = () => {
 			font-weight: 500;
 			font-size: 16px;
 		}
+
+		.warning {
+			color: #e5bf28;
+		}
+
 		.content {
 			padding: 12px;
 			border: 1px solid #f3f5f6;
@@ -228,6 +272,9 @@ const confirmDelete = () => {
 					border: none;
 				}
 			}
+		}
+		.warning-content {
+			border-color: #e5bf28;
 		}
 	}
 }

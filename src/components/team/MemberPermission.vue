@@ -1,31 +1,40 @@
 <template>
-	<el-dialog v-model="inviteDialog" title="邀请成员" width="28%">
-		<template #header>
-			<div class="dialog-title">邀请加入 {{ teamName }}</div>
-		</template>
-		<el-form ref="inviteFormRef" :model="inviteForm" :rules="inviteFormRules" status-icon label-position="left" label-width="120px">
-			<el-form-item label="" label-width="0">
-				<el-input v-model="inviteForm.link" disabled placeholder="" class="input-with-select">
-					<template #append>
-						<el-button :icon="Refresh" />
-					</template>
-				</el-input>
-				<div class="alert">邀请将在 7 天后过期</div>
-			</el-form-item>
-			<el-form-item label="所有项目权限" prop="ability">
-				<el-select v-model="inviteForm.ability" placeholder="" class="select">
-					<el-option v-for="item in abilities" :key="item.value" :label="item.label" :value="item.value" />
-				</el-select>
-			</el-form-item>
-		</el-form>
-		<template #footer>
-			<span class="dialog-footer">
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn btn-width" @click="confirmInvite">
-					复制链接
-				</el-button>
-			</span>
-		</template>
-	</el-dialog>
+	<div class="dialog-div">
+		<el-dialog v-model="inviteDialog" title="邀请成员" width="35%">
+			<template #header>
+				<div class="dialog-title">邀请加入 {{ teamName }}</div>
+			</template>
+			<el-form ref="inviteFormRef" :model="inviteForm" :rules="inviteFormRules" status-icon label-position="left" label-width="120px">
+				<el-form-item label="搜索用户" label-width="80">
+					<el-input v-model="inviteForm.username" placeholder="用户名" class="input-with-select">
+						<template #append>
+							<el-button :icon="Search" @click="search" />
+						</template>
+					</el-input>
+				</el-form-item>
+				<el-form-item label="" label-width="0">
+					<el-table :data="inviteForm.searchUserData" height="300" style="width: 100%" border>
+						<el-table-column prop="avatar" label="昵称" width="200px">
+							<template #default="scope">
+								<div class="name-column">
+									<el-avatar :size="30" shape="square" :src="scope.row.avatar" />
+									<span class="row-name">{{ scope.row.name }}</span>
+								</div>
+							</template>
+						</el-table-column>
+						<el-table-column prop="email" label="邮箱" width="200px" />
+						<el-table-column width="98px" align="center">
+							<template #default="scope">
+								<el-button type="primary" size="default" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmInvite(scope.row)">
+									邀请
+								</el-button>
+							</template>
+						</el-table-column>
+					</el-table>
+				</el-form-item>
+			</el-form>
+		</el-dialog>
+	</div>
 	<el-dialog v-model="settingDialog" title="设置成员权限" width="35%">
 		<template #header>
 			<div class="dialog-title">设置成员权限</div>
@@ -58,7 +67,7 @@
 							</div>
 						</template>
 					</el-table-column>
-					<el-table-column prop="ability" label="权限" width="145px">
+					<el-table-column prop="ability" label="权限" width="148px">
 						<template #default="scope">
 							<el-select v-model="scope.row.ability" placeholder="" class="select">
 								<el-option v-for="item in abilities" :key="item.value" :label="item.label" :value="item.value" />
@@ -71,8 +80,8 @@
 		<template #footer>
 			<span class="dialog-footer">
 				<el-button type="default" size="large" plain color="rgb(255, 77, 79)" auto-insert-space class="change-btn">移除成员</el-button>
-				<el-button type="default" size="large" auto-insert-space @click="inviteDialog = false">取 消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmInvite">保存</el-button>
+				<el-button type="default" size="large" auto-insert-space @click="settingDialog = false">取 消</el-button>
+				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmSetting">保存</el-button>
 			</span>
 		</template>
 	</el-dialog>
@@ -122,21 +131,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column prop="email" label="邮箱" width="250px" />
-				<el-table-column
-					prop="tag"
-					label="团队权限"
-					width="240px"
-					:filters="[
-						{ text: '团队所有者', value: '团队所有者' },
-						{ text: '团队管理员', value: '团队管理员' },
-						{ text: '团队成员', value: '团队成员' },
-						{ text: '游客', value: '游客' },
-						{ text: '待定', value: '待定' },
-						{ text: '账号暂停', value: '账号暂停' },
-					]"
-					:filter-method="filterTag"
-					filter-placement="right"
-				>
+				<el-table-column prop="tag" label="团队权限" width="240px" :filters="filters" :filter-method="filterTag" filter-placement="right">
 					<template #default="scope">
 						<el-tag :type="map.get(scope.row.tag)">{{ scope.row.tag }}</el-tag>
 					</template>
@@ -155,16 +150,17 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { Search, CirclePlusFilled, Refresh } from '@element-plus/icons-vue';
-import type { TableColumnCtx, TableInstance } from 'element-plus';
-import type { FormInstance, FormRules } from 'element-plus';
+import { TableColumnCtx, TableInstance, FormInstance, FormRules, ElMessage } from 'element-plus';
+import { inviteUser, setMemberIdentity, removeMember } from '../../api/teams';
+import { searchUser } from '../../api/users';
 
 interface User {
 	avatar: string;
 	email: string;
 	name: string;
-	tag: string;
-	changeTime: string;
-	projectAbility: [
+	tag?: string;
+	changeTime?: string;
+	projectAbility?: [
 		{
 			image: string;
 			title: string;
@@ -183,31 +179,34 @@ map.set('待定', 'info');
 map.set('账号暂停', 'info');
 const inviteDialog = ref(false);
 interface RuleForm {
-	link: string;
-	ability: string;
+	username: string;
+	searchUserData: User[];
 }
 const inviteFormRef = ref<FormInstance>();
 const inviteForm = reactive<RuleForm>({
-	link: '',
-	ability: '',
+	username: '',
+	searchUserData: [
+		{
+			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+			name: 'Tom',
+			email: '98839392@qq.com',
+		},
+		{
+			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+			name: 'Tom',
+			email: '98839392@qq.com',
+		},
+		{
+			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+			name: 'Tom',
+			email: '98839392@qq.com',
+		},
+	],
 });
 const inviteFormRules = reactive<FormRules<RuleForm>>({
-	ability: [{ required: true, message: '请选择所有权限', trigger: 'blur' }],
+	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
 });
 const settingDialog = ref(false);
-// interface SettingRuleForm {
-// 	avatar: '';
-// 	email: string;
-// 	name: string;
-// 	ability: string;
-// 	projectAbility: [
-// 		{
-// 			image: string;
-// 			title: string;
-// 			ability: string;
-// 		},
-// 	];
-// }
 const settingFormRef = ref<FormInstance>();
 const settingForm = reactive<User>({
 	avatar: '',
@@ -303,17 +302,30 @@ const tableData: User[] = [
 		],
 	},
 ];
+const filters = [
+	{ text: '团队所有者', value: '团队所有者' },
+	{ text: '团队管理员', value: '团队管理员' },
+	{ text: '团队成员', value: '团队成员' },
+	{ text: '游客', value: '游客' },
+	{ text: '待定', value: '待定' },
+	{ text: '账号暂停', value: '账号暂停' },
+];
 
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
-const confirmInvite = () => {
-	inviteDialog.value = false;
+const search = () => {
+	const res = searchUser({ username: inviteForm.username });
 };
+const confirmInvite = (user: User) => {};
 
 const settingMember = (row: User) => {
 	settingDialog.value = true;
 	user.value = row;
+};
+
+const confirmSetting = () => {
+	settingDialog.value = false;
 };
 
 const filterTag = (value: string, row: User) => {
@@ -425,8 +437,8 @@ const timeAgo = (row: User, column: TableColumnCtx<User>) => {
 	}
 }
 
-.alert {
-	color: rgba(16, 24, 40, 0.24);
+.dialog-div {
+	max-height: 500px;
 }
 
 .select {
@@ -436,9 +448,6 @@ const timeAgo = (row: User, column: TableColumnCtx<User>) => {
 .dialog-btn {
 	color: #fff;
 	font-size: 14px;
-	.btn-width {
-		width: 100%;
-	}
 }
 
 .change-btn {
