@@ -32,10 +32,10 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/main',
 		name: 'main',
 		component: () => import('../views/main/index.vue'),
-		redirect: '/team',
+		// redirect: '/team/:team_id',
 		children: [
 			{
-				path: '/team',
+				path: '/team/:team_id',
 				name: 'team',
 				component: () => import('../views/team/index.vue'),
 			},

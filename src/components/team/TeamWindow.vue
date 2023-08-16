@@ -30,8 +30,6 @@
 						<TeamSetting />
 					</el-tab-pane>
 				</el-tabs>
-				<!-- <el-input v-model="searchContent" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" />
-				<el-button type="primary" color="#59A8B9" auto-insert-space :icon="Plus" class="create-btn" @click="createProject">新建项目</el-button> -->
 			</div>
 			<div v-if="isShowMiddleRight" class="middle-right">
 				<div>
@@ -45,13 +43,19 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import { Search, Plus } from '@element-plus/icons-vue';
 import ProjectList from '../../components/team/ProjectList.vue';
 import MemberPermission from '../../components/team/MemberPermission.vue';
 import TeamSetting from '../../components/team/TeamSetting.vue';
+import { useRouter, useRoute } from 'vue-router';
+import { addProject } from '../../api/projects';
+import { teamInfo } from '../../api/teams';
+import { useBaseStore } from '../../store/index';
 
+const route = useRoute();
+const baseStore = useBaseStore();
 const activeName = ref('first');
 const searchContent = ref<string>('');
 const dialogVisible = ref<boolean>(false);
@@ -64,12 +68,26 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 		isShowMiddleRight.value = false;
 	}
 };
+const getTeamInfo = () => {
+	const res = teamInfo({ team_id: Number(route.params.team_id), user_id: baseStore.user_info.user_id });
+	baseStore.setTeamDetailedInfo(res);
+};
 const createProject = () => {
 	dialogVisible.value = true;
 };
 const confirmCreate = () => {
+	const res = addProject({
+		user_id: baseStore.user_info.user_id,
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		project_name: projectName.value,
+		project_img: '',
+		project_desc: '',
+	});
 	dialogVisible.value = false;
 };
+onMounted(() => {
+	getTeamInfo();
+});
 </script>
 
 <style scoped lang="less">

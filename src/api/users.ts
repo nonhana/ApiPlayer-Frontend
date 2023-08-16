@@ -60,3 +60,12 @@ export const uploadAvatar = (paramsList: { avatar?: string }) => {
 		data: paramsList,
 	});
 };
+
+//搜索用户
+export const searchUser = (paramsList: { username: string }) => {
+	return myAxios({
+		url: '/users/searchuser',
+		method: 'GET',
+		params: paramsList,
+	});
+};

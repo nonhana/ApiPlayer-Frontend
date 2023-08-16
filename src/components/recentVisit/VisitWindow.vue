@@ -4,7 +4,7 @@
 			<div class="visit-name">最近访问</div>
 		</div>
 		<div class="visit-container">
-			<div v-for="(item, index) in projectList" :key="index" class="project" @click="clickHandler">
+			<div v-for="(item, index) in projectList" :key="index" class="project" @click="goDetail(index)">
 				<div class="project-img">
 					<el-image shape="square" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
 						<template #error>
@@ -24,34 +24,33 @@
 </template>
 
 <script setup lang="ts">
-// import { ref, reactive } from 'vue';
-// import type { TableColumnCtx, TableInstance } from 'element-plus';
+import { onMounted } from 'vue';
+import { recentlyVisited } from '../../api/projects';
 import { useRouter } from 'vue-router';
+import { useBaseStore } from '../../store/index';
 
 const router = useRouter();
-
+const baseStore = useBaseStore();
 interface Project {
+	id: number;
 	avatar: string;
 	name: string;
 	time: string;
 }
 const projectList: Project[] = [
 	{
+		id: 1,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 		time: '2023-08-11 15:34:12',
 	},
 	{
+		id: 2,
 		avatar: '../../static/svg/LoginLogo.svg',
 		name: 'test',
 		time: '2023-08-11 13:34:12',
 	},
 ];
-
-const clickHandler = () => {
-	console.log(111);
-	router.push({ path: '/interface' });
-};
 
 const timeAgo = (dateTime: string) => {
 	const minute = 1000 * 60;
@@ -92,6 +91,16 @@ const timeAgo = (dateTime: string) => {
 	}
 	return result;
 };
+const getRecentlyVisited = () => {
+	const res: any = recentlyVisited({ user_id: baseStore.user_info.user_id });
+	baseStore.setLastVisitedList(res.project_list);
+};
+const goDetail = (index: number) => {
+	router.push({ path: `/interface/${projectList[index].id}` });
+};
+onMounted(() => {
+	getRecentlyVisited();
+});
 </script>
 
 <style scoped lang="less">
@@ -116,12 +125,12 @@ const timeAgo = (dateTime: string) => {
 	.visit-container {
 		display: flex;
 		flex-direction: column;
-		// gap: 30px;
 		.project {
 			display: flex;
 			gap: 15px;
 			padding: 16px 8px 16px 16px;
 			border-bottom: 1px solid #f2f4f7;
+			cursor: pointer;
 			.project-img {
 				width: 40px;
 				height: 40px;

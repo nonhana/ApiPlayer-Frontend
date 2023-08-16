@@ -17,7 +17,7 @@
 					<el-icon><User /></el-icon>
 					<span>我的团队</span>
 				</template>
-				<el-menu-item index="/team">个人空间</el-menu-item>
+				<el-menu-item v-for="(team, index) in baseStore.teamInfo" :key="index" :index="'/team/' + team.team_id">{{ team.team_name }}</el-menu-item>
 				<el-menu-item @click="createTeam">
 					<el-icon><Plus /></el-icon>
 					<span>新建团队</span>
@@ -31,16 +31,52 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { teamList, addTeam } from '../api/teams';
+import router from '../router/index';
+import { useRouter, useRoute } from 'vue-router';
+import { useBaseStore } from '../store/index';
+
+interface TeamInfo {
+	team_desc?: string;
+	team_id: string;
+	team_name: string;
+	team_user_name?: string;
+}
+const customRouter = useRouter();
+const baseStore = useBaseStore();
 const dialogVisible = ref<boolean>(false);
-const teamName = ref<string>();
+const teamName = ref<string>('');
+let teamListData: TeamInfo[] = [
+	{ team_id: '1', team_name: 'Team A' },
+	{ team_id: '2', team_name: 'Team B' },
+	{ team_id: '3', team_name: 'Team C' },
+];
+const getTeamList = () => {
+	// const res = teamList({ user_id: baseStore.user_info.user_id });
+	// baseStore.setTeamInfo(res.team_list);
+
+	//要删掉
+	baseStore.setTeamInfo(teamListData);
+};
 const createTeam = () => {
 	dialogVisible.value = true;
 };
 const confirmCreate = () => {
 	dialogVisible.value = false;
+	const res = addTeam({
+		user_id: baseStore.user_info.user_id,
+		team_name: teamName.value,
+		team_desc: '',
+		team_user_name: '',
+	});
 };
 const recentVisit = () => {};
+
+onMounted(() => {
+	getTeamList();
+	customRouter.push({ path: `/team/${baseStore.teamInfo[0].team_id}` });
+});
 </script>
 
 <style scoped lang="less">

@@ -30,10 +30,10 @@ interface ProjectList {
 }
 
 interface TeamInfo {
-	team_desc: string;
-	team_id: string;
+	team_desc?: string;
+	team_id: number;
 	team_name: string;
-	team_user_name: string;
+	team_user_name?: string;
 }
 interface TeamDetailedInfo {
 	member_list: MemberList[];
@@ -48,6 +48,7 @@ export const useBaseStore = defineStore(Names.Base, {
 		return {
 			user_info: <UserInfo>{},
 			lastVisitedList: [] as RecentlyVisitedListItem[],
+			teamInfo: [] as TeamInfo[],
 			teamDetailedInfo: <TeamDetailedInfo>{},
 		};
 	},
@@ -57,6 +58,9 @@ export const useBaseStore = defineStore(Names.Base, {
 		},
 		setLastVisitedList(list: RecentlyVisitedListItem[]) {
 			this.lastVisitedList = list;
+		},
+		setTeamInfo(info: TeamInfo[]) {
+			this.teamInfo = info;
 		},
 		setTeamDetailedInfo(info: TeamDetailedInfo) {
 			this.teamDetailedInfo = info;
