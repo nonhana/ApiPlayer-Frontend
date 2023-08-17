@@ -1,7 +1,7 @@
 <template>
 	<div class="index">
 		<el-row class="roww">
-			{{ apiInfo.api_name }}
+			<el-text class="mx-1" size="large">{{ apiInfo.api_name }}</el-text>
 		</el-row>
 		<el-row>
 			<el-col :span="24">
@@ -11,6 +11,9 @@
 				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiInfo.api_url }}</el-text>
 				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ apiInfo.api_status }}</el-text>
 			</el-col>
+		</el-row>
+		<el-row>
+			<el-text class="mx-1">前置url：{{ apiInfo.api_env_url }} </el-text>
 		</el-row>
 		<el-row>
 			<el-text class="mx-1">创建时间 {{ apiInfo.api_createdAt }}</el-text>
@@ -27,16 +30,16 @@
 		</el-row>
 		<el-row></el-row>
 		<el-row>
-			<span>接口说明</span>
+			<el-text class="mx-1" size="large">接口说明</el-text>
 		</el-row>
 		<el-row>
 			<el-text class="mx-1"> {{ apiInfo.api_desc }}</el-text>
 		</el-row>
 		<el-row></el-row>
 		<el-row>
-			<span>请求参数</span>
+			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
-		<div v-for="(item, index) in apiInfo.api_request" :key="index">
+		<div v-for="(item, index) in apiInfo.api_request_params" :key="index">
 			<el-row>{{ item.type }}</el-row>
 			<el-row>
 				<el-table :data="item.params_list" border style="width: 100%">
@@ -49,12 +52,12 @@
 		</div>
 		<el-row></el-row>
 		<el-row>
-			<span>返回响应</span>
+			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
 		<el-row>
-			<el-tabs v-model="activeName" type="card" class="doc-tabs" @tab-click="handleClick">
+			<el-tabs v-model="activeName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_response" :key="index">
-					<el-tab-pane :label="item.response_name" :name="item.id">
+					<el-tab-pane :label="item.response_name" :name="item.http_status">
 						<ResponseCard :context="item"></ResponseCard>
 					</el-tab-pane>
 				</div>
@@ -63,167 +66,71 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
+import { apiStore } from '@/store/apis.ts';
 
-const handleClick = (tab: TabsPaneContext, event: Event) => {
-	console.log(tab, event);
-};
+interface Request {
+	api_desc: string;
+	api_editor_id: number;
+	api_env_url: number[];
+	api_id: number;
+	api_method: string;
+	api_name: string;
+	api_principal_id: number;
+	api_request: ApiRequest[];
+	api_response: ApiResponse;
+	api_status: number;
+	api_url: string;
+	dictionary_id: number;
+}
 
-let apiInfo = ref({
-	api_name: 'ert',
-	api_method: 'options',
-	api_url: 'www.baidu.com',
-	api_status: 'pending',
-	api_createdAt: '2022/2/3',
-	api_editedAt: '2023/2/2',
-	api_editor_id: 'qq',
-	api_creator_id: 'ww',
-	api_principal_id: 'ee',
-	dictionary_id: 'ewr',
-	api_desc: '点击左侧栏某个API后，在右侧主界面获取到该API的详细信息并加以展示。',
-	api_env_url: [23454, 2],
-	api_request: [
-		{
-			type: 34,
-			params_list: [
-				{
-					param_name: '写件查细声当',
-					param_type: 57,
-					param_desc: 'ut',
-				},
-				{
-					param_name: '起七做从',
-					param_type: 6,
-					param_desc: 'et ad sint cupidatat enim',
-				},
-			],
-		},
-		{
-			type: 20,
-			params_list: [
-				{
-					param_name: '较头连设',
-					param_type: 92,
-					param_desc: 'eu',
-				},
-				{
-					param_name: '手准程会素展',
-					param_type: 69,
-					param_desc: 'dolor dolore voluptate occaecat',
-				},
-			],
-		},
-		{
-			type: 62,
-			params_list: [
-				{
-					param_name: '根许手',
-					param_type: 86,
-					param_desc: 'magna sunt cillum irure',
-				},
-				{
-					param_name: '信么志自',
-					param_type: 77,
-					param_desc: 'ad ipsum in',
-				},
-				{
-					param_name: '水质求军',
-					param_type: 92,
-					param_desc: 'nulla laboris pariatur in ullamco',
-				},
-				{
-					param_name: '年系业积',
-					param_type: 86,
-					param_desc: 'anim',
-				},
-			],
-		},
-		{
-			type: 38,
-			params_list: [
-				{
-					param_name: '阶议方温小院',
-					param_type: 75,
-					param_desc: 'magna eiusmod ipsum mollit in',
-				},
-			],
-		},
-	],
-	api_response: [
-		{
-			http_status: 200,
-			response_name: '成功',
-			id: 'sdfghjsdfgh',
-			response_body: [
-				{
-					label: 'Level one 1',
-					children: [
-						{
-							label: 'Level two 1-1',
-							children: [
-								{
-									label: 'Level three 1-1-1',
-								},
-							],
-						},
-					],
-				},
-				{
-					label: 'Level one 2',
-					children: [
-						{
-							label: 'Level two 2-1',
-							children: [
-								{
-									label: 'Level three 2-1-1',
-								},
-							],
-						},
-						{
-							label: 'Level two 2-2',
-							children: [
-								{
-									label: 'Level three 2-2-1',
-								},
-							],
-						},
-					],
-				},
-				{
-					label: 'Level one 3',
-					children: [
-						{
-							label: 'Level two 3-1',
-							children: [
-								{
-									label: 'Level three 3-1-1',
-								},
-							],
-						},
-						{
-							label: 'Level two 3-2',
-							children: [
-								{
-									label: 'Level three 3-2-1',
-								},
-							],
-						},
-					],
-				},
-			],
-		},
-		{
-			http_status: 94,
-			response_name: '改次品织克党',
-			id: 'dfgh',
-			response_body: 'esse Lorem Excepteur qui in',
-		},
-	],
+interface ApiRequest {
+	params_list?: ParamsList[];
+	params_obj?: { [key: string]: any };
+	type: number;
+}
+
+interface ParamsList {
+	param_desc: string;
+	param_name: string;
+	param_type: number;
+}
+
+interface ApiResponse {
+	http_status: number;
+	response_body: string;
+	response_name: string;
+}
+
+const apiInfo = ref<Request | undefined>();
+// const activeName = ref();
+
+const apiOperation = apiStore();
+onMounted(() => {
+	getInfo();
 });
 
-const activeName = apiInfo.value.api_response[0].id;
+const getInfo = async () => {
+	await apiOperation.getApiInfo('98');
+	apiInfo.value = apiOperation.apiInfo;
+};
+
+watch(
+	apiOperation.apiInfo,
+	(newVal, oldVal) => {
+		if (newVal != undefined && newVal != null) {
+			apiInfo.value = newVal;
+		}
+	},
+	{ immediate: true, deep: true }
+);
+
+// const handleClick = (tab: TabsPaneContext, event: Event) => {
+// 	console.log(tab, event);
+// };
+// const activeName = apiInfo.value.api_response[0].http_status;
 </script>
 
 <style lang="less">
