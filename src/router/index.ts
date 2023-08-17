@@ -52,8 +52,8 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('../views/personalCenter/index.vue'),
 	},
 	{
-		path: '/interface/:api_id',
-		name: 'interface',
+		path: '/project/:project_id',
+		name: 'project',
 		component: () => import('../views/interfaceDoc/index.vue'),
 	},
 	{
@@ -72,7 +72,7 @@ const router = createRouter({
 });
 
 // 路由守卫:未登录则不能访问其他页面
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
 	const token = localStorage.getItem('token'); //获取token
 	if (token || to.path === '/login') {
 		//有token或者在login页面下通行

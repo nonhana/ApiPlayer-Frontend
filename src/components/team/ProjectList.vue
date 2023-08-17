@@ -47,7 +47,7 @@
 </template>
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { addRecentProject } from '../../api/projects';
@@ -106,7 +106,7 @@ const rules = reactive<FormRules<RuleForm>>({
 });
 
 const goDetail = (index: number) => {
-	router.push({ path: `/interface/${projectList[index].id}` });
+	router.push({ path: `/project/${projectList[index].id}` });
 };
 const deleteProject = (index: number) => {
 	ElMessageBox.confirm('项目' + projectList[index].name + '将被删除', '警告', {
