@@ -1,125 +1,100 @@
 import myAxios from './axios';
+// 如果是GET请求，参数就是params；如果是POST请求，参数就是data
 
-export interface ApiInfo {
-	/**
-	 * 接口创建者的id
-	 */
-	api_creator_id: number;
-	/**
-	 * 接口说明
-	 */
+interface Request {
 	api_desc: string;
-	/**
-	 * 接口编辑人的id
-	 */
 	api_editor_id: number;
-	/**
-	 * 接口前置url，详情用法见：获取某API具体信息
-	 */
 	api_env_url: number[];
-	/**
-	 * 接口请求方法，直接写字符串即可，比如GET方法就直接写'GET'。
-	 */
+	api_id: number;
 	api_method: string;
-	/**
-	 * 接口名称
-	 */
 	api_name: string;
-	/**
-	 * 接口负责人的用户id
-	 */
 	api_principal_id: number;
-	/**
-	 * JSON格式的请求参数
-	 */
-	api_request_JSON: string;
-	/**
-	 * 接口请求参数
-	 */
-	api_request_params: ApiRequestParam[];
-	/**
-	 * 接口返回参数
-	 */
-	api_response: ApiResponse;
-	/**
-	 * 接口状态，0-开发中，1-测试中，2-已发布，3-将废弃
-	 */
+	api_request: ApiRequest[];
+	api_response: ApiResponse[];
 	api_status: number;
-	/**
-	 * 接口请求url地址
-	 */
 	api_url: string;
-	/**
-	 * 父级目录id
-	 */
 	dictionary_id: number;
-	/**
-	 * 所属项目id
-	 */
-	project_id: number;
 }
-export interface ApiRequestParam {
-	/**
-	 * 参数列表
-	 */
+
+interface Execute {
+	api_id: number;
+	api_request_JSON: string;
+	api_request_params: ApiRequestParam[];
+}
+
+interface DeleteInfo {
+	api_id: number;
+}
+
+interface ApiRequest {
 	params_list?: ParamsList[];
-	/**
-	 * 请求参数顶层类型，0-Params，1-Body，2-Cookie，3-Header。此处以Params参数为例，也就是表格的形式来填写参数。
-	 */
+	params_obj?: { [key: string]: any };
 	type: number;
 }
-export interface ParamsList {
-	/**
-	 * 参数说明
-	 */
+
+interface ParamsList {
 	param_desc: string;
-	/**
-	 * 参数名称
-	 */
 	param_name: string;
-	/**
-	 * 参数类型
-	 */
 	param_type: number;
 }
-export interface ApiResponse {
-	/**
-	 * HTTP状态码
-	 */
+
+interface ApiResponse {
 	http_status: number;
-	/**
-	 * 返回体，固定为JSON格式的字符串
-	 */
 	response_body: string;
-	/**
-	 * 返回名称
-	 */
 	response_name: string;
 }
 
-// 新建接口
-export const addApi = (paramsList: ApiInfo) => {
+interface ApiRequestParam {
+	params_list: ExecuteParamsList[];
+	type: number;
+}
+
+interface ExecuteParamsList {
+	param_name: string;
+	param_value: string;
+}
+
+// 获取api数据
+// export const getApiInfo = (apiid: string) => {
+// 	return myAxios({
+// 		url: '/apis/apiinfo',
+// 		method: 'GET',
+// 		params: {
+// 			api_id: apiid,
+// 		},
+// 	});
+// };
+
+export const getApiInfo = () => {
 	return myAxios({
-		url: '/projects/addapi',
-		method: 'POST',
-		data: paramsList,
+		url: '/apis/apiinfo',
+		method: 'GET',
 	});
 };
 
 // 更新接口
-export const updateApi = (paramsList: any) => {
+export const updateApi = (updateApiInfo: Request) => {
 	return myAxios({
-		url: '/projects/updateapi',
+		url: '/apis/updateapi',
 		method: 'POST',
-		data: paramsList,
+		data: updateApiInfo,
 	});
 };
 
-// 删除接口
-export const deleteApi = (paramsList: { api_id: number }) => {
+// 运行api
+export const executeApi = (executeInfo: Execute) => {
 	return myAxios({
-		url: '/projects/deleteapi',
+		url: '/apis/executeapi',
 		method: 'POST',
-		data: paramsList,
+		data: executeInfo,
+	});
+};
+
+// 删除api
+export const deleteApi = (deleteInfo: DeleteInfo) => {
+	return myAxios({
+		url: '/apis/deleteapi',
+		method: 'POST',
+		data: deleteInfo,
 	});
 };
