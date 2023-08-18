@@ -9,7 +9,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import CommonHeader from './components/CommonHeader.vue';
 
 const route = useRoute();
 const classList: string[] = ['app', 'login', 'home'];
