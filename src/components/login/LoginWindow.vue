@@ -119,7 +119,7 @@ import type { UserInfo } from '../../utils/types';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
 
-import { login, register, sendCaptcha } from '../../api/users.ts';
+import { login, register, sendCaptcha, getUserInfo } from '../../api/users.ts';
 import { validateEmail } from '../../utils/validate.ts';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
@@ -218,37 +218,65 @@ const myLogin = (type: number) => {
 			};
 			login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(
 				(res) => {
+					// if (res.data.result_code === 0) {
 					if (res.data) {
-						const datas: {
-							user_id: number;
-							user_name: string;
-							user_img: string;
-							user_email: string;
-							user_introduce: string;
-						} = res.data.result.user_info;
-
-						userInfo.user_id = datas.user_id;
-						userInfo.user_name = datas.user_name;
-						userInfo.user_img = datas.user_img;
-						userInfo.user_email = datas.user_email;
-						userInfo.user_sign = datas.user_introduce;
-
-						localStorage.setItem('userInfo', JSON.stringify(userInfo));
-						store.setUserInfo(userInfo);
 						localStorage.setItem('token', res.data.result.token);
-						// router.push({ name: 'home' });
-						router.push({ name: 'main' });
+
+						getUserInfo().then(
+							(res) => {
+								// if (res.data.result_code === 0) {
+								if (res.data.result_code) {
+									const datas: {
+										username: string;
+										avatar: string;
+										email: string;
+										introduce: string;
+									} = res.data.result.userInfo;
+
+									userInfo.user_name = datas.username;
+									userInfo.user_img = datas.avatar;
+									userInfo.user_email = datas.email;
+									userInfo.user_sign = datas.introduce;
+
+									localStorage.setItem('userInfo', JSON.stringify(userInfo));
+									store.setUserInfo(userInfo);
+									// router.push({ name: 'home' });
+									router.push({ name: 'main' });
+									ElNotification({
+										title: '登录成功',
+										message: '欢迎回来！',
+										type: 'success',
+									});
+								} else {
+									() => {
+										ElNotification({
+											title: '获取用户信息失败',
+											message: '',
+											type: 'error',
+										});
+									};
+								}
+							},
+							() => {
+								ElNotification({
+									title: '获取用户信息失败',
+									message: '',
+									type: 'error',
+								});
+							}
+						);
+					} else {
 						ElNotification({
-							title: '登录成功',
-							message: '欢迎回来！',
-							type: 'success',
+							title: '登录失败',
+							message: '请求服务器失败',
+							type: 'error',
 						});
 					}
 				},
 				() => {
 					ElNotification({
 						title: '登录失败',
-						message: '请求服务器失败',
+						message: '请求服务器失败1',
 						type: 'error',
 					});
 				}
