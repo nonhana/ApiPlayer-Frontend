@@ -19,23 +19,23 @@
 		<el-row>
 			<el-tabs v-model="activeName" class="edit-tabs">
 				<el-tab-pane label="Parmas" name="first">
-					<ParamsAndHeader :requestData="apiInfo.api_request[0].params_list"></ParamsAndHeader>
+					<ParamsAndHeader :request-data="apiInfo.api_request[0].params_list"></ParamsAndHeader>
 				</el-tab-pane>
 				<el-tab-pane label="Body" name="second">
 					<el-tabs v-model="bodyActiveName" type="card" class="body-tabs">
 						<el-tab-pane label="form-data" name="bodyFirst">
-							<ParamsAndHeader :requestData="apiInfo.api_request[0].params_list"></ParamsAndHeader>
+							<ParamsAndHeader :request-data="apiInfo.api_request[0].params_list"></ParamsAndHeader>
 						</el-tab-pane>
 						<el-tab-pane label="x-www-form-unlencoded" name="bodySecond">
-							<ParamsAndHeader :requestData="apiInfo.api_request[1].params_list"></ParamsAndHeader>
+							<ParamsAndHeader :request-data="apiInfo.api_request[1].params_list"></ParamsAndHeader>
 						</el-tab-pane>
 					</el-tabs>
 				</el-tab-pane>
 				<el-tab-pane label="Cookie" name="third">
-					<ParamsAndHeader :requestData="apiInfo.api_request[0].params_list"></ParamsAndHeader>
+					<ParamsAndHeader :request-data="apiInfo.api_request[0].params_list"></ParamsAndHeader>
 				</el-tab-pane>
 				<el-tab-pane label="Header" name="fourth">
-					<ParamsAndHeader :requestData="apiInfo.api_request[1].params_list"></ParamsAndHeader>
+					<ParamsAndHeader :request-data="apiInfo.api_request[1].params_list"></ParamsAndHeader>
 				</el-tab-pane>
 			</el-tabs>
 		</el-row>
