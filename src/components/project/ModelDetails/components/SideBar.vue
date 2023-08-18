@@ -14,9 +14,9 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '../../../api/projects';
-import { addApi, updateApi, deleteApi } from '../../../api/apis';
-import type { ApiAddInfo } from '../../../api/apis';
+import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '../../../../api/projects';
+import { addApi, updateApi, deleteApi } from '../../../../api/apis';
+import type { ApiAddInfo } from '../../../../api/apis';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import { ElMessageBox } from 'element-plus';
 
@@ -62,11 +62,6 @@ const append = async (data: Tree, type: number) => {
 			data.children = [];
 		}
 		const newApiInfo: ApiAddInfo = {
-			api_name: '新建接口',
-			api_url: '/your/api/address',
-			api_method: 'GET',
-			api_status: 0,
-			api_desc: '描述该接口的功能',
 			api_response: {
 				http_status: 200,
 				response_name: '示例返回',
@@ -74,11 +69,10 @@ const append = async (data: Tree, type: number) => {
 			},
 			dictionary_id: data.id,
 			project_id: Number(route.params.project_id),
-			api_editor_id: JSON.parse(localStorage.getItem('user_info')!).user_id,
-			api_creator_id: JSON.parse(localStorage.getItem('user_info')!).user_id,
+			api_editor_id: JSON.parse(localStorage.getItem('userInfo')!).user_id,
+			api_creator_id: JSON.parse(localStorage.getItem('userInfo')!).user_id,
 		};
 		const new_api_id = (await addApi(newApiInfo)).data.api_id;
-		console.log(new_api_id);
 		newChild.value.id = new_api_id;
 
 		data.children.push(newChild.value);
