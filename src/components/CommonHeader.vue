@@ -58,7 +58,6 @@ const userAction = (command: string) => {
 <style scoped lang="less">
 .CommonHeader-wrap {
 	position: relative;
-	// width: 100%;
 	width: 1310px;
 	height: 60px;
 	padding: 0 0;
