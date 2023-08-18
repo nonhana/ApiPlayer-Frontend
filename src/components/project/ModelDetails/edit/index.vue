@@ -80,6 +80,7 @@
 		</el-row>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { apiStore } from '@/store/apis.ts';

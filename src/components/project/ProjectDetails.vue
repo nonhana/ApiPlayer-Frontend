@@ -5,10 +5,10 @@
 		</div>
 		<div>
 			<el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-				<el-tab-pane label="文档" name="first"> <Doc></Doc> </el-tab-pane>
+				<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
 				<el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi"></Edit> </el-tab-pane>
-				<el-tab-pane label="运行" name="third"> <Test></Test> </el-tab-pane>
-				<!-- <el-tab-pane label="测试" name="fourth"> <Tmp></Tmp> </el-tab-pane> -->
+				<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
+				<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
 			</el-tabs>
 		</div>
 	</el-row>
@@ -16,12 +16,13 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
-import Doc from './doc/index.vue';
-import Edit from './edit/index.vue';
-import Test from './test/index.vue';
-// import Tmp from './tmp/index.vue';
-import { apiStore } from '@/store/apis.ts';
+import Doc from './ModelDetails/doc/index.vue';
+import Edit from './ModelDetails/edit/index.vue';
+import Test from './ModelDetails/test/index.vue';
+// import Tmp from './ModelDetails/tmp/index.vue';
+import { apiStore } from '../../store/apis';
 // import { useRouter } from 'vue-router';
+import SideBar from './ModelDetails/components/SideBar.vue';
 
 interface Request {
 	api_desc: string;

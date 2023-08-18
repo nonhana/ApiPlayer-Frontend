@@ -69,7 +69,7 @@
 import { ref, watch, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
-import { apiStore } from '@/store/apis.ts';
+import { apiStore } from '../../../../store/apis.ts';
 
 interface Request {
 	api_desc: string;

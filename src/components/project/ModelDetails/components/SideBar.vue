@@ -1,13 +1,22 @@
 <template>
 	<div class="SideBar-wrap">
-		<el-tree :data="dataSource" node-key="id" default-expand-all :expand-on-click-node="false" :render-content="renderContent" />
+		<el-tree
+			:data="dataSource"
+			node-key="id"
+			default-expand-all
+			:expand-on-click-node="false"
+			:render-content="renderContent"
+			@node-click="checkoutApi"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '../../../api/projects';
+import { addApi, updateApi, deleteApi } from '../../../api/apis';
+import type { ApiAddInfo } from '../../../api/apis';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import { ElMessageBox } from 'element-plus';
 
@@ -19,6 +28,7 @@ interface Tree {
 }
 
 const route = useRoute();
+const router = useRouter();
 
 let newChild = ref<Tree>({ id: 0, label: '', type: '', children: [] });
 let dataSource = ref<Tree[]>([]);
@@ -51,6 +61,25 @@ const append = async (data: Tree, type: number) => {
 		if (!data.children) {
 			data.children = [];
 		}
+		const newApiInfo: ApiAddInfo = {
+			api_name: '新建接口',
+			api_url: '/your/api/address',
+			api_method: 'GET',
+			api_status: 0,
+			api_desc: '描述该接口的功能',
+			api_response: {
+				http_status: 200,
+				response_name: '示例返回',
+				response_body: '{"result_code": 0}',
+			},
+			dictionary_id: data.id,
+			project_id: Number(route.params.project_id),
+			api_editor_id: JSON.parse(localStorage.getItem('user_info')!).user_id,
+			api_creator_id: JSON.parse(localStorage.getItem('user_info')!).user_id,
+		};
+		const new_api_id = (await addApi(newApiInfo)).data.api_id;
+		console.log(new_api_id);
+		newChild.value.id = new_api_id;
 
 		data.children.push(newChild.value);
 		dataSource.value = [...dataSource.value];
@@ -58,19 +87,34 @@ const append = async (data: Tree, type: number) => {
 	}
 };
 // 删除目录、接口
-const remove = (node: Node, data: Tree) => {
-	ElMessageBox.confirm('确定放弃修改吗？').then(async () => {
-		const parent = node.parent;
-		const children: Tree[] = parent.data.children || parent.data;
-		const index = children.findIndex((d) => d.id === data.id);
+const remove = (node: Node, data: Tree, type: number) => {
+	if (type === 0) {
+		ElMessageBox.confirm('确定要删除该目录吗？会顺带删除掉该目录下的所有内容哦').then(async () => {
+			const parent = node.parent;
+			const children: Tree[] = parent.data.children || parent.data;
+			const index = children.findIndex((d) => d.id === data.id);
 
-		await deleteDictionary({
-			dictionary_id: data.id,
+			await deleteDictionary({
+				dictionary_id: data.id,
+			});
+			children.splice(index, 1);
+			dataSource.value = [...dataSource.value];
+			showInputBox.value.splice(0, 1);
 		});
-		children.splice(index, 1);
-		dataSource.value = [...dataSource.value];
-		showInputBox.value.splice(0, 1);
-	});
+	} else {
+		ElMessageBox.confirm('确定要删除该接口吗？').then(async () => {
+			const parent = node.parent;
+			const children: Tree[] = parent.data.children || parent.data;
+			const index = children.findIndex((d) => d.id === data.id);
+
+			await deleteApi({
+				api_id: data.id,
+			});
+			children.splice(index, 1);
+			dataSource.value = [...dataSource.value];
+			showInputBox.value.splice(0, 1);
+		});
+	}
 };
 // 使用h函数自定义el-tree内部内容
 const renderContent = (
@@ -136,7 +180,7 @@ const renderContent = (
 				h('img', {
 					src: '/src/static/svg/ProjectDetailsSideBarDelete.svg',
 					style: 'width: 20px; height: 20px;margin-left: 8px',
-					onClick: () => remove(node, data),
+					onClick: () => remove(node, data, 0),
 				})
 			)
 		);
@@ -146,29 +190,65 @@ const renderContent = (
 			{
 				class: 'custom-tree-node',
 			},
-			h('span', {}, `${data.type}-${node.label}`),
+			h('span', {}, `${data.type}-`),
+			h(
+				'span',
+				{
+					style: `display: ${showInputBox.value[node.id] ? 'none' : 'inline-block'}`,
+					onDblclick: () => {
+						showInputBox.value[node.id] = true;
+					},
+				},
+				node.label
+			),
+			h('input', {
+				type: 'text',
+				placeholder: '请输入名称',
+				value: node.label,
+				style: `display: ${!showInputBox.value[node.id] ? 'none' : 'inline-block'}; width: 100px; height: 20px; margin-left: 8px`,
+				onBlur: async () => {
+					await updateApi({
+						api_id: data.id,
+						api_name: data.label,
+						api_editor_id: JSON.parse(localStorage.getItem('userInfo') || '{}').id,
+					});
+					showInputBox.value[node.id] = false;
+				},
+				onInput: (e: any) => {
+					data.label = e.target.value;
+				},
+			}),
 			h('img', {
 				src: '/src/static/svg/ProjectDetailsSideBarDelete.svg',
 				style: 'width: 20px; height: 20px;margin-left: 8px',
-				onClick: () => remove(node, data),
+				onClick: () => remove(node, data, 1),
 			})
 		);
 	}
 };
-// 寻找父节点的id
+// 根据子节点id寻找父节点id
 const findParentId = (tree: Tree, targetId: number, parentId?: number): number | null => {
 	if (tree.id === targetId) {
 		return parentId || null;
 	}
-
 	for (const child of tree.children) {
 		const foundParentId = findParentId(child, targetId, tree.id);
 		if (foundParentId !== null) {
 			return foundParentId;
 		}
 	}
-
 	return null;
+};
+// 切换到api详情页面
+const checkoutApi = (node: Tree) => {
+	if (node.type !== 'dictionary') {
+		router.push({
+			path: `/project/${route.params.project_id}`,
+			query: {
+				api_id: node.id,
+			},
+		});
+	}
 };
 
 onBeforeMount(async () => {
@@ -188,8 +268,9 @@ onBeforeMount(async () => {
 <style scoped lang="less">
 .SideBar-wrap {
 	width: 300px;
-	height: 100%;
+	height: 1000px;
 	background-color: #f5f5f5;
+	overflow: scroll;
 }
 
 /* el-tree样式 */

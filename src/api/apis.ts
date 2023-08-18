@@ -1,55 +1,60 @@
 import myAxios from './axios';
-// 如果是GET请求，参数就是params；如果是POST请求，参数就是data
 
-interface Request {
+export interface ApiAddInfo {
+	api_creator_id: number;
 	api_desc: string;
 	api_editor_id: number;
-	api_env_url: number[];
-	api_id: number;
 	api_method: string;
 	api_name: string;
-	api_principal_id: number;
-	api_request: ApiRequest[];
-	api_response: ApiResponse[];
+	api_principal_id?: number;
+	api_response: ApiResponse;
 	api_status: number;
 	api_url: string;
 	dictionary_id: number;
+	project_id: number;
 }
-
-interface Execute {
+export interface ApiUpdateInfo {
+	api_id: number;
+	api_editor_id: number;
+	api_desc?: string;
+	api_env_url?: number[];
+	api_method?: string;
+	api_name?: string;
+	api_principal_id?: number;
+	api_request?: ApiRequest[];
+	api_response?: ApiResponse[];
+	api_status?: number;
+	api_url?: string;
+	dictionary_id?: number;
+}
+export interface Execute {
 	api_id: number;
 	api_request_JSON: string;
 	api_request_params: ApiRequestParam[];
 }
-
-interface DeleteInfo {
+export interface DeleteInfo {
 	api_id: number;
 }
-
-interface ApiRequest {
+export interface ApiRequest {
 	params_list?: ParamsList[];
 	params_obj?: { [key: string]: any };
 	type: number;
 }
-
-interface ParamsList {
+export interface ParamsList {
 	param_desc: string;
 	param_name: string;
 	param_type: number;
 }
-
-interface ApiResponse {
+export interface ApiResponse {
 	http_status: number;
 	response_body: string;
 	response_name: string;
 }
-
-interface ApiRequestParam {
+export interface ApiRequestParam {
 	params_list: ExecuteParamsList[];
 	type: number;
 }
-
-interface ExecuteParamsList {
+export interface ExecuteParamsList {
 	param_name: string;
 	param_value: string;
 }
@@ -72,21 +77,21 @@ export const getApiInfo = () => {
 	});
 };
 
+// 新建Api
+export const addApi = (paramsList: ApiAddInfo) => {
+	return myAxios({
+		url: '/apis/addapi',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
 // 更新接口
-export const updateApi = (updateApiInfo: Request) => {
+export const updateApi = (updateApiInfo: ApiUpdateInfo) => {
 	return myAxios({
 		url: '/apis/updateapi',
 		method: 'POST',
 		data: updateApiInfo,
-	});
-};
-
-// 运行api
-export const executeApi = (executeInfo: Execute) => {
-	return myAxios({
-		url: '/apis/executeapi',
-		method: 'POST',
-		data: executeInfo,
 	});
 };
 
@@ -96,5 +101,14 @@ export const deleteApi = (deleteInfo: DeleteInfo) => {
 		url: '/apis/deleteapi',
 		method: 'POST',
 		data: deleteInfo,
+	});
+};
+
+// 运行api
+export const executeApi = (executeInfo: Execute) => {
+	return myAxios({
+		url: '/apis/executeapi',
+		method: 'POST',
+		data: executeInfo,
 	});
 };

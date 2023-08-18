@@ -54,7 +54,22 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/project/:project_id',
 		name: 'project',
-		component: () => import('../views/interfaceDoc/index.vue'),
+		// 重定向，为了让路由匹配到projectMain
+		redirect(to) {
+			return {
+				name: 'projectMain',
+				params: {
+					project_id: to.params.project_id,
+				},
+			};
+		},
+		children: [
+			{
+				path: '/projectMain/:project_id',
+				name: 'projectMain',
+				component: () => import('../views/interfaceDoc/index.vue'),
+			},
+		],
 	},
 	{
 		path: '/404',

@@ -56,6 +56,7 @@
 		</el-row>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { ref } from 'vue';
 // import type { TabsPaneContext } from 'element-plus';
@@ -236,7 +237,6 @@ let apiInfo = ref({
 
 let responseActiveName = apiInfo.value.api_response[0].id;
 </script>
-
 <style lang="less" scoped>
 .index {
 	width: 1000px;
