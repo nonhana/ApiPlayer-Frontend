@@ -83,31 +83,39 @@ const append = async (data: Tree, type: number) => {
 // 删除目录、接口
 const remove = (node: Node, data: Tree, type: number) => {
 	if (type === 0) {
-		ElMessageBox.confirm('确定要删除该目录吗？会顺带删除掉该目录下的所有内容哦').then(async () => {
-			const parent = node.parent;
-			const children: Tree[] = parent.data.children || parent.data;
-			const index = children.findIndex((d) => d.id === data.id);
+		ElMessageBox.confirm('确定要删除该目录吗？会顺带删除掉该目录下的所有内容哦')
+			.then(async (action: string) => {
+				if (action === 'confirm') {
+					const parent = node.parent;
+					const children: Tree[] = parent.data.children || parent.data;
+					const index = children.findIndex((d) => d.id === data.id);
 
-			await deleteDictionary({
-				dictionary_id: data.id,
-			});
-			children.splice(index, 1);
-			dataSource.value = [...dataSource.value];
-			showInputBox.value.splice(0, 1);
-		});
+					await deleteDictionary({
+						dictionary_id: data.id,
+					});
+					children.splice(index, 1);
+					dataSource.value = [...dataSource.value];
+					showInputBox.value.splice(0, 1);
+				}
+			})
+			.catch(() => {});
 	} else {
-		ElMessageBox.confirm('确定要删除该接口吗？').then(async () => {
-			const parent = node.parent;
-			const children: Tree[] = parent.data.children || parent.data;
-			const index = children.findIndex((d) => d.id === data.id);
+		ElMessageBox.confirm('确定要删除该接口吗？')
+			.then(async (action: string) => {
+				if (action === 'confirm') {
+					const parent = node.parent;
+					const children: Tree[] = parent.data.children || parent.data;
+					const index = children.findIndex((d) => d.id === data.id);
 
-			await deleteApi({
-				api_id: data.id,
-			});
-			children.splice(index, 1);
-			dataSource.value = [...dataSource.value];
-			showInputBox.value.splice(0, 1);
-		});
+					await deleteApi({
+						api_id: data.id,
+					});
+					children.splice(index, 1);
+					dataSource.value = [...dataSource.value];
+					showInputBox.value.splice(0, 1);
+				}
+			})
+			.catch(() => {});
 	}
 };
 // 使用h函数自定义el-tree内部内容
@@ -246,12 +254,17 @@ const checkoutApi = (node: Tree) => {
 };
 
 onBeforeMount(async () => {
-	dataSource.value = (await getProjectApiList({ project_id: Number(route.params.project_id) })).data.data;
+	// dataSource.value = (await getProjectApiList({ project_id: Number(route.params.project_id) })).data.data;
+	const res = await getProjectApiList({ project_id: Number(route.params.project_id) });
+	dataSource.value = res.data.api_list;
+
 	// 遍历目录树，获取到节点个数
 	function countAllNodes(tree: Tree): number {
 		let count = 1;
-		for (const child of tree.children) {
-			count += countAllNodes(child);
+		if (tree.children.length !== 0) {
+			for (const child of tree.children) {
+				count += countAllNodes(child);
+			}
 		}
 		return count;
 	}
@@ -261,7 +274,7 @@ onBeforeMount(async () => {
 
 <style scoped lang="less">
 .SideBar-wrap {
-	width: 300px;
+	width: 240px;
 	height: 1000px;
 	overflow: scroll;
 }

@@ -1,5 +1,6 @@
 <template>
 	<el-row type="flex" justify="center">
+		<div><SideNav></SideNav></div>
 		<div>
 			<SideBar />
 		</div>
@@ -23,6 +24,7 @@ import Test from './ModelDetails/test/index.vue';
 import { apiStore } from '../../store/apis';
 // import { useRouter } from 'vue-router';
 import SideBar from './ModelDetails/components/SideBar.vue';
+import SideNav from './ModelDetails/components/SideNav.vue';
 
 interface Request {
 	api_desc: string;
