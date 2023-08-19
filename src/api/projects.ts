@@ -1,5 +1,13 @@
 import myAxios from './axios';
 
+export interface EditProjectInfo {
+	project_id: number;
+	project_current_type?: number;
+	project_desc?: string;
+	project_img?: string;
+	project_name?: string;
+}
+
 //获取最近访问的项目
 export const recentlyVisited = (paramsList: { user_id: number }) => {
 	return myAxios({
@@ -58,6 +66,33 @@ export const updateDictionary = (paramsList: { dictionary_id: number; dictionary
 export const deleteDictionary = (paramsList: { dictionary_id: number }) => {
 	return myAxios({
 		url: '/projects/deletedictionary',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+// 获取项目全局信息
+export const getProjectGlobalInfo = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/globalinfo',
+		method: 'GET',
+		params: paramsList,
+	});
+};
+
+// 获取项目基本信息
+export const getProjectBasicInfo = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/basicinfo',
+		method: 'GET',
+		params: paramsList,
+	});
+};
+
+// 修改项目基本信息
+export const updateProjectBasicInfo = (paramsList: EditProjectInfo) => {
+	return myAxios({
+		url: '/projects/updatebasicinfo',
 		method: 'POST',
 		data: paramsList,
 	});

@@ -4,15 +4,25 @@
 			<SideBar />
 		</div>
 		<div>
-			<el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-				<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
-				<el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi"></Edit> </el-tab-pane>
-				<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
-				<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
-			</el-tabs>
+			<el-row>
+				<div>
+					<EnvHeader />
+				</div>
+			</el-row>
+			<el-row>
+				<div>
+					<el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
+						<el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi"></Edit> </el-tab-pane>
+						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
+						<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
+					</el-tabs>
+				</div>
+			</el-row>
 		</div>
 	</el-row>
 </template>
+
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
@@ -23,6 +33,7 @@ import Test from './ModelDetails/test/index.vue';
 import { apiStore } from '../../store/apis';
 // import { useRouter } from 'vue-router';
 import SideBar from './ModelDetails/components/SideBar.vue';
+import EnvHeader from './ModelDetails/components/EnvHeader.vue';
 
 interface Request {
 	api_desc: string;
@@ -102,6 +113,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 // 	}
 // });
 </script>
+
 <style scoped lang="less">
 .el-tabs--border-card {
 	min-width: 1000px;

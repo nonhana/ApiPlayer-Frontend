@@ -58,14 +58,12 @@ const userAction = (command: string) => {
 <style scoped lang="less">
 .CommonHeader-wrap {
 	position: relative;
-	width: 1310px;
+	width: 1300px;
 	height: 60px;
-	padding: 0 0;
 	background: #ffffff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border-bottom: 0.8px solid #f2f4f7;
 	.user-info {
 		display: flex;
 		align-items: center;
@@ -74,6 +72,7 @@ const userAction = (command: string) => {
 			cursor: pointer;
 		}
 		.user-head {
+			margin-right: 20px;
 			width: 40px;
 			height: 40px;
 			border-radius: 20px;

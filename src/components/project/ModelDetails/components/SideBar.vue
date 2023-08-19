@@ -1,13 +1,15 @@
 <template>
 	<div class="SideBar-wrap">
-		<el-tree
-			:data="dataSource"
-			node-key="id"
-			default-expand-all
-			:expand-on-click-node="false"
-			:render-content="renderContent"
-			@node-click="checkoutApi"
-		/>
+		<el-scrollbar>
+			<el-tree
+				:data="dataSource"
+				node-key="id"
+				default-expand-all
+				:expand-on-click-node="false"
+				:render-content="renderContent"
+				@node-click="checkoutApi"
+			/>
+		</el-scrollbar>
 	</div>
 </template>
 
@@ -18,7 +20,7 @@ import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } 
 import { addApi, updateApi, deleteApi } from '@/api/apis';
 import type { ApiAddInfo } from '@/api/apis';
 import type Node from 'element-plus/es/components/tree/src/model/node';
-import { ElMessageBox } from 'element-plus';
+import { ElMessageBox, ElMessage } from 'element-plus';
 
 interface Tree {
 	id: number;
@@ -62,11 +64,6 @@ const append = async (data: Tree, type: number) => {
 			data.children = [];
 		}
 		const newApiInfo: ApiAddInfo = {
-			api_response: {
-				http_status: 200,
-				response_name: '示例返回',
-				response_body: '{"result_code": 0}',
-			},
 			dictionary_id: data.id,
 			project_id: Number(route.params.project_id),
 			api_editor_id: JSON.parse(localStorage.getItem('userInfo')!).user_id,
@@ -136,7 +133,11 @@ const renderContent = (
 				{
 					style: `display: ${showInputBox.value[node.id] ? 'none' : 'inline-block'}`,
 					onDblclick: () => {
-						showInputBox.value[node.id] = true;
+						if (data.label === '根目录') {
+							ElMessage.error('根目录不可修改');
+						} else {
+							showInputBox.value[node.id] = true;
+						}
 					},
 				},
 				node.label
@@ -173,7 +174,7 @@ const renderContent = (
 				}),
 				h('img', {
 					src: '/src/static/svg/ProjectDetailsSideBarDelete.svg',
-					style: 'width: 20px; height: 20px;margin-left: 8px',
+					style: `display: ${data.label === '根目录' ? 'none' : 'inline-block'};width: 20px; height: 20px; margin-left: 8px`,
 					onClick: () => remove(node, data, 0),
 				})
 			)
@@ -263,7 +264,6 @@ onBeforeMount(async () => {
 .SideBar-wrap {
 	width: 300px;
 	height: 1000px;
-	overflow: scroll;
 }
 
 /* el-tree样式 */

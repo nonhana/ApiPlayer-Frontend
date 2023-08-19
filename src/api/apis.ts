@@ -1,7 +1,6 @@
 import myAxios from './axios';
 
 export interface ApiAddInfo {
-	api_response: ApiResponse;
 	dictionary_id: number;
 	project_id: number;
 	api_creator_id: number;
