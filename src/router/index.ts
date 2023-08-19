@@ -52,9 +52,24 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('../views/personalCenter/index.vue'),
 	},
 	{
-		path: '/interface/:api_id',
-		name: 'interface',
-		component: () => import('../views/interfaceDoc/index.vue'),
+		path: '/project/:project_id',
+		name: 'project',
+		// 重定向，为了让路由匹配到projectMain
+		redirect(to) {
+			return {
+				name: 'projectMain',
+				params: {
+					project_id: to.params.project_id,
+				},
+			};
+		},
+		children: [
+			{
+				path: '/projectMain/:project_id',
+				name: 'projectMain',
+				component: () => import('@/views/project/index.vue'),
+			},
+		],
 	},
 	{
 		path: '/404',
@@ -72,7 +87,7 @@ const router = createRouter({
 });
 
 // 路由守卫:未登录则不能访问其他页面
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
 	const token = localStorage.getItem('token'); //获取token
 	if (token || to.path === '/login') {
 		//有token或者在login页面下通行

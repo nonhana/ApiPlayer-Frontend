@@ -1,10 +1,10 @@
 <template>
 	<div class="index"></div>
 	<el-row>
-		<el-col :span="4">
+		<el-col :span="5">
 			<el-text class="mx-1" type="info">HTTP状态码：{{ props.context.http_status }}</el-text>
 		</el-col>
-		<el-col :span="4">
+		<el-col :span="5">
 			<el-text class="mx-1" type="info">内容格式：JSON</el-text>
 		</el-col>
 	</el-row>
@@ -14,7 +14,6 @@
 				<template #header>
 					<div class="card-header">
 						<span>数据结构</span>
-						<el-button class="button" text>Operation button</el-button>
 					</div>
 				</template>
 				<div>

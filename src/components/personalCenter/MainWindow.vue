@@ -4,21 +4,13 @@
 			<div class="title">
 				<span>头像</span>
 			</div>
-			<div
-				class="user-head"
-				@mouseenter="
-					showTemplate = true
-					// console.log(111);
-				"
-				@mouseleave="showTemplate = false"
-			>
+			<div class="user-head" @mouseenter="showTemplate = true" @mouseleave="showTemplate = false">
 				<transition name="fade">
 					<div v-if="showTemplate" class="template" @click="uploadFile">
 						<span>重新选取头像</span>
 					</div>
 				</transition>
 				<input v-show="false" ref="fileRef" type="file" @change="fileChange" />
-				<!-- <img :src="userInfo!.user_img" /> -->
 				<el-image :src="userInfo!.user_img">
 					<template #error>
 						<div

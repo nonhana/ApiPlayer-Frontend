@@ -13,14 +13,6 @@ export const register = (paramsList: { captcha: string; email: string; password:
 };
 
 // 用户登录
-// export const login = (paramsList: { email: string; password: string }) => {
-// 	return myAxios({
-// 		url: '/users/login',
-// 		method: 'GET',
-// 		params: paramsList,
-// 	});
-// };
-
 export const login = (paramsList: { email: string; password: string }) => {
 	return myAxios({
 		url: '/users/login',
@@ -36,6 +28,7 @@ export const sendCaptcha = (paramsList: { email: string }) => {
 		data: paramsList,
 	});
 };
+
 export const getUserInfo = () => {
 	return myAxios({
 		url: '/users/info',

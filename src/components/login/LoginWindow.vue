@@ -114,13 +114,13 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useBaseStore } from '../../store/index';
-import type { UserInfo } from '../../utils/types';
+import { useBaseStore } from '@/store/index';
+import type { UserInfo } from '@/utils/types';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
 
-import { login, register, sendCaptcha, getUserInfo } from '../../api/users.ts';
-import { validateEmail } from '../../utils/validate.ts';
+import { login, register, sendCaptcha, getUserInfo } from '@/api/users.ts';
+import { validateEmail } from '@/utils/validate.ts';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
@@ -163,12 +163,14 @@ const registerRules = reactive<FormRules<RegisterRuleForm>>({
 });
 const router = useRouter();
 
+// 登录表单
 let userLoginForm = ref({
 	email: '',
 	password: '',
 	phone_number: '',
 	verify_code: '',
 });
+// 注册表单
 let userRegisterForm = ref({
 	password: '',
 	password_again: '',
@@ -191,14 +193,12 @@ const sendVerifyCode = () => {
 		}
 	}, 1000);
 };
-
 const mySendCaptcha = () => {
 	sendCaptcha({ email: userRegisterForm.value.phone_number }).then(
 		() => {},
 		() => {}
 	);
 };
-
 const myLogin = (type: number) => {
 	if (type === 0) {
 		if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
@@ -208,68 +208,27 @@ const myLogin = (type: number) => {
 				type: 'error',
 			});
 		} else {
-			const userInfo: UserInfo = {
-				user_id: 0,
-				user_name: '',
-				user_img: '',
-				user_email: userLoginForm.value.email,
-				user_phone: '',
-				user_sign: '',
-			};
 			login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(
-				(res) => {
-					// if (res.data.result_code === 0) {
+				async (res) => {
 					if (res.data) {
 						localStorage.setItem('token', res.data.result.token);
+						const userInfoSource = (await getUserInfo()).data.result.userInfo;
+						const userInfo = {
+							user_id: userInfoSource.user_id,
+							user_name: userInfoSource.username,
+							user_img: userInfoSource.avatar,
+							user_email: userInfoSource.email,
+							user_sign: userInfoSource.introduce,
+						} as UserInfo;
 
-						getUserInfo().then(
-							(res) => {
-								// if (res.data.result_code === 0) {
-								if (res.data.result_code) {
-									const datas: {
-										username: string;
-										avatar: string;
-										email: string;
-										introduce: string;
-									} = res.data.result.userInfo;
-
-									userInfo.user_name = datas.username;
-									userInfo.user_img = datas.avatar;
-									userInfo.user_email = datas.email;
-									userInfo.user_sign = datas.introduce;
-
-									localStorage.setItem('userInfo', JSON.stringify(userInfo));
-									store.setUserInfo(userInfo);
-									// router.push({ name: 'home' });
-									router.push({ name: 'main' });
-									ElNotification({
-										title: '登录成功',
-										message: '欢迎回来！',
-										type: 'success',
-									});
-								} else {
-									() => {
-										ElNotification({
-											title: '获取用户信息失败',
-											message: '',
-											type: 'error',
-										});
-									};
-								}
-							},
-							() => {
-								ElNotification({
-									title: '获取用户信息失败',
-									message: '',
-									type: 'error',
-								});
-							}
-						);
-					} else {
+						localStorage.setItem('userInfo', JSON.stringify(userInfo));
+						store.setUserInfo(userInfo);
+						// router.push({ name: 'home' });
+						router.push({ name: 'main' });
 						ElNotification({
-							title: '登录失败',
-							message: '请求服务器失败',
-							type: 'error',
+							title: '登录成功',
+							message: '欢迎回来！',
+							type: 'success',
 						});
 					}
 				},

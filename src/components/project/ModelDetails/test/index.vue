@@ -5,40 +5,13 @@
 				<el-select v-model="method" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" /> </el-select
 			></el-col>
-			<el-col :span="14">
+			<el-col :span="16">
 				<el-input v-model="input" placeholder="Please input" size="large" />
 			</el-col>
-			<el-col :span="7">
-				<el-button type="primary" round size="large" style="margin-left: 20px" @click="saveApi">保存</el-button>
-				<el-button type="primary" round size="large" @click="runApi">运行</el-button>
-				<el-button type="primary" round size="large" @click="deleteApi">删除</el-button>
+			<el-col :span="5">
+				<el-button type="primary" round size="large" style="margin-left: 20px" @click="runApi">运行</el-button>
+				<el-button type="primary" round size="large" @click="saveApi">保存</el-button>
 			</el-col>
-		</el-row>
-		<el-row style="margin-bottom: 5px">
-			<el-col :span="6"><span style="margin-left: 5px">名称</span></el-col>
-			<el-col :span="6"><span style="margin-left: 5px">目录</span></el-col>
-			<el-col :span="6"><span style="margin-left: 5px">状态</span></el-col>
-			<el-col :span="6"><span style="margin-left: 5px">责任人</span></el-col>
-		</el-row>
-		<el-row>
-			<el-col :span="6">
-				<el-input v-model="name" placeholder="Please input" size="large" />
-			</el-col>
-			<el-col :span="6">
-				<el-input v-model="path" placeholder="Please input" size="large" />
-			</el-col>
-			<el-col :span="6">
-				<el-input v-model="status" placeholder="Please input" size="large" />
-			</el-col>
-			<el-col :span="6">
-				<el-input v-model="response" placeholder="Please input" size="large" />
-			</el-col>
-		</el-row>
-		<el-row style="margin-bottom: 5px">
-			<span>接口说明</span>
-		</el-row>
-		<el-row>
-			<el-input v-model="textarea" :rows="4" type="textarea" placeholder="Please input" />
 		</el-row>
 		<el-row style="margin-bottom: 5px">
 			<span>请求参数</span>
@@ -72,12 +45,10 @@
 		<el-row>
 			<el-row>
 				<el-tabs v-model="responseActiveName" type="card" class="res-tabs">
-					<div v-for="(item, index) in apiInfo.api_response_edit" :key="index">
+					<div v-for="(item, index) in apiInfo.api_response" :key="index">
 						<el-tab-pane :label="item.response_name" :name="item.id">
 							<div>HTTP状态码：{{ item.http_status }} &nbsp;&nbsp;&nbsp; 响应组件成功名称：{{ item.response_name }}</div>
-							<div>
-								<ParamsAndHeader :request-data="item.response_body"></ParamsAndHeader>
-							</div>
+							<div>sdfg</div>
 						</el-tab-pane>
 					</div>
 				</el-tabs>
@@ -85,6 +56,7 @@
 		</el-row>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { ref } from 'vue';
 // import type { TabsPaneContext } from 'element-plus';
@@ -261,48 +233,11 @@ let apiInfo = ref({
 			response_body: 'esse Lorem Excepteur qui in',
 		},
 	],
-	api_response_edit: [
-		{
-			http_status: 200,
-			response_name: '成功',
-			id: 'sdfghjsdfgh',
-			response_body: [
-				{
-					param_name: '写件查细声当',
-					param_type: 57,
-					param_desc: 'ut',
-				},
-				{
-					param_name: '起七做从',
-					param_type: 6,
-					param_desc: 'et ad sint cupidatat enim',
-				},
-			],
-		},
-		{
-			http_status: 94,
-			response_name: 'sdfghjdfgh',
-			id: 'dfgh',
-			response_body: [
-				{
-					param_name: 'dfghjsdfg',
-					param_type: 57,
-					param_desc: 'handlert',
-				},
-				{
-					param_name: 'ksgghf',
-					param_type: 6,
-					param_desc: 'hhhhhhhhhhh',
-				},
-			],
-		},
-	],
 });
 
 let responseActiveName = apiInfo.value.api_response[0].id;
 </script>
-
-<style scoped lang="less">
+<style lang="less" scoped>
 .index {
 	width: 1000px;
 
