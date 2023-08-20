@@ -1,5 +1,4 @@
 <template>
-	{{ apiOperation }}
 	<div class="index" v-if="apiInfo">
 		<el-row>
 			<el-col :span="3">
@@ -74,7 +73,7 @@
 		</el-row>
 		<el-row>
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
-				<div v-for="(item, index) in apiInfo.api_response" :key="index">
+				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="item.http_status">
 						<JsonSchemaEditor></JsonSchemaEditor>
 					</el-tab-pane>
@@ -95,6 +94,7 @@ import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
 import { useRouter, useRoute } from 'vue-router';
 import { updateApi, deleteApi } from '@/api/apis.ts';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { onBeforeRouteUpdate } from 'vue-router';
 
 interface Request {
 	api_desc: string;
@@ -144,7 +144,14 @@ watch(
 	},
 	{ immediate: true, deep: true }
 );
-
+const getInfo = async (thisId) => {
+	await apiOperation.getApiInfo(thisId);
+	apiInfo.value = apiOperation.apiInfo;
+};
+onBeforeRouteUpdate((to) => {
+	console.log('todoc', to);
+	getInfo(to.query.api_id);
+});
 // const route = useRoute();
 // watch(route, (newValue, oldValue) => {
 // 	console.log('watch 已触发', newValue, oldValue);

@@ -17,9 +17,9 @@
 			<el-text class="mx-1">前置url：{{ apiInfo.api_env_url }} </el-text>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1">创建时间 {{ apiInfo.api_createdAt }}</el-text>
+			<el-text class="mx-1">创建时间 {{ timestampToTime(Date.parse(apiInfo.api_createdAt)) }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">修改时间 {{ apiInfo.api_editedAt }}</el-text>
+			<el-text class="mx-1">修改时间 {{ timestampToTime(Date.parse(apiInfo.api_editedAt)) }}</el-text>
 			<el-col :span="1"></el-col>
 			<el-text class="mx-1">修改者 {{ apiInfo.api_editor_id }}</el-text>
 			<el-col :span="1"></el-col>
@@ -69,11 +69,12 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, watch, onBeforeMount } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
 import { apiStore } from '../../../../store/apis.ts';
 import { useRouter, useRoute } from 'vue-router';
+import { onBeforeRouteUpdate } from 'vue-router';
 
 interface Request {
 	api_desc: string;
@@ -113,14 +114,6 @@ const map = { boolean: { 0: 'Params', 1: 'Body(form-data)', 2: 'Body(x-www-form-
 const apiOperation = apiStore();
 const apiInfo = ref(apiOperation.apiInfo);
 
-// const getInfo = async () => {
-// 	const router = useRouter();
-// 	const thisId = router.currentRoute.value.query.api_id;
-
-// 	await apiOperation.getApiInfo(thisId);
-// 	apiInfo.value = apiOperation.apiInfo;
-// };
-
 watch(
 	apiOperation.apiInfo,
 	(newVal, oldVal) => {
@@ -131,14 +124,27 @@ watch(
 	{ immediate: true, deep: true }
 );
 
-const route = useRoute();
-watch(route, (newValue, oldValue) => {
-	console.log('watch 已触发', newValue, oldValue);
+const getInfo = async (thisId) => {
+	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
+};
+onBeforeRouteUpdate((to) => {
+	console.log('todoc', to);
+	getInfo(to.query.api_id);
 });
-// const handleClick = (tab: TabsPaneContext, event: Event) => {
-// 	console.log(tab, event);
-// };
+
+const timestampToTime = (timestamp) => {
+	timestamp = timestamp ? timestamp : null;
+	let date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	let Y = date.getFullYear() + '-';
+	let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+	let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+	let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+	let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+	let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+	return Y + M + D + h + m + s;
+};
+
 // const activeName = apiInfo.value.api_response[0].http_status;
 </script>
 
