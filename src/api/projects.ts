@@ -62,3 +62,32 @@ export const deleteDictionary = (paramsList: { dictionary_id: number }) => {
 		data: paramsList,
 	});
 };
+
+export const getProjectInfo = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/basicinfo',
+		method: 'GET',
+		params: paramsList,
+	});
+};
+export const updataBasicInfo = (paramsList: {
+	project_current_type?: number;
+	project_desc?: string;
+	project_id?: number;
+	project_img?: string;
+	project_name?: string;
+}) => {
+	return myAxios({
+		url: '/projects/updatebasicinfo',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+export const deleteProject = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/deleteproject',
+		method: 'POST',
+		data: paramsList,
+	});
+};

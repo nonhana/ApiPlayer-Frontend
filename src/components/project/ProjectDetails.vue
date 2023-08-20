@@ -24,7 +24,7 @@ import Test from './ModelDetails/test/index.vue';
 import { apiStore } from '../../store/apis';
 // import { useRouter } from 'vue-router';
 import SideBar from './ModelDetails/components/SideBar.vue';
-import SideNav from './ModelDetails/components/SideNav.vue';
+import SideNav from './ModelSettings/SideNav.vue';
 
 interface Request {
 	api_desc: string;

@@ -51,13 +51,16 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { Search, CirclePlusFilled, Refresh } from '@element-plus/icons-vue';
-import { TableColumnCtx, TableInstance, FormInstance, FormRules, ElMessage } from 'element-plus';
+import { FormInstance, FormRules, ElMessage } from 'element-plus';
 // import { inviteUser, setMemberIdentity, removeMember } from '@/api/teams';
 import { searchUser } from '@/api/users';
 
 import { useRoute, useRouter } from 'vue-router';
+
+import { useBaseStore } from '../../../store/index';
+const baseStore = useBaseStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -108,7 +111,7 @@ const inviteDialog = ref(false);
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
-const teamName = ref('个人空间');
+let teamName = ref('ApiPlayer');
 
 const inviteFormRef = ref<FormInstance>();
 const inviteForm = reactive<RuleForm>({
@@ -137,10 +140,15 @@ const inviteFormRules = reactive<FormRules<RuleForm>>({
 const search = () => {
 	const res = searchUser({ username: inviteForm.username });
 };
+onMounted(() => {
+	teamName.value = baseStore.curTeamInfo.team_name ?? 'ApiPlayer';
+	// console.log(111, teamName.value);
+});
 </script>
 <style lang="less" scoped>
 .nav_side {
 	width: 70px;
+	// height: calc(100% - 60px);
 	height: 100%;
 	display: flex;
 	flex-direction: column;

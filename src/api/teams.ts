@@ -10,7 +10,7 @@ export const teamList = (paramsList: { user_id: number }) => {
 };
 
 //新建团队
-export const addTeam = (paramsList: { user_id: number; team_name: string; team_desc: string; team_user_name: string }) => {
+export const addTeam = (paramsList: { user_id: number; team_name: string; team_desc: string; team_user_name: string; project_img: string }) => {
 	return myAxios({
 		url: '/teams/addteam',
 		method: 'POST',

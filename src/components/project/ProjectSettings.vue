@@ -1,12 +1,13 @@
 <template>
 	<div class="container">
 		<SideNav></SideNav>
-		<div>12323</div>
+		<Settings></Settings>
 	</div>
 </template>
 
 <script setup lang="ts">
-import SideNav from '../project/ModelDetails/components/SideNav.vue';
+import SideNav from '../project/ModelSettings/SideNav.vue';
+import Settings from './ModelSettings/Settings.vue';
 </script>
 
 <style scoped>

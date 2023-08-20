@@ -257,6 +257,7 @@ onBeforeMount(async () => {
 	// dataSource.value = (await getProjectApiList({ project_id: Number(route.params.project_id) })).data.data;
 	const res = await getProjectApiList({ project_id: Number(route.params.project_id) });
 	dataSource.value = res.data.api_list;
+	console.log(dataSource.value);
 
 	// 遍历目录树，获取到节点个数
 	function countAllNodes(tree: Tree): number {
