@@ -1,16 +1,16 @@
 <template>
 	<div class="EnvHeader-wrap">
 		<div class="button-group">
-			<img class="reload" src="../../../../static/svg/ProjectDetailsEnvHeaderReload.svg" />
+			<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" />
 
 			<el-dropdown @command="envChoosing">
 				<el-button-group>
 					<el-button class="main-button" color="#fff" type="primary">
 						<span>{{ currentEnvName }}</span>
-						<img src="../../../../static/svg/ProjectDetailsEnvHeaderOpenList.svg" />
+						<img src="@/static/svg/ProjectDetailsEnvHeaderOpenList.svg" />
 					</el-button>
-					<el-button class="edit-button" color="#fff" type="primary" @click="showDialog = !showDialog">
-						<img src="../../../../static/svg/ProjectDetailsEnvHeaderEdit.svg" />
+					<el-button class="edit-button" color="#fff" type="primary" @click="showDialogList[0] = !showDialogList[0]">
+						<img src="@/static/svg/ProjectDetailsEnvHeaderEdit.svg" />
 					</el-button>
 				</el-button-group>
 				<template #dropdown>
@@ -21,7 +21,7 @@
 			</el-dropdown>
 		</div>
 
-		<el-dialog v-model="showDialog" title="编辑项目全局信息" width="1000px" :before-close="handleClose">
+		<el-dialog v-model="showDialogList[0]" title="编辑项目全局信息" width="1000px" :before-close="handleClose(0)">
 			<div class="common-layout">
 				<el-container class="edit-dialog" style="height: 500px">
 					<el-aside width="200px">
@@ -29,7 +29,7 @@
 							<el-menu default-active="1-1" :default-openeds="['1']" @select="handleSelect">
 								<el-sub-menu index="1">
 									<template #title>
-										<img style="margin-right: 5px" src="../../../../static/svg/ProjectDetailsEnvHeaderDialogParams.svg" />
+										<img style="margin-right: 5px" src="@/static/svg/ProjectDetailsEnvHeaderDialogParams.svg" />
 										<span>全局变量、参数</span>
 									</template>
 									<el-menu-item index="1-1">全局变量</el-menu-item>
@@ -37,7 +37,7 @@
 								</el-sub-menu>
 								<el-sub-menu index="2">
 									<template #title>
-										<img style="margin-right: 5px" src="../../../../static/svg/ProjectDetailsEnvHeaderDialogEnv.svg" />
+										<img style="margin-right: 5px" src="@/static/svg/ProjectDetailsEnvHeaderDialogEnv.svg" />
 										<span>环境管理</span>
 									</template>
 									<el-menu-item v-for="(envItem, index) in envList" :key="index" :index="`2-${envItem.env_type + 1}`">{{
@@ -62,7 +62,7 @@
 										<el-table-column prop="variable_name" label="Nate" width="140" />
 										<el-table-column prop="variable_type" label="Type" width="120" />
 										<el-table-column prop="variable_value" label="Value" width="140" />
-										<el-table-column prop="variable_desc" label="Describe" />
+										<el-table-column prop="variable_desc" label="Description" />
 									</el-table>
 								</div>
 								<div v-if="currentEditTable === '1-2'">
@@ -76,28 +76,34 @@
 										<el-table-column prop="param_name" label="Nate" width="140" />
 										<el-table-column prop="param_type" label="Type" width="120" />
 										<el-table-column prop="param_value" label="Value" width="140" />
-										<el-table-column prop="param_desc" label="Describe" width="140" />
+										<el-table-column prop="param_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
-											<el-button type="primary">Edit</el-button>
-											<el-button type="danger">Delete</el-button>
+											<template #default="scope">
+												<el-button type="primary" @click="paramAction(scope.$index, scope.row, 0)">Edit</el-button>
+												<el-button type="danger" @click="paramAction(scope.$index, scope.row, 1)">Delete</el-button>
+											</template>
 										</el-table-column>
 									</el-table>
+
+									<div style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
+										<el-button @click="showDialogList[1] = !showDialogList[1]">Add New Parameter</el-button>
+									</div>
 								</div>
-								<div v-if="currentEditTable === '2-1'">
+								<div v-if="currentEditTable === '2-1'" class="envBox">
 									<span>baseUrl：</span>
-									<el-input v-model="envBaseUrlList[0]"></el-input>
+									<el-input v-model="envList[0].env_baseurl"></el-input>
 								</div>
-								<div v-if="currentEditTable === '2-2'">
+								<div v-if="currentEditTable === '2-2'" class="envBox">
 									<span>baseUrl：</span>
-									<el-input v-model="envBaseUrlList[1]"></el-input>
+									<el-input v-model="envList[1].env_baseurl"></el-input>
 								</div>
-								<div v-if="currentEditTable === '2-3'">
+								<div v-if="currentEditTable === '2-3'" class="envBox">
 									<span>baseUrl：</span>
-									<el-input v-model="envBaseUrlList[2]"></el-input>
+									<el-input v-model="envList[2].env_baseurl"></el-input>
 								</div>
-								<div v-if="currentEditTable === '2-4'">
+								<div v-if="currentEditTable === '2-4'" class="envBox">
 									<span>baseUrl：</span>
-									<el-input v-model="envBaseUrlList[3]"></el-input>
+									<el-input v-model="envList[3].env_baseurl"></el-input>
 								</div>
 							</el-scrollbar>
 						</el-main>
@@ -106,8 +112,42 @@
 			</div>
 			<template #footer>
 				<span class="dialog-footer">
-					<el-button @click="confirmEdit(0)">取消</el-button>
-					<el-button color="#59A8B9" @click="confirmEdit(1)"><span style="color: #fff">确认</span></el-button>
+					<el-button @click="confirmEdit([0, 0])">关闭</el-button>
+					<el-button color="#59A8B9" @click="confirmEdit([0, 1])"><span style="color: #fff">保存</span></el-button>
+				</span>
+			</template>
+		</el-dialog>
+
+		<el-dialog
+			v-model="showDialogList[1]"
+			:title="editingParamsStatus ? '编辑参数信息' : '新增参数信息'"
+			width="600px"
+			:before-close="handleClose(1)"
+		>
+			<div>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>参数名称：</span>
+					<el-input v-model="editingParamsInfo.param_name" style="width: 400px" placeholder="请填写要添加的参数名称"></el-input>
+				</el-row>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>参数类型：</span>
+					<el-select v-model="editingParamsInfo.param_type" placeholder="请选择要添加的参数类型">
+						<el-option v-for="item in paramTypeList" :key="item.value" :label="item.label" :value="item.value" />
+					</el-select>
+				</el-row>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>参数默认值：</span>
+					<el-input v-model="editingParamsInfo.param_value" style="width: 400px" placeholder="请填写要添加的参数默认值"></el-input>
+				</el-row>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>参数描述：</span>
+					<el-input v-model="editingParamsInfo.param_desc" style="width: 400px" placeholder="请填写要添加的参数的描述信息"></el-input>
+				</el-row>
+			</div>
+			<template #footer>
+				<span class="dialog-footer">
+					<el-button @click="confirmEdit([1, 0])">关闭</el-button>
+					<el-button color="#59A8B9" @click="confirmEdit([1, 1])"><span style="color: #fff">保存</span></el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -117,7 +157,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo } from '@/api/projects';
+import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo } from '@/api/projects';
 import { ElMessageBox, ElMessage } from 'element-plus';
 
 interface EnvItem {
@@ -126,10 +166,10 @@ interface EnvItem {
 	env_baseurl: string;
 }
 interface ParamItem {
-	param_id: number;
+	param_id?: number;
 	param_name: string;
-	param_type: number;
-	param_value: string;
+	param_type: string;
+	param_value: number | string;
 	param_desc: string;
 }
 interface GlobalParamItem {
@@ -144,17 +184,37 @@ interface GlobalVariableItem {
 }
 
 const route = useRoute();
+const paramTypeList = [
+	{
+		value: 'number',
+		label: 'number',
+	},
+	{
+		value: 'integer',
+		label: 'integer',
+	},
+	{
+		value: 'string',
+		label: 'string',
+	},
+];
 
 let envList = ref<EnvItem[]>([]);
 let globalParams = ref<GlobalParamItem[]>([]);
 let globalVariables = ref<GlobalVariableItem[]>([]);
 let projectCurrentType = ref<number>(0);
 let currentEnvName = ref<string>('');
-let showDialog = ref<boolean>(false);
+let showDialogList = ref<boolean[]>([true, false]);
 let currentEditName = ref<string>('全局变量');
 let currentEditTable = ref<string>('1-1');
 let currentEditParamsClass = ref<string>('1');
-let envBaseUrlList = ref<string[]>([]);
+let editingParamsInfo = ref<ParamItem>({
+	param_name: '',
+	param_type: '',
+	param_value: '',
+	param_desc: '',
+});
+let editingParamsStatus = ref<boolean>(false);
 
 // 下拉框点击切换环境
 const envChoosing = async (envType: number) => {
@@ -165,20 +225,150 @@ const envChoosing = async (envType: number) => {
 		project_current_type: envType,
 	});
 };
-// 直接点击el-dialog的叉叉关闭
-const handleClose = (done: () => void) => {
-	ElMessageBox.confirm('你的设置尚未保存，确定放弃修改吗？').then(() => {
-		done();
-	});
+// 点击el-dialog的叉叉、点击dialog外部关闭
+const handleClose = (type: number) => {
+	let text: string = '';
+
+	switch (type) {
+		case 0:
+			text = '你的全局设置尚未保存，是否确认关闭？';
+			break;
+		case 1:
+			text = '你的参数设置尚未保存，是否确认关闭？';
+			break;
+		default:
+			break;
+	}
+
+	return function (done: () => void) {
+		ElMessageBox.confirm(text)
+			.then(() => {
+				done();
+			})
+			.catch(() => {});
+	};
 };
 // 是否确认变更
-const confirmEdit = (type: number) => {
-	if (type === 0) {
-		showDialog.value = false;
-		ElMessage.info('已取消');
+const confirmEdit = async (type: number[]) => {
+	if (type[0] === 0) {
+		if (type[1] === 0) {
+			showDialogList.value[0] = false;
+		} else {
+			// 将envList保存到数据库
+
+			const envListSource = envList.value.map((item) => {
+				let envType: number = 0;
+				switch (item.env_name) {
+					case '开发环境':
+						envType = 1;
+						break;
+					case '测试环境':
+						envType = 2;
+						break;
+					case '正式环境':
+						envType = 3;
+						break;
+					case 'mock.js环境':
+						envType = 4;
+						break;
+					default:
+						break;
+				}
+				return {
+					env_type: envType,
+					env_baseurl: item.env_baseurl,
+				};
+			});
+
+			await updateProjectGlobalInfo({
+				project_id: Number(route.params.project_id),
+				env_list: envListSource,
+			});
+
+			showDialogList.value[0] = false;
+			ElMessage.success('保存成功');
+		}
 	} else {
-		showDialog.value = false;
-		ElMessage.success('已确认');
+		if (type[1] === 0) {
+			showDialogList.value[1] = false;
+		} else {
+			// 分两种：1.新增 2.修改
+			if (editingParamsStatus.value) {
+				// 将editingParamsInfo中的值根据param_id，更新到globalParams中
+				const index = globalParams.value.findIndex((item) => item.type === Number(currentEditParamsClass.value) - 1);
+				const paramsIndex = globalParams.value[index].params_list.findIndex((item) => item.param_id === editingParamsInfo.value.param_id);
+				globalParams.value[index].params_list[paramsIndex] = editingParamsInfo.value;
+			} else {
+				// 新增
+				const index = globalParams.value.findIndex((item) => item.type === Number(currentEditParamsClass.value) - 1);
+				globalParams.value[index].params_list.push(editingParamsInfo.value);
+			}
+
+			// 把新的globalParams通过接口更新到数据库。但是需要先转换格式
+			const paramsList = globalParams.value.map((item) => {
+				return {
+					type: item.type,
+					params_list: item.params_list.map((item) => {
+						let paramType: number = 0;
+						switch (item.param_type) {
+							case 'number':
+								paramType = 0;
+								break;
+							case 'integer':
+								paramType = 1;
+								break;
+							case 'string':
+								paramType = 2;
+								break;
+							default:
+								break;
+						}
+
+						const paramObject: {
+							param_name: string;
+							param_type: number;
+							param_value: string;
+							param_desc: string;
+							param_action_type: number;
+							[key: string]: any;
+						} = {
+							param_name: item.param_name,
+							param_type: paramType,
+							param_value: JSON.stringify({
+								value: item.param_value,
+							}),
+							param_desc: item.param_desc,
+							param_action_type: 1,
+						};
+
+						// 如果 item 中有 param_id，说明是修改，否则是新增
+						if (item.param_id) {
+							paramObject.param_id = item.param_id;
+							paramObject.param_action_type = 0;
+						}
+
+						return paramObject;
+					}),
+				};
+			});
+
+			const res = await updateProjectGlobalInfo({
+				project_id: Number(route.params.project_id),
+				global_params: paramsList,
+			});
+			console.log(res.data);
+
+			// 更新完成后，将editingParamsInfo置空
+			editingParamsInfo.value = {
+				param_name: '',
+				param_type: '',
+				param_value: '',
+				param_desc: '',
+			};
+
+			showDialogList.value[1] = false;
+			ElMessage.success(editingParamsStatus.value ? '修改成功' : '添加成功');
+		}
 	}
 };
 // 选择某个菜单项
@@ -205,24 +395,72 @@ const handleSelect = (index: string) => {
 			break;
 	}
 };
-// 选择全局参数的类型
+// 选择全局参数的类型：1-Header，2-Cookie，3-Query
 const globalParamsClassSelect = (index: string) => {
 	currentEditParamsClass.value = index;
 };
+// 点击全局参数table中的按钮
+const paramAction = (index: number, row: any, actionType: number) => {
+	switch (actionType) {
+		case 0:
+			editingParamsStatus.value = true;
+			showDialogList.value[1] = true;
+			editingParamsInfo.value = {
+				param_id: row.param_id,
+				param_name: row.param_name,
+				param_type: row.param_type,
+				param_value: row.param_value,
+				param_desc: row.param_desc,
+			};
+			break;
+		case 1:
+			ElMessageBox.confirm('是否确认删除？')
+				.then(async () => {
+					const paramsList = globalParams.value.map((item) => {
+						return {
+							type: item.type,
+							params_list: [] as any[],
+						};
+					});
+
+					// 找到要删除的那一项，把param_action_type置为2，加到paramsList中
+					paramsList[Number(currentEditParamsClass.value) - 1].params_list.push({
+						param_id: row.param_id,
+						param_action_type: 2,
+					});
+
+					await updateProjectGlobalInfo({
+						project_id: Number(route.params.project_id),
+						global_params: paramsList,
+					});
+
+					globalParams.value[Number(currentEditParamsClass.value) - 1].params_list.splice(index, 1);
+					ElMessage.success('已删除');
+				})
+				.catch(() => {});
+			break;
+		default:
+			break;
+	}
+};
 
 onMounted(async () => {
+	// 拿到项目的全局信息
 	const globalInfo = (
 		await getProjectGlobalInfo({
 			project_id: Number(route.params.project_id),
 		})
 	).data;
 
+	// 获取该项目当前所处的环境
 	projectCurrentType.value = (
 		await getProjectBasicInfo({
 			project_id: Number(route.params.project_id),
 		})
 	).data.project_info.project_current_type;
 
+	// 处理全局信息，将其转换为前端需要的格式
+	// 1. env_list
 	envList.value = globalInfo.env_list.map((item: any) => {
 		let envName = '';
 		switch (item.env_type) {
@@ -248,7 +486,7 @@ onMounted(async () => {
 			env_baseurl: item.env_baseurl,
 		};
 	});
-	envBaseUrlList.value = envList.value.map((item) => item.env_baseurl);
+	// 2. global_params
 	globalParams.value = globalInfo.global_params.map((item: any) => {
 		return {
 			type: item.type,
@@ -278,8 +516,31 @@ onMounted(async () => {
 			}),
 		};
 	});
-	globalVariables.value = globalInfo.global_variable;
-
+	// 3. global_variables
+	globalVariables.value = globalInfo.global_variable.map((item: any) => {
+		let variableType = '';
+		switch (item.variable_type) {
+			case 0:
+				variableType = 'number';
+				break;
+			case 1:
+				variableType = 'integer';
+				break;
+			case 2:
+				variableType = 'string';
+				break;
+			default:
+				variableType = '未知类型';
+				break;
+		}
+		return {
+			variable_name: item.variable_name,
+			variable_type: variableType,
+			variable_value: JSON.parse(item.variable_value).value,
+			variable_desc: item.variable_desc,
+		};
+	});
+	// 把当前环境的名称显示在页面上
 	currentEnvName.value = envList.value.find((item) => item.env_type === projectCurrentType.value)!.env_name;
 });
 </script>
@@ -363,5 +624,24 @@ onMounted(async () => {
 		height: 100%;
 		right: 20px;
 	}
+
+	.envBox {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+		padding: 20px;
+		span {
+			font-family: Microsoft YaHei;
+			font-size: 18px;
+			font-weight: normal;
+			color: #3d3d3d;
+		}
+	}
+}
+
+/* el-input样式 */
+:deep(.el-input) {
+	height: 40px;
 }
 </style>

@@ -306,13 +306,9 @@ let phoneNumberChangeInfo = ref({
 
 // 直接点击el-dialog的叉叉关闭
 const handleClose = (done: () => void) => {
-	ElMessageBox.confirm('确定放弃修改吗？')
-		.then(() => {
-			done();
-		})
-		.catch(() => {
-			// catch error
-		});
+	ElMessageBox.confirm('确定放弃修改吗？').then(() => {
+		done();
+	});
 };
 // 点击上传文件
 const uploadFile = () => {
