@@ -1,4 +1,5 @@
 <template>
+	{{ apiInfo.api_id }}
 	<div class="index">
 		<el-row class="roww">
 			<el-text class="mx-1" size="large">{{ apiInfo.api_name }}</el-text>
@@ -39,37 +40,40 @@
 		<el-row>
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
-		<div v-for="(item, index) in apiInfo.api_request_params" :key="index">
-			<el-row>{{ item.type }}</el-row>
-			<el-row>
-				<el-table :data="item.params_list" border style="width: 100%">
-					<el-table-column prop="param_name" label="name" />
-					<el-table-column prop="param_type" label="type" />
-					<el-table-column prop="param_desc" label="desc" />
-				</el-table>
-			</el-row>
-			<el-row></el-row>
+		<div v-if="apiInfo">
+			<div v-for="(item, index) in apiInfo.api_request_params" :key="index">
+				<el-text class="mx-1" size="large">{{ map.boolean[item.type] }}</el-text>
+				<el-row>
+					<el-table :data="item.params_list" border style="width: 100%">
+						<el-table-column prop="name" label="name" />
+						<el-table-column prop="type" label="type" />
+						<el-table-column prop="desc" label="desc" />
+					</el-table>
+				</el-row>
+				<el-row></el-row>
+			</div>
 		</div>
 		<el-row></el-row>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
-		<el-row>
+		<!-- <el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_response" :key="index">
-					<el-tab-pane :label="item.response_name" :name="item.http_status">
+					<el-tab-pane :label="item.response_name" :name="key">
 						<ResponseCard :context="item"></ResponseCard>
 					</el-tab-pane>
 				</div>
 			</el-tabs>
-		</el-row>
+		</el-row> -->
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onBeforeMount } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
 import { apiStore } from '../../../../store/apis.ts';
+import { useRouter, useRoute } from 'vue-router';
 
 interface Request {
 	api_desc: string;
@@ -103,19 +107,19 @@ interface ApiResponse {
 	response_body: string;
 	response_name: string;
 }
-
-const apiInfo = ref<Request | undefined>();
+const map = { boolean: { 0: 'Params', 1: 'Body(form-data)', 2: 'Body(x-www-form-unlencoded)', 3: 'Cookie', 4: 'Header' } };
 // const activeName = ref();
 
 const apiOperation = apiStore();
-onMounted(() => {
-	getInfo();
-});
+const apiInfo = ref(apiOperation.apiInfo);
 
-const getInfo = async () => {
-	await apiOperation.getApiInfo('98');
-	apiInfo.value = apiOperation.apiInfo;
-};
+// const getInfo = async () => {
+// 	const router = useRouter();
+// 	const thisId = router.currentRoute.value.query.api_id;
+
+// 	await apiOperation.getApiInfo(thisId);
+// 	apiInfo.value = apiOperation.apiInfo;
+// };
 
 watch(
 	apiOperation.apiInfo,
@@ -127,6 +131,11 @@ watch(
 	{ immediate: true, deep: true }
 );
 
+const route = useRoute();
+watch(route, (newValue, oldValue) => {
+	console.log('watch 已触发', newValue, oldValue);
+	apiInfo.value = apiOperation.apiInfo;
+});
 // const handleClick = (tab: TabsPaneContext, event: Event) => {
 // 	console.log(tab, event);
 // };
@@ -136,6 +145,7 @@ watch(
 <style lang="less">
 .index {
 	width: 1000px;
+	background-color: #fff;
 
 	.roww {
 		width: 1000px;

@@ -53,20 +53,13 @@ export interface ExecuteParamsList {
 }
 
 // 获取api数据
-// export const getApiInfo = (apiid: string) => {
-// 	return myAxios({
-// 		url: '/apis/apiinfo',
-// 		method: 'GET',
-// 		params: {
-// 			api_id: apiid,
-// 		},
-// 	});
-// };
-
-export const getApiInfo = () => {
+export const getApiInfo = (apiid: number) => {
 	return myAxios({
 		url: '/apis/apiinfo',
 		method: 'GET',
+		params: {
+			api_id: apiid,
+		},
 	});
 };
 
@@ -80,7 +73,7 @@ export const addApi = (paramsList: ApiAddInfo) => {
 };
 
 // 更新接口
-export const updateApi = (updateApiInfo: ApiUpdateInfo) => {
+export const updateApi = (updateApiInfo: any) => {
 	return myAxios({
 		url: '/apis/updateapi',
 		method: 'POST',
