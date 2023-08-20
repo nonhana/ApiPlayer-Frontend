@@ -199,22 +199,23 @@ const paramTypeList = [
 	},
 ];
 
-let envList = ref<EnvItem[]>([]);
-let globalParams = ref<GlobalParamItem[]>([]);
-let globalVariables = ref<GlobalVariableItem[]>([]);
-let projectCurrentType = ref<number>(0);
-let currentEnvName = ref<string>('');
-let showDialogList = ref<boolean[]>([true, false]);
-let currentEditName = ref<string>('全局变量');
-let currentEditTable = ref<string>('1-1');
-let currentEditParamsClass = ref<string>('1');
+let envList = ref<EnvItem[]>([]); // 环境列表
+let globalParams = ref<GlobalParamItem[]>([]); // 全局参数列表
+let globalVariables = ref<GlobalVariableItem[]>([]); // 全局变量列表
+let projectCurrentType = ref<number>(0); // 当前环境类型 0-开发环境 1-测试环境 2-正式环境 3-mock.js环境
+let currentEnvName = ref<string>(''); // 当前项目所处的环境名称
+let showDialogList = ref<boolean[]>([true, false]); // 控制弹窗显示隐藏
+let currentEditName = ref<string>('全局变量'); // 当前正在编辑的是什么内容，默认是全局变量
+let currentEditTable = ref<string>('1-1'); // 当前正在编辑的主要窗口
+let currentEditParamsClass = ref<string>('1'); // 当前正在编辑的全局参数所属的类别。0-Header，1-Query，2-Cookie
+// 点开编辑全局参数弹窗时，当前正在编辑的全局参数信息
 let editingParamsInfo = ref<ParamItem>({
 	param_name: '',
 	param_type: '',
 	param_value: '',
 	param_desc: '',
 });
-let editingParamsStatus = ref<boolean>(false);
+let editingParamsStatus = ref<boolean>(false); // false：正在新增参数，true：正在编辑参数
 
 // 下拉框点击切换环境
 const envChoosing = async (envType: number) => {
@@ -228,7 +229,6 @@ const envChoosing = async (envType: number) => {
 // 点击el-dialog的叉叉、点击dialog外部关闭
 const handleClose = (type: number) => {
 	let text: string = '';
-
 	switch (type) {
 		case 0:
 			text = '你的全局设置尚未保存，是否确认关闭？';
@@ -239,7 +239,6 @@ const handleClose = (type: number) => {
 		default:
 			break;
 	}
-
 	return function (done: () => void) {
 		ElMessageBox.confirm(text)
 			.then(() => {
