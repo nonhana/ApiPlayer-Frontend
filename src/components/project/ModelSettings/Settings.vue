@@ -200,8 +200,8 @@
 import { ref, reactive, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage } from 'element-plus';
-import { getProjectInfo, updataBasicInfo, deleteProject } from '../../../api/projects';
-import { useBaseStore } from '../../../store/index';
+import { getProjectInfo, updataBasicInfo, deleteProject } from '@/api/projects';
+import { useBaseStore } from '@/store/index';
 
 interface ProjectInfo {
 	project_current_type?: number;

@@ -26,7 +26,7 @@
 				<template #header>
 					<div class="card-header">
 						<span>示例</span>
-						<!-- <el-button class="button" text>Operation button</el-button> -->
+						<el-button class="button" text>Operation button</el-button>
 					</div>
 				</template>
 				<div></div>
@@ -36,9 +36,29 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue';
+
 interface Tree {
 	label: string;
 	children?: Tree[];
+}
+// 前端拿来渲染的树形结构
+interface TreeNode {
+	id: number;
+	label: string;
+	type: string;
+	required: boolean;
+	description: string;
+	children?: TreeNode[];
+	[key: string]: any;
+}
+// 后端传过来的JSON_Schema结构
+interface SchemaNode {
+	type: string;
+	title: string;
+	description?: string;
+	required?: string[];
+	properties?: { [key: string]: SchemaNode };
 }
 
 const props = defineProps({
@@ -51,60 +71,51 @@ const props = defineProps({
 	},
 });
 
-const TreeData = [
-	{
-		id: 1,
-		label: '一级 1',
-		children: [
-			{
-				id: 4,
-				label: '二级 1-1',
-				children: [
-					{
-						id: 9,
-						label: '三级 1-1-1',
-					},
-					{
-						id: 10,
-						label: '三级 1-1-2',
-					},
-				],
-			},
-		],
-	},
-	{
-		id: 2,
-		label: '一级 2',
-		children: [
-			{
-				id: 5,
-				label: '二级 2-1',
-			},
-			{
-				id: 6,
-				label: '二级 2-2',
-			},
-		],
-	},
-	{
-		id: 3,
-		label: '一级 3',
-		children: [
-			{
-				id: 7,
-				label: '二级 3-1',
-			},
-			{
-				id: 8,
-				label: '二级 3-2',
-			},
-		],
-	},
-];
+let TreeData: TreeNode[] = [];
 
 const handleNodeClick = (data: Tree) => {
 	console.log(data);
 };
+// 将后端传过来的JSON_Schema结构转换成前端需要的树形结构
+function convertSchemaToTree(schema: SchemaNode, parentId: number): TreeNode {
+	const treeNode: TreeNode = {
+		id: parentId,
+		label: schema.title,
+		type: schema.type,
+		required: false,
+		description: schema.description || '',
+		children: [],
+	};
+
+	if (schema.required) {
+		schema.required.forEach((prop) => {
+			const propertySchema = schema.properties?.[prop];
+			if (propertySchema) {
+				const childNode = convertSchemaToTree(propertySchema, parentId * 10 + 1);
+				childNode.required = true;
+				treeNode.children.push(childNode);
+			}
+		});
+	}
+
+	return treeNode;
+}
+
+watch(
+	() => props.context,
+	(newV, _) => {
+		// 拿到之后进行处理
+		let rootSchema: SchemaNode;
+		if (JSON.parse(newV.response_body).root) {
+			rootSchema = JSON.parse(newV.response_body).root;
+		} else {
+			rootSchema = JSON.parse(newV.response_body);
+		}
+		TreeData = [convertSchemaToTree(rootSchema, 1)];
+		console.log(TreeData);
+	},
+	{ immediate: true, deep: true }
+);
 </script>
 
 <style scoped lang="less">

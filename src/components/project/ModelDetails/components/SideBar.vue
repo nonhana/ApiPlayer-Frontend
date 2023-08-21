@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '../../../../api/projects';
+import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '@/api/projects';
 import { addApi, updateApi, deleteApi } from '@/api/apis';
 import type { ApiAddInfo } from '@/api/apis';
 import type Node from 'element-plus/es/components/tree/src/model/node';
@@ -258,15 +258,14 @@ const checkoutApi = (node: Tree) => {
 	}
 };
 
-const getInfo = async (thisId) => {
+const getInfo = async (thisId: number) => {
 	await apiOperation.getApiInfo(thisId);
 };
 
 onBeforeMount(async () => {
 	// dataSource.value = (await getProjectApiList({ project_id: Number(route.params.project_id) })).data.data;
 	const res = await getProjectApiList({ project_id: Number(route.params.project_id) });
-	dataSource.value = res.data.api_list;
-	console.log(dataSource.value);
+	dataSource.value = res.data.data;
 
 	// 遍历目录树，获取到节点个数
 	function countAllNodes(tree: Tree): number {

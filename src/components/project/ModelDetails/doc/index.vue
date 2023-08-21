@@ -57,22 +57,22 @@
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
-		<!-- <el-row>
+		<el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs">
-				<div v-for="(item, index) in apiInfo.api_response" :key="index">
+				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="key">
-						<ResponseCard :context="item"></ResponseCard>
+						<ResponseCard :context="item" />
 					</el-tab-pane>
 				</div>
 			</el-tabs>
-		</el-row> -->
+		</el-row>
 	</div>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
-import { apiStore } from '../../../../store/apis.ts';
+import { apiStore } from '@/store/apis.ts';
 import { useRouter, useRoute } from 'vue-router';
 import { onBeforeRouteUpdate } from 'vue-router';
 
@@ -112,30 +112,30 @@ const map = { boolean: { 0: 'Params', 1: 'Body(form-data)', 2: 'Body(x-www-form-
 // const activeName = ref();
 
 const apiOperation = apiStore();
-const apiInfo = ref(apiOperation.apiInfo);
+const apiInfo = ref<any>(apiOperation.apiInfo);
 
 watch(
 	apiOperation.apiInfo,
-	(newVal, oldVal) => {
+	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
+			console.log('apiInfo.value', apiInfo.value);
 		}
 	},
 	{ immediate: true, deep: true }
 );
 
-const getInfo = async (thisId) => {
+const getInfo = async (thisId: any) => {
 	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
 };
 onBeforeRouteUpdate((to) => {
-	console.log('todoc', to);
 	getInfo(to.query.api_id);
 });
 
-const timestampToTime = (timestamp) => {
+const timestampToTime = (timestamp: number | null) => {
 	timestamp = timestamp ? timestamp : null;
-	let date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	let date = new Date(timestamp as number); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
 	let Y = date.getFullYear() + '-';
 	let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
 	let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
