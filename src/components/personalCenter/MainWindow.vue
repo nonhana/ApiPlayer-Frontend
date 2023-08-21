@@ -321,6 +321,7 @@ const fileChange = () => {
 	if (sourceFile != null) {
 		windowShowList.value[0] = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
+		console.log(sourceFileURL);
 	}
 };
 // 确认裁剪
@@ -329,6 +330,7 @@ const confirmCropper = async () => {
 	croppedFile = await cropper?.getFile();
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
+		console.log(croppedFileURL.value);
 		uploadAvatar({ avatar: croppedFileURL.value }).then((res) => {
 			userInfo.value!.user_img = res.data.result.avatar;
 			// userInfo.value!.user_img = croppedFileURL.value;

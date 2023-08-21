@@ -7,7 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    Body: typeof import('./components/project/ModelDetails/components/Body.vue')['default']
     CommonAside: typeof import('./components/CommonAside.vue')['default']
     CommonHeader: typeof import('./components/CommonHeader.vue')['default']
     Doc: typeof import('./components/project/ModelDetails/doc/index.vue')['default']
@@ -15,8 +14,6 @@ declare module 'vue' {
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
-    ElCard: typeof import('element-plus/es')['ElCard']
-    ElCol: typeof import('element-plus/es')['ElCol']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDivider: typeof import('element-plus/es')['ElDivider']
@@ -28,7 +25,6 @@ declare module 'vue' {
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElImage: typeof import('element-plus/es')['ElImage']
-    ElImg: typeof import('element-plus/es')['ElImg']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElMenu: typeof import('element-plus/es')['ElMenu']
@@ -44,9 +40,8 @@ declare module 'vue' {
     ElTabPane: typeof import('element-plus/es')['ElTabPane']
     ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTag: typeof import('element-plus/es')['ElTag']
-    ElText: typeof import('element-plus/es')['ElText']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
-    ElTree: typeof import('element-plus/es')['ElTree']
+    EnvHeader: typeof import('./components/project/ModelDetails/components/EnvHeader.vue')['default']
     HomeWindow: typeof import('./components/home/HomeWindow.vue')['default']
     JsonSchemaEditor: typeof import('./components/project/ModelDetails/components/JsonSchemaEditor.vue')['default']
     LoginWindow: typeof import('./components/login/LoginWindow.vue')['default']

@@ -68,7 +68,7 @@
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>邮箱</span>
 					<el-form-item prop="phone_number">
-						<el-input v-model="userRegisterForm.phone_number" placeholder="请输入手机号" style="width: 250px" />
+						<el-input v-model="userRegisterForm.phone_number" placeholder="请输入邮箱" style="width: 250px" />
 					</el-form-item>
 				</el-row>
 				<el-row type="flex" justify="space-between" class="form-box">
@@ -329,9 +329,9 @@ const myRegister = () => {
 		store.setUserInfo(userInfo);
 
 		register({
-			captcha: userRegisterForm.value.verify_code,
 			email: userRegisterForm.value.phone_number,
-			password: userLoginForm.value.password,
+			captcha: userRegisterForm.value.verify_code,
+			password: userRegisterForm.value.password,
 		}).then(
 			(res) => {
 				if (res.data) {
