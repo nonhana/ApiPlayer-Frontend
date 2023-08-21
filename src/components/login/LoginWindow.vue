@@ -213,8 +213,9 @@ const myLogin = (type: number) => {
 					if (res.data) {
 						localStorage.setItem('token', res.data.result.token);
 						const userInfoSource = (await getUserInfo()).data.result.userInfo;
+						// console.log('userInfoSource', userInfoSource);
 						const userInfo = {
-							user_id: userInfoSource.user_id,
+							user_id: userInfoSource.user_id ?? 1,
 							user_name: userInfoSource.username,
 							user_img: userInfoSource.avatar,
 							user_email: userInfoSource.email,
@@ -222,7 +223,10 @@ const myLogin = (type: number) => {
 						} as UserInfo;
 
 						localStorage.setItem('userInfo', JSON.stringify(userInfo));
+						// console.log('id:', userInfo.user_id);
 						store.setUserInfo(userInfo);
+						console.log(store.user_info);
+
 						// router.push({ name: 'home' });
 						router.push({ name: 'main' });
 						ElNotification({
@@ -235,7 +239,7 @@ const myLogin = (type: number) => {
 				() => {
 					ElNotification({
 						title: '登录失败',
-						message: '请求服务器失败',
+						message: '请求服务器失败1',
 						type: 'error',
 					});
 				}

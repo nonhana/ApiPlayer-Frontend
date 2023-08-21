@@ -46,12 +46,15 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { addRecentProject } from '../../api/projects';
 import { teamInfo } from '../../api/teams';
+
+import { useBaseStore } from '../../store/index';
+const baseStore = useBaseStore();
 
 interface Project {
 	id: number;
@@ -60,7 +63,8 @@ interface Project {
 }
 
 const router = useRouter();
-const projectList = reactive<Project[]>([
+// let projectList = reactive<Project[]>([]);
+let projectList = reactive<Project[]>([
 	{
 		id: 1,
 		avatar: '../../static/svg/LoginLogo.svg',
@@ -92,8 +96,10 @@ const projectList = reactive<Project[]>([
 		name: 'test',
 	},
 ]);
+
 const dialogVisible = ref<boolean>(false);
-const projectName = ref<string>();
+let projectName = ref<string>('');
+
 interface RuleForm {
 	name: string;
 }
@@ -106,9 +112,12 @@ const rules = reactive<FormRules<RuleForm>>({
 });
 
 const goDetail = (index: number) => {
+	// baseStore.setCurTeamInfo({});
 	router.push({ path: `/project/${projectList[index].id}` });
+	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: projectList[index].id });
 };
 const deleteProject = (index: number) => {
+	console.log(222, projectList);
 	ElMessageBox.confirm('项目' + projectList[index].name + '将被删除', '警告', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
@@ -134,6 +143,11 @@ const changeProject = (index: number) => {
 const confirmChange = () => {
 	dialogVisible.value = false;
 };
+onMounted(async () => {
+	const res = await teamInfo({ team_id: baseStore.curTeamInfo.team_id, user_id: baseStore.user_info.user_id });
+	console.log('teamInfo', res.data);
+	// projectList = res.data.project_list;
+});
 </script>
 
 <style scoped lang="less">

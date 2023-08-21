@@ -153,6 +153,8 @@ import { Search, CirclePlusFilled, Refresh } from '@element-plus/icons-vue';
 import { TableColumnCtx, TableInstance, FormInstance, FormRules, ElMessage } from 'element-plus';
 import { inviteUser, setMemberIdentity, removeMember } from '../../api/teams';
 import { searchUser } from '../../api/users';
+import { useBaseStore } from '@/store';
+const baseStore = useBaseStore();
 
 interface User {
 	avatar: string;

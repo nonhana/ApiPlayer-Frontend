@@ -17,7 +17,9 @@
 					<el-icon><User /></el-icon>
 					<span>我的团队</span>
 				</template>
-				<el-menu-item v-for="(team, index) in baseStore.teamInfo" :key="index" :index="'/team/' + team.team_id">{{ team.team_name }}</el-menu-item>
+				<el-menu-item v-for="(team, index) in baseStore.teamInfo" :key="index" :index="'/team/' + team.team_id" @click="changeCurTeamInfo(team)">{{
+					team.team_name
+				}}</el-menu-item>
 				<el-menu-item @click="createTeam">
 					<el-icon><Plus /></el-icon>
 					<span>新建团队</span>
@@ -36,28 +38,32 @@ import { teamList, addTeam } from '../api/teams';
 import router from '../router/index';
 import { useRouter, useRoute } from 'vue-router';
 import { useBaseStore } from '../store/index';
+import * as Api from '../api/teams';
 
 interface TeamInfo {
 	team_desc?: string;
-	team_id: string;
+	team_id: number;
 	team_name: string;
 	team_user_name?: string;
 }
+
 const customRouter = useRouter();
 const baseStore = useBaseStore();
 const dialogVisible = ref<boolean>(false);
 const teamName = ref<string>('');
-let teamListData: TeamInfo[] = [
-	{ team_id: '1', team_name: 'Team A' },
-	{ team_id: '2', team_name: 'Team B' },
-	{ team_id: '3', team_name: 'Team C' },
-];
-const getTeamList = () => {
-	// const res = teamList({ user_id: baseStore.user_info.user_id });
-	// baseStore.setTeamInfo(res.team_list);
+// let teamListData: TeamInfo[] = [
+// 	{ team_id: 1, team_name: 'Team A' },
+// 	{ team_id: 2, team_name: 'Team B' },
+// 	{ team_id: 3, team_name: 'Team C' },
+// ];
+const getTeamList = async () => {
+	const res = await teamList({ user_id: baseStore.user_info.user_id });
+	// console.log(1, res.data);
+	baseStore.setTeamInfo(res.data.data);
+	// console.log(2, baseStore.teamInfo);
 
 	//要删掉
-	baseStore.setTeamInfo(teamListData);
+	// baseStore.setTeamInfo(teamListData);
 };
 const createTeam = () => {
 	dialogVisible.value = true;
@@ -69,13 +75,20 @@ const confirmCreate = () => {
 		team_name: teamName.value,
 		team_desc: '',
 		team_user_name: '',
+		project_img: '',
 	});
+	// console.log(res);
 };
-const recentVisit = () => {};
+// const recentVisit = () => {};
 
-onMounted(() => {
-	getTeamList();
-	customRouter.push({ path: `/team/${baseStore.teamInfo[0].team_id}` });
+const changeCurTeamInfo = (team: TeamInfo) => {
+	baseStore.curTeamInfo = team;
+};
+
+onMounted(async () => {
+	await getTeamList();
+	customRouter.push({ path: `/team/${baseStore.teamInfo[0].team_id ?? 0} ` });
+	changeCurTeamInfo(baseStore.teamInfo[0] ?? {});
 });
 </script>
 

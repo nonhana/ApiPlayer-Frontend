@@ -72,6 +72,11 @@ const routes: Array<RouteRecordRaw> = [
 		],
 	},
 	{
+		path: '/projectSettings',
+		name: 'projectSettings',
+		component: () => import('../components/project/ProjectSettings.vue'),
+	},
+	{
 		path: '/404',
 		component: () => import('../views/404/index.vue'),
 	},
