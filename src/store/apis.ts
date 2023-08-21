@@ -34,11 +34,14 @@ interface ApiResponse {
 	response_name: string;
 }
 
-export const apiStore = defineStore(Names.Base, {
+export const apiStore = defineStore('apiStore', {
 	state: () => {
 		return {
 			apiInfo: {},
 		};
+	},
+	persist: {
+		enabled: true, // true 表示开启持久化保存
 	},
 	actions: {
 		async getApiInfo(apiId: string) {

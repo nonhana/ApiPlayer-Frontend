@@ -1,4 +1,5 @@
 <template>
+	{{ apiInfo.api_id }}
 	<div class="index">
 		<el-row class="roww">
 			<el-text class="mx-1" size="large">{{ apiInfo.api_name }}</el-text>
@@ -16,9 +17,9 @@
 			<el-text class="mx-1">前置url：{{ apiInfo.api_env_url }} </el-text>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1">创建时间 {{ apiInfo.api_createdAt }}</el-text>
+			<el-text class="mx-1">创建时间 {{ timestampToTime(Date.parse(apiInfo.api_createdAt)) }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">修改时间 {{ apiInfo.api_editedAt }}</el-text>
+			<el-text class="mx-1">修改时间 {{ timestampToTime(Date.parse(apiInfo.api_editedAt)) }}</el-text>
 			<el-col :span="1"></el-col>
 			<el-text class="mx-1">修改者 {{ apiInfo.api_editor_id }}</el-text>
 			<el-col :span="1"></el-col>
@@ -39,30 +40,32 @@
 		<el-row>
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
-		<div v-for="(item, index) in apiInfo.api_request_params" :key="index">
-			<el-row>{{ item.type }}</el-row>
-			<el-row>
-				<el-table :data="item.params_list" border style="width: 100%">
-					<el-table-column prop="param_name" label="name" />
-					<el-table-column prop="param_type" label="type" />
-					<el-table-column prop="param_desc" label="desc" />
-				</el-table>
-			</el-row>
-			<el-row></el-row>
+		<div v-if="apiInfo">
+			<div v-for="(item, index) in apiInfo.api_request_params" :key="index">
+				<el-text class="mx-1" size="large">{{ map.boolean[item.type] }}</el-text>
+				<el-row>
+					<el-table :data="item.params_list" border style="width: 100%">
+						<el-table-column prop="name" label="name" />
+						<el-table-column prop="type" label="type" />
+						<el-table-column prop="desc" label="desc" />
+					</el-table>
+				</el-row>
+				<el-row></el-row>
+			</div>
 		</div>
 		<el-row></el-row>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
-		<el-row>
+		<!-- <el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_response" :key="index">
-					<el-tab-pane :label="item.response_name" :name="item.http_status">
+					<el-tab-pane :label="item.response_name" :name="key">
 						<ResponseCard :context="item"></ResponseCard>
 					</el-tab-pane>
 				</div>
 			</el-tabs>
-		</el-row>
+		</el-row> -->
 	</div>
 </template>
 <script setup lang="ts">
@@ -70,6 +73,8 @@ import { ref, watch, onMounted } from 'vue';
 import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
 import { apiStore } from '../../../../store/apis.ts';
+import { useRouter, useRoute } from 'vue-router';
+import { onBeforeRouteUpdate } from 'vue-router';
 
 interface Request {
 	api_desc: string;
@@ -103,19 +108,11 @@ interface ApiResponse {
 	response_body: string;
 	response_name: string;
 }
-
-const apiInfo = ref<Request | undefined>();
+const map = { boolean: { 0: 'Params', 1: 'Body(form-data)', 2: 'Body(x-www-form-unlencoded)', 3: 'Cookie', 4: 'Header' } };
 // const activeName = ref();
 
 const apiOperation = apiStore();
-onMounted(() => {
-	getInfo();
-});
-
-const getInfo = async () => {
-	await apiOperation.getApiInfo('98');
-	apiInfo.value = apiOperation.apiInfo;
-};
+const apiInfo = ref(apiOperation.apiInfo);
 
 watch(
 	apiOperation.apiInfo,
@@ -127,15 +124,34 @@ watch(
 	{ immediate: true, deep: true }
 );
 
-// const handleClick = (tab: TabsPaneContext, event: Event) => {
-// 	console.log(tab, event);
-// };
+const getInfo = async (thisId) => {
+	await apiOperation.getApiInfo(thisId);
+	apiInfo.value = apiOperation.apiInfo;
+};
+onBeforeRouteUpdate((to) => {
+	console.log('todoc', to);
+	getInfo(to.query.api_id);
+});
+
+const timestampToTime = (timestamp) => {
+	timestamp = timestamp ? timestamp : null;
+	let date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	let Y = date.getFullYear() + '-';
+	let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+	let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+	let h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+	let m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+	let s = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds();
+	return Y + M + D + h + m + s;
+};
+
 // const activeName = apiInfo.value.api_response[0].http_status;
 </script>
 
 <style lang="less">
 .index {
 	width: 1000px;
+	background-color: #fff;
 
 	.roww {
 		width: 1000px;

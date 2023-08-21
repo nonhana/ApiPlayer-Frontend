@@ -748,7 +748,7 @@ onMounted(async () => {
 	position: relative;
 	width: 1000px;
 	height: 50px;
-	background-color: #f5f5f5;
+	background-color: #ffffff;
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;

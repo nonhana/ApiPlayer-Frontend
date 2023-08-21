@@ -1,142 +1,86 @@
 <template>
 	<div>
-		<vxe-table
-			ref="tableRef"
-			border
-			show-overflow
-			:data="tableData"
-			:column-config="{ resizable: true }"
-			:menu-config="menuConfig"
-			:edit-config="{ trigger: 'click', mode: 'row', showStatus: true }"
-			@menu-click="contextMenuClickEvent"
-		>
-			<vxe-column width="200" field="param_name" title="参数名" :edit-render="{ autofocus: '.vxe-input--inner' }">
-				<template #edit="{ row }">
-					<vxe-input v-model="row.param_name" type="text"></vxe-input>
+		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
+			<el-table-column prop="name" label="name" width="180" align="center">
+				<template #default="scope">
+					<input v-model="scope.row.name" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
-			</vxe-column>
-			<vxe-column width="200" field="param_type" title="类型" :edit-render="{}">
-				<template #default="{ row }">
-					<span>{{ formatType(row.param_type) }}</span>
+			</el-table-column>
+			<el-table-column prop="type" label="type" width="180" align="center">
+				<template #default="scope">
+					<input v-model="scope.row.type" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
-				<template #edit="{ row }">
-					<vxe-select v-model="row.param_type" transfer>
-						<vxe-option v-for="item in typeList" :key="item.value" :value="item.value" :label="item.label"></vxe-option>
-					</vxe-select>
+			</el-table-column>
+			<el-table-column prop="desc" label="desc" width="180" align="center">
+				<template #default="scope">
+					<input v-model="scope.row.desc" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
-			</vxe-column>
-			<vxe-column width="300" field="param_desc" title="说明" :edit-render="{}">
-				<template #edit="{ row }">
-					<vxe-input v-model="row.param_desc" type="text" placeholder="请输入昵称"></vxe-input>
+			</el-table-column>
+			<el-table-column label="operate" align="center" width="100">
+				<template #default="scope">
+					<el-icon @click="handleAddDetails(scope.$index)">
+						<Plus />
+					</el-icon>
+					<el-icon style="margin-left: 10px" @click="handleDelete(scope.$index)">
+						<Minus />
+					</el-icon>
 				</template>
-			</vxe-column>
-			<vxe-column title="操作" width="100" show-overflow>
-				<template #default="{ row }">
-					<vxe-button type="text" icon="vxe-icon-add" @click="insertEvent(row)"></vxe-button>
-					<vxe-button type="text" icon="vxe-icon-delete" @click="removeEvent(row)"></vxe-button>
-				</template>
-			</vxe-column>
-		</vxe-table>
+			</el-table-column>
+		</el-table>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue';
-import { VxeTableInstance, VxeTablePropTypes, VxeTableEvents } from 'vxe-table';
+import { ref, toRefs, watch } from 'vue';
 
-interface RowVO {
-	param_name: string;
-	param_type: string;
-	param_desc: string;
-}
-const tableRef = ref<VxeTableInstance<RowVO>>();
-
-const tableData = ref<RowVO[]>([
-	{
-		param_name: '写件查细声当',
-		param_type: '0',
-		param_desc: 'ut',
-	},
-	{
-		param_name: '起七做从',
-		param_type: '1',
-		param_desc: 'et ad sint cupidatat enim',
-	},
-]);
-
-const typeList = ref([
-	{ label: '', value: '' },
-	{ label: 'number', value: '0' },
-	{ label: 'integer', value: '1' },
-	{ label: 'string', value: '2' },
-	{ label: 'array', value: '3' },
-]);
-
-const formatType = (value: string) => {
-	if (value === '0') {
-		return 'number';
-	}
-	if (value === '1') {
-		return 'integer';
-	}
-	if (value === '2') {
-		return 'string';
-	}
-	if (value === '3') {
-		return 'array';
-	}
-	return '';
-};
-const menuConfig = reactive<VxeTablePropTypes.MenuConfig<RowVO>>({
-	body: {
-		options: [
-			[
-				{ code: 'insertAt', name: '插入', disabled: false },
-				{ code: 'remove', name: '删除', disabled: false },
-			],
-		],
-	},
-	visibleMethod({ options, column }) {
-		const isDisabled = !column;
-		options.forEach((list) => {
-			list.forEach((item) => {
-				item.disabled = isDisabled;
-			});
-		});
-		return true;
+const props = defineProps({
+	requestData: {
+		type: Object,
+		default() {
+			return {};
+		},
 	},
 });
+const { requestData } = toRefs(props);
+let tableData = ref(requestData.value.params_list);
 
-const contextMenuClickEvent: VxeTableEvents.MenuClick<RowVO> = ({ menu, row }) => {
-	const $table = tableRef.value;
-	if ($table) {
-		switch (menu.code) {
-			case 'insertAt':
-				$table.insertAt({}, -1).then(({ row }) => {
-					$table.setEditCell(row, 'name');
-				});
-				break;
-			case 'remove':
-				$table.remove(row);
-				break;
+watch(
+	props.requestData,
+	(newVal, oldVal) => {
+		if (newVal != undefined && newVal != null) {
+			requestData.value = newVal;
+			console.log('newVal', newVal);
 		}
-	}
+	},
+	{ immediate: true, deep: true }
+);
+
+//失焦事件，使用事件对象拿到dom元素并进行后续样式的修改
+// const iptBlur = (value: any, e: any) => {
+// 	// e.target.style.background = 'pink'
+// 	let arr = tableData.value;
+// 	arr = arr.filter((value) => Object.keys(value).length != 0);
+// 	console.log('value', value);
+// };
+
+const handleAddDetails = (index) => {
+	let obj = {
+		name: '',
+		type: '',
+		desc: '',
+	};
+	tableData.value.splice(index + 1, 0, obj);
 };
 
-const removeEvent = async (row: RowVO) => {
-	const $table = tableRef.value;
-	if ($table) {
-		$table.remove(row);
-	}
-};
-
-const insertEvent = async (row: RowVO) => {
-	const $table = tableRef.value;
-
-	if ($table) {
-		$table.insertAt({}, row || -1).then(({ row }) => {
-			$table.setEditCell(row, 'name');
-		});
-	}
+// 删除单个行
+const handleDelete = (index) => {
+	tableData.value.splice(index, 1);
 };
 </script>
+
+<style lang="less">
+// 设置表格中输入框为边框为0
+.ipt {
+	border: 0px;
+}
+</style>

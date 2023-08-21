@@ -21,6 +21,7 @@ import { addApi, updateApi, deleteApi } from '@/api/apis';
 import type { ApiAddInfo } from '@/api/apis';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { apiStore } from '@/store/apis.ts';
 
 interface Tree {
 	id: number;
@@ -31,6 +32,7 @@ interface Tree {
 
 const route = useRoute();
 const router = useRouter();
+const apiOperation = apiStore();
 
 let newChild = ref<Tree>({ id: 0, label: '', type: '', children: [] });
 let dataSource = ref<Tree[]>([]);
@@ -245,6 +247,8 @@ const findParentId = (tree: Tree, targetId: number, parentId?: number): number |
 // 切换到api详情页面
 const checkoutApi = (node: Tree) => {
 	if (node.type !== 'dictionary') {
+		// sessionStorage.removeItem('apiStore');
+		getInfo(node.id);
 		router.push({
 			path: `/project/${route.params.project_id}`,
 			query: {
@@ -252,6 +256,10 @@ const checkoutApi = (node: Tree) => {
 			},
 		});
 	}
+};
+
+const getInfo = async (thisId) => {
+	await apiOperation.getApiInfo(thisId);
 };
 
 onBeforeMount(async () => {
