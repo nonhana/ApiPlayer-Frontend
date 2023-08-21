@@ -12,7 +12,7 @@ export interface ProjectGlobalInfo {
 	project_id: number;
 	env_list?: EnvList[];
 	global_params?: GlobalParam[];
-	global_variable?: GlobalVariable[];
+	global_variables?: GlobalVariable[];
 }
 
 export interface EnvList {

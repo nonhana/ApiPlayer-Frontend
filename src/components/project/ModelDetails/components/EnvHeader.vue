@@ -1,7 +1,7 @@
 <template>
 	<div class="EnvHeader-wrap">
 		<div class="button-group">
-			<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" />
+			<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
 
 			<el-dropdown @command="envChoosing">
 				<el-button-group>
@@ -56,56 +56,65 @@
 						</el-header>
 
 						<el-main>
-							<el-scrollbar>
-								<div v-if="currentEditTable === '1-1'">
+							<div v-if="currentEditTable === '1-1'">
+								<el-scrollbar>
 									<el-table border :data="globalVariables">
 										<el-table-column prop="variable_name" label="Nate" width="140" />
 										<el-table-column prop="variable_type" label="Type" width="120" />
 										<el-table-column prop="variable_value" label="Value" width="140" />
-										<el-table-column prop="variable_desc" label="Description" />
+										<el-table-column prop="variable_desc" label="Description" width="140" />
+										<el-table-column label="Actions">
+											<template #default="scope">
+												<el-button type="primary" @click="paramAndVarAction(scope.$index, scope.row, 0, 0)">Edit</el-button>
+												<el-button type="danger" @click="paramAndVarAction(scope.$index, scope.row, 1, 0)">Delete</el-button>
+											</template>
+										</el-table-column>
 									</el-table>
-								</div>
-								<div v-if="currentEditTable === '1-2'">
-									<el-menu default-active="1" mode="horizontal" @select="globalParamsClassSelect">
-										<el-menu-item index="1">Header</el-menu-item>
-										<el-menu-item index="2">Cookie</el-menu-item>
-										<el-menu-item index="3">Query</el-menu-item>
-									</el-menu>
-
-									<el-table border :data="globalParams.find((item) => item.type === Number(currentEditParamsClass) - 1)?.params_list">
+									<div style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
+										<el-button @click="showDialogList[2] = !showDialogList[2]">Add New Variable</el-button>
+									</div>
+								</el-scrollbar>
+							</div>
+							<div v-if="currentEditTable === '1-2'">
+								<el-menu default-active="1" mode="horizontal" @select="globalParamsClassSelect">
+									<el-menu-item index="1">Header</el-menu-item>
+									<el-menu-item index="2">Cookie</el-menu-item>
+									<el-menu-item index="3">Query</el-menu-item>
+								</el-menu>
+								<el-scrollbar>
+									<el-table height="300px" border :data="globalParams.find((item) => item.type === Number(currentEditParamsClass) - 1)?.params_list">
 										<el-table-column prop="param_name" label="Nate" width="140" />
 										<el-table-column prop="param_type" label="Type" width="120" />
 										<el-table-column prop="param_value" label="Value" width="140" />
 										<el-table-column prop="param_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
 											<template #default="scope">
-												<el-button type="primary" @click="paramAction(scope.$index, scope.row, 0)">Edit</el-button>
-												<el-button type="danger" @click="paramAction(scope.$index, scope.row, 1)">Delete</el-button>
+												<el-button type="primary" @click="paramAndVarAction(scope.$index, scope.row, 0, 1)">Edit</el-button>
+												<el-button type="danger" @click="paramAndVarAction(scope.$index, scope.row, 1, 1)">Delete</el-button>
 											</template>
 										</el-table-column>
 									</el-table>
-
 									<div style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
 										<el-button @click="showDialogList[1] = !showDialogList[1]">Add New Parameter</el-button>
 									</div>
-								</div>
-								<div v-if="currentEditTable === '2-1'" class="envBox">
-									<span>baseUrl：</span>
-									<el-input v-model="envList[0].env_baseurl"></el-input>
-								</div>
-								<div v-if="currentEditTable === '2-2'" class="envBox">
-									<span>baseUrl：</span>
-									<el-input v-model="envList[1].env_baseurl"></el-input>
-								</div>
-								<div v-if="currentEditTable === '2-3'" class="envBox">
-									<span>baseUrl：</span>
-									<el-input v-model="envList[2].env_baseurl"></el-input>
-								</div>
-								<div v-if="currentEditTable === '2-4'" class="envBox">
-									<span>baseUrl：</span>
-									<el-input v-model="envList[3].env_baseurl"></el-input>
-								</div>
-							</el-scrollbar>
+								</el-scrollbar>
+							</div>
+							<div v-if="currentEditTable === '2-1'" class="envBox">
+								<span>baseUrl：</span>
+								<el-input v-model="envList[0].env_baseurl"></el-input>
+							</div>
+							<div v-if="currentEditTable === '2-2'" class="envBox">
+								<span>baseUrl：</span>
+								<el-input v-model="envList[1].env_baseurl"></el-input>
+							</div>
+							<div v-if="currentEditTable === '2-3'" class="envBox">
+								<span>baseUrl：</span>
+								<el-input v-model="envList[2].env_baseurl"></el-input>
+							</div>
+							<div v-if="currentEditTable === '2-4'" class="envBox">
+								<span>baseUrl：</span>
+								<el-input v-model="envList[3].env_baseurl"></el-input>
+							</div>
 						</el-main>
 					</el-container>
 				</el-container>
@@ -127,21 +136,21 @@
 			<div>
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
 					<span>参数名称：</span>
-					<el-input v-model="editingParamsInfo.param_name" style="width: 400px" placeholder="请填写要添加的参数名称"></el-input>
+					<el-input v-model="editingParamsInfo.param_name" style="width: 400px" placeholder="请填写参数名称"></el-input>
 				</el-row>
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
 					<span>参数类型：</span>
-					<el-select v-model="editingParamsInfo.param_type" placeholder="请选择要添加的参数类型">
-						<el-option v-for="item in paramTypeList" :key="item.value" :label="item.label" :value="item.value" />
+					<el-select v-model="editingParamsInfo.param_type" placeholder="请选择参数类型">
+						<el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value" />
 					</el-select>
 				</el-row>
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
 					<span>参数默认值：</span>
-					<el-input v-model="editingParamsInfo.param_value" style="width: 400px" placeholder="请填写要添加的参数默认值"></el-input>
+					<el-input v-model="editingParamsInfo.param_value" style="width: 400px" placeholder="请填写参数默认值"></el-input>
 				</el-row>
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
 					<span>参数描述：</span>
-					<el-input v-model="editingParamsInfo.param_desc" style="width: 400px" placeholder="请填写要添加的参数的描述信息"></el-input>
+					<el-input v-model="editingParamsInfo.param_desc" style="width: 400px" placeholder="请填写参数的描述信息"></el-input>
 				</el-row>
 			</div>
 			<template #footer>
@@ -151,11 +160,45 @@
 				</span>
 			</template>
 		</el-dialog>
+
+		<el-dialog
+			v-model="showDialogList[2]"
+			:title="editingVariablesStatus ? '编辑变量信息' : '新增变量信息'"
+			width="600px"
+			:before-close="handleClose(2)"
+		>
+			<div>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>变量名称：</span>
+					<el-input v-model="editingVariablesInfo.variable_name" style="width: 400px" placeholder="请填写变量名称"></el-input>
+				</el-row>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>变量类型：</span>
+					<el-select v-model="editingVariablesInfo.variable_type" placeholder="请选择变量类型">
+						<el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value" />
+					</el-select>
+				</el-row>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>变量默认值：</span>
+					<el-input v-model="editingVariablesInfo.variable_value" style="width: 400px" placeholder="请填写变量默认值"></el-input>
+				</el-row>
+				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
+					<span>变量描述：</span>
+					<el-input v-model="editingVariablesInfo.variable_desc" style="width: 400px" placeholder="请填写变量的描述信息"></el-input>
+				</el-row>
+			</div>
+			<template #footer>
+				<span class="dialog-footer">
+					<el-button @click="confirmEdit([2, 0])">关闭</el-button>
+					<el-button color="#59A8B9" @click="confirmEdit([2, 1])"><span style="color: #fff">保存</span></el-button>
+				</span>
+			</template>
+		</el-dialog>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo } from '@/api/projects';
 import { ElMessageBox, ElMessage } from 'element-plus';
@@ -177,14 +220,15 @@ interface GlobalParamItem {
 	params_list: ParamItem[];
 }
 interface GlobalVariableItem {
+	variable_id?: number;
 	variable_name: string;
-	variable_type: number;
-	variable_value: string;
+	variable_type: string;
+	variable_value: number | string;
 	variable_desc: string;
 }
 
 const route = useRoute();
-const paramTypeList = [
+const typeList = [
 	{
 		value: 'number',
 		label: 'number',
@@ -204,7 +248,7 @@ let globalParams = ref<GlobalParamItem[]>([]); // 全局参数列表
 let globalVariables = ref<GlobalVariableItem[]>([]); // 全局变量列表
 let projectCurrentType = ref<number>(0); // 当前环境类型 0-开发环境 1-测试环境 2-正式环境 3-mock.js环境
 let currentEnvName = ref<string>(''); // 当前项目所处的环境名称
-let showDialogList = ref<boolean[]>([true, false]); // 控制弹窗显示隐藏
+let showDialogList = ref<boolean[]>([false, false, false]); // 控制弹窗显示隐藏
 let currentEditName = ref<string>('全局变量'); // 当前正在编辑的是什么内容，默认是全局变量
 let currentEditTable = ref<string>('1-1'); // 当前正在编辑的主要窗口
 let currentEditParamsClass = ref<string>('1'); // 当前正在编辑的全局参数所属的类别。0-Header，1-Query，2-Cookie
@@ -215,7 +259,15 @@ let editingParamsInfo = ref<ParamItem>({
 	param_value: '',
 	param_desc: '',
 });
+// 点开编辑全局变量弹窗时，当前正在编辑的全局变量信息
+let editingVariablesInfo = ref<GlobalVariableItem>({
+	variable_name: '',
+	variable_type: '',
+	variable_value: '',
+	variable_desc: '',
+});
 let editingParamsStatus = ref<boolean>(false); // false：正在新增参数，true：正在编辑参数
+let editingVariablesStatus = ref<boolean>(false); // false：正在新增变量，true：正在编辑变量
 
 // 下拉框点击切换环境
 const envChoosing = async (envType: number) => {
@@ -236,6 +288,9 @@ const handleClose = (type: number) => {
 		case 1:
 			text = '你的参数设置尚未保存，是否确认关闭？';
 			break;
+		case 2:
+			text = '你的变量设置尚未保存，是否确认关闭？';
+			break;
 		default:
 			break;
 	}
@@ -254,7 +309,6 @@ const confirmEdit = async (type: number[]) => {
 			showDialogList.value[0] = false;
 		} else {
 			// 将envList保存到数据库
-
 			const envListSource = envList.value.map((item) => {
 				let envType: number = 0;
 				switch (item.env_name) {
@@ -287,7 +341,7 @@ const confirmEdit = async (type: number[]) => {
 			showDialogList.value[0] = false;
 			ElMessage.success('保存成功');
 		}
-	} else {
+	} else if (type[0] === 1) {
 		if (type[1] === 0) {
 			showDialogList.value[1] = false;
 		} else {
@@ -351,11 +405,10 @@ const confirmEdit = async (type: number[]) => {
 				};
 			});
 
-			const res = await updateProjectGlobalInfo({
+			await updateProjectGlobalInfo({
 				project_id: Number(route.params.project_id),
 				global_params: paramsList,
 			});
-			console.log(res.data);
 
 			// 更新完成后，将editingParamsInfo置空
 			editingParamsInfo.value = {
@@ -367,6 +420,79 @@ const confirmEdit = async (type: number[]) => {
 
 			showDialogList.value[1] = false;
 			ElMessage.success(editingParamsStatus.value ? '修改成功' : '添加成功');
+		}
+	} else {
+		if (type[1] === 0) {
+			showDialogList.value[2] = false;
+		} else {
+			// 分两种：1.新增 2.修改
+			if (editingVariablesStatus.value) {
+				// 将editingVariablesInfo中的值根据variable_id，更新到globalVariables中
+				const index = globalVariables.value.findIndex((item) => item.variable_id === editingVariablesInfo.value.variable_id);
+				globalVariables.value[index] = editingVariablesInfo.value;
+			} else {
+				// 新增
+				globalVariables.value.push(editingVariablesInfo.value);
+			}
+
+			// 把新的globalVariables通过接口更新到数据库。但是需要先转换格式
+			const variablesList = globalVariables.value.map((item) => {
+				let variableType: number = 0;
+				switch (item.variable_type) {
+					case 'number':
+						variableType = 0;
+						break;
+					case 'integer':
+						variableType = 1;
+						break;
+					case 'string':
+						variableType = 2;
+						break;
+					default:
+						break;
+				}
+
+				const variableObject: {
+					variable_name: string;
+					variable_type: number;
+					variable_value: string;
+					variable_desc: string;
+					variable_action_type: number;
+					[key: string]: any;
+				} = {
+					variable_name: item.variable_name,
+					variable_type: variableType,
+					variable_value: JSON.stringify({
+						value: item.variable_value,
+					}),
+					variable_desc: item.variable_desc,
+					variable_action_type: 1, // 默认是新增
+				};
+
+				// 如果 item 中有 variable_id，说明是修改，否则是新增
+				if (item.variable_id) {
+					variableObject.variable_id = item.variable_id;
+					variableObject.variable_action_type = 0;
+				}
+
+				return variableObject;
+			});
+
+			await updateProjectGlobalInfo({
+				project_id: Number(route.params.project_id),
+				global_variables: variablesList,
+			});
+
+			// 更新完成后，将editingVariablesInfo置空
+			editingVariablesInfo.value = {
+				variable_name: '',
+				variable_type: '',
+				variable_value: '',
+				variable_desc: '',
+			};
+
+			showDialogList.value[2] = false;
+			ElMessage.success(editingVariablesStatus.value ? '修改成功' : '添加成功');
 		}
 	}
 };
@@ -398,50 +524,122 @@ const handleSelect = (index: string) => {
 const globalParamsClassSelect = (index: string) => {
 	currentEditParamsClass.value = index;
 };
-// 点击全局参数table中的按钮
-const paramAction = (index: number, row: any, actionType: number) => {
-	switch (actionType) {
-		case 0:
-			editingParamsStatus.value = true;
-			showDialogList.value[1] = true;
-			editingParamsInfo.value = {
-				param_id: row.param_id,
-				param_name: row.param_name,
-				param_type: row.param_type,
-				param_value: row.param_value,
-				param_desc: row.param_desc,
-			};
-			break;
-		case 1:
-			ElMessageBox.confirm('是否确认删除？')
-				.then(async () => {
-					const paramsList = globalParams.value.map((item) => {
-						return {
-							type: item.type,
-							params_list: [] as any[],
-						};
-					});
+// 点击全局参数、全局变量table中的按钮
+const paramAndVarAction = (index: number, row: any, actionType: number, actionObjType: number) => {
+	if (actionObjType === 1) {
+		switch (actionType) {
+			case 0:
+				editingParamsStatus.value = true;
+				showDialogList.value[1] = true;
+				editingParamsInfo.value = {
+					param_id: row.param_id,
+					param_name: row.param_name,
+					param_type: row.param_type,
+					param_value: row.param_value,
+					param_desc: row.param_desc,
+				};
+				break;
+			case 1:
+				ElMessageBox.confirm('是否确认删除？')
+					.then(async () => {
+						const paramsList = globalParams.value.map((item) => {
+							return {
+								type: item.type,
+								params_list: [] as any[],
+							};
+						});
 
-					// 找到要删除的那一项，把param_action_type置为2，加到paramsList中
-					paramsList[Number(currentEditParamsClass.value) - 1].params_list.push({
-						param_id: row.param_id,
-						param_action_type: 2,
-					});
+						// 找到要删除的那一项，把param_action_type置为2，加到paramsList中
+						paramsList[Number(currentEditParamsClass.value) - 1].params_list.push({
+							param_id: row.param_id,
+							param_action_type: 2,
+						});
 
-					await updateProjectGlobalInfo({
-						project_id: Number(route.params.project_id),
-						global_params: paramsList,
-					});
+						await updateProjectGlobalInfo({
+							project_id: Number(route.params.project_id),
+							global_params: paramsList,
+						});
 
-					globalParams.value[Number(currentEditParamsClass.value) - 1].params_list.splice(index, 1);
-					ElMessage.success('已删除');
-				})
-				.catch(() => {});
-			break;
-		default:
-			break;
+						globalParams.value[Number(currentEditParamsClass.value) - 1].params_list.splice(index, 1);
+						ElMessage.success('已删除');
+					})
+					.catch(() => {});
+				break;
+			default:
+				break;
+		}
+	} else {
+		switch (actionType) {
+			case 0:
+				editingVariablesStatus.value = true;
+				showDialogList.value[2] = true;
+				editingVariablesInfo.value = {
+					variable_id: row.variable_id,
+					variable_name: row.variable_name,
+					variable_type: row.variable_type,
+					variable_value: row.variable_value,
+					variable_desc: row.variable_desc,
+				};
+				break;
+			case 1:
+				ElMessageBox.confirm('是否确认删除？')
+					.then(async () => {
+						const variablesList: any[] = [];
+
+						// 找到要删除的那一项，把variable_action_type置为2，加到variablesList中
+						variablesList.push({
+							variable_id: row.variable_id,
+							variable_action_type: 2,
+						});
+
+						await updateProjectGlobalInfo({
+							project_id: Number(route.params.project_id),
+							global_variables: variablesList,
+						});
+
+						globalVariables.value.splice(index, 1);
+						ElMessage.success('已删除');
+					})
+					.catch(() => {});
+				break;
+			default:
+				break;
+		}
 	}
 };
+// 点击按钮，刷新页面
+const reload = () => {
+	window.location.reload();
+};
+
+watch(
+	() => showDialogList.value[1],
+	(newV, _) => {
+		if (!newV) {
+			editingParamsStatus.value = false;
+			editingParamsInfo.value = {
+				param_name: '',
+				param_type: '',
+				param_value: '',
+				param_desc: '',
+			};
+		}
+	}
+);
+watch(
+	() => showDialogList.value[2],
+	(newV, _) => {
+		if (!newV) {
+			editingVariablesStatus.value = false;
+			editingVariablesInfo.value = {
+				variable_name: '',
+				variable_type: '',
+				variable_value: '',
+				variable_desc: '',
+			};
+		}
+	}
+);
 
 onMounted(async () => {
 	// 拿到项目的全局信息
@@ -516,7 +714,7 @@ onMounted(async () => {
 		};
 	});
 	// 3. global_variables
-	globalVariables.value = globalInfo.global_variable.map((item: any) => {
+	globalVariables.value = globalInfo.global_variables.map((item: any) => {
 		let variableType = '';
 		switch (item.variable_type) {
 			case 0:
@@ -533,6 +731,7 @@ onMounted(async () => {
 				break;
 		}
 		return {
+			variable_id: item.variable_id,
 			variable_name: item.variable_name,
 			variable_type: variableType,
 			variable_value: JSON.parse(item.variable_value).value,
