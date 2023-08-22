@@ -116,6 +116,7 @@
 					viewMode: 1,
 					dragMode: 'crop',
 					aspectRatio: 1 / 1,
+					outputType: 'jpeg',
 				}"
 			/>
 			<template #footer>
@@ -318,25 +319,36 @@ const uploadFile = () => {
 const fileChange = () => {
 	// windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
+
 	if (sourceFile != null) {
 		windowShowList.value[0] = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
-		console.log(sourceFileURL);
+		// uploadAvatar({ avatar: sourceFile! }).then((res) => {
+		// 	userInfo.value!.user_img = res.data.result.avatar;
+		// 	const info = JSON.parse(localStorage.getItem('userInfo') ?? '');
+		// 	localStorage.setItem('userInfo', JSON.stringify({ ...info, user_img: res.data.result.avatar }));
+		// 	// userInfo.value!.user_img = croppedFileURL.value;
+		// });
 	}
 };
 // 确认裁剪
 const confirmCropper = async () => {
 	windowShowList.value[0] = false;
 	croppedFile = await cropper?.getFile();
+
+	let Blob = (await cropper?.getBlob()) as Blob;
+
+	const uploadFile = new File([Blob], croppedFile?.name + 'jpeg' ?? '1.jpeg', { type: 'image/jpeg', lastModified: croppedFile?.lastModified });
+
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
-		console.log(croppedFileURL.value);
-		uploadAvatar({ avatar: croppedFileURL.value }).then((res) => {
-			userInfo.value!.user_img = res.data.result.avatar;
-			// userInfo.value!.user_img = croppedFileURL.value;
-		});
+		const res = await uploadAvatar({ avatar: uploadFile });
+		userInfo.value!.user_img = res.data.result.avatar;
+		const info = JSON.parse(localStorage.getItem('userInfo') ?? '');
+		localStorage.setItem('userInfo', JSON.stringify({ ...info, user_img: res.data.result.avatar }));
 	}
 };
+
 // 修改个人资料
 const changeAction = (type: number) => {
 	if (type === 0) {

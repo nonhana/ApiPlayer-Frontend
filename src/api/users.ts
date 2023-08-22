@@ -46,11 +46,17 @@ export const updateUserInfo = (paramsList: { email?: string; introduce?: string;
 	});
 };
 
-export const uploadAvatar = (paramsList: { avatar?: string }) => {
+export const uploadAvatar = (paramsList: { avatar: File }) => {
+	console.log(paramsList.avatar);
 	return myAxios({
 		url: '/users/upload-avatar',
 		method: 'POST',
 		data: paramsList,
+		headers: {
+			Authorization: localStorage.getItem('token') ?? '',
+			'Content-Type': 'multipart/form-data',
+			// 'Content-Type': '	application/json; charset=utf-8',
+		},
 	});
 };
 
