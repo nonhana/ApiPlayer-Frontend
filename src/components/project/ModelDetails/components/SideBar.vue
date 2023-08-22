@@ -15,8 +15,8 @@
 import { ref, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '../../../../api/projects';
-import { addApi, updateApi, deleteApi } from '../../../../api/apis';
-import type { ApiAddInfo } from '../../../../api/apis';
+import { addApi, updateApi, deleteApi } from '@/api/apis';
+import type { ApiAddInfo } from '@/api/apis';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import { ElMessageBox } from 'element-plus';
 
@@ -263,7 +263,6 @@ onBeforeMount(async () => {
 .SideBar-wrap {
 	width: 300px;
 	height: 1000px;
-	background-color: #f5f5f5;
 	overflow: scroll;
 }
 

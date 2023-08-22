@@ -1,11 +1,15 @@
 <template>
 	<div class="index">
-		<InterfaceDoc></InterfaceDoc>
+		<CommonHeader />
+		<div class="index-main">
+			<InterfaceDoc />
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import InterfaceDoc from '../../components/interface/InterfaceDoc.vue';
+import InterfaceDoc from '@/components/project/ProjectDetails.vue';
+import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <style scoped lang="less">
@@ -15,6 +19,7 @@ import InterfaceDoc from '../../components/interface/InterfaceDoc.vue';
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
+	justify-content: center;
 
 	.demo-tabs > .el-tabs__content {
 		padding: 32px;

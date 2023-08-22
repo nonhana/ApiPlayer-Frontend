@@ -67,7 +67,7 @@ const routes: Array<RouteRecordRaw> = [
 			{
 				path: '/projectMain/:project_id',
 				name: 'projectMain',
-				component: () => import('../views/interfaceDoc/index.vue'),
+				component: () => import('@/views/project/index.vue'),
 			},
 		],
 	},

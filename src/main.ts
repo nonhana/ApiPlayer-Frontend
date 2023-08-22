@@ -3,6 +3,8 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import router from './router';
 import { createPinia } from 'pinia';
+// import piniaPluginPersist from 'pinia-plugin-persist';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import App from './App.vue';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
@@ -15,6 +17,7 @@ import 'vxe-table/lib/style.css';
 // https://vxetable.cn/v4/#/table/edit/click
 const app = createApp(App);
 const store = createPinia();
+store.use(piniaPluginPersistedstate);
 
 app.use(ElementPlus, { locale: zhCn });
 app.use(router);

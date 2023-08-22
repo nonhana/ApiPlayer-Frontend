@@ -15,7 +15,6 @@ import CommonHeader from '../../components/CommonHeader.vue';
 <style scoped lang="less">
 .index {
 	width: 100%;
-	// margin: 30px 0;
 	display: flex;
 	justify-content: center;
 	flex-direction: column;

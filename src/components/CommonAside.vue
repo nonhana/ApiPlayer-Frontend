@@ -32,10 +32,12 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import { teamList, addTeam } from '../api/teams';
 import router from '../router/index';
 import { useRouter, useRoute } from 'vue-router';
 import { useBaseStore } from '../store/index';
+import { toRaw } from 'vue';
 
 interface TeamInfo {
 	team_desc?: string;
@@ -47,35 +49,34 @@ const customRouter = useRouter();
 const baseStore = useBaseStore();
 const dialogVisible = ref<boolean>(false);
 const teamName = ref<string>('');
-let teamListData: TeamInfo[] = [
-	{ team_id: '1', team_name: 'Team A' },
-	{ team_id: '2', team_name: 'Team B' },
-	{ team_id: '3', team_name: 'Team C' },
-];
 const getTeamList = () => {
-	// const res = teamList({ user_id: baseStore.user_info.user_id });
-	// baseStore.setTeamInfo(res.team_list);
-
-	//要删掉
-	baseStore.setTeamInfo(teamListData);
+	teamList({ user_id: baseStore.user_info.user_id }).then(async (res) => {
+		if (res.data) {
+			baseStore.setTeamInfo(res.data.data);
+			customRouter.push({ path: `/team/${res.data.data[0].team_id}` });
+		}
+	});
 };
 const createTeam = () => {
 	dialogVisible.value = true;
 };
 const confirmCreate = () => {
 	dialogVisible.value = false;
-	const res = addTeam({
+	addTeam({
 		user_id: baseStore.user_info.user_id,
 		team_name: teamName.value,
 		team_desc: '',
 		team_user_name: '',
+	}).then(async (res) => {
+		if (res.data) {
+			ElMessage.success('新建团队成功');
+		}
 	});
 };
 const recentVisit = () => {};
 
 onMounted(() => {
 	getTeamList();
-	customRouter.push({ path: `/team/${baseStore.teamInfo[0].team_id}` });
 });
 </script>
 

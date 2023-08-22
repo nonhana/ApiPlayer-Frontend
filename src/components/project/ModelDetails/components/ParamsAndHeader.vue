@@ -1,9 +1,9 @@
 <template>
 	<div>
 		<vxe-table
+			ref="tableRef"
 			border
 			show-overflow
-			ref="tableRef"
 			:data="tableData"
 			:column-config="{ resizable: true }"
 			:menu-config="menuConfig"
