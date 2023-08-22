@@ -280,6 +280,7 @@ let sourceFile: File | null | undefined = null;
 let sourceFileURL: string = '';
 let croppedFile: File | null | undefined = null;
 let croppedFileURL = ref<string>('');
+let croppedFileType: string = ''; // 裁剪后的文件类型
 let pwdChangeInfo = ref({
 	pwd_change_step: 0,
 	phone_number: '',
@@ -317,18 +318,11 @@ const uploadFile = () => {
 };
 // 监听文件变化
 const fileChange = () => {
-	// windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
-
+	croppedFileType = sourceFile?.type ?? '';
 	if (sourceFile != null) {
 		windowShowList.value[0] = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
-		// uploadAvatar({ avatar: sourceFile! }).then((res) => {
-		// 	userInfo.value!.user_img = res.data.result.avatar;
-		// 	const info = JSON.parse(localStorage.getItem('userInfo') ?? '');
-		// 	localStorage.setItem('userInfo', JSON.stringify({ ...info, user_img: res.data.result.avatar }));
-		// 	// userInfo.value!.user_img = croppedFileURL.value;
-		// });
 	}
 };
 // 确认裁剪
@@ -338,7 +332,8 @@ const confirmCropper = async () => {
 
 	let Blob = (await cropper?.getBlob()) as Blob;
 
-	const uploadFile = new File([Blob], croppedFile?.name + 'jpeg' ?? '1.jpeg', { type: 'image/jpeg', lastModified: croppedFile?.lastModified });
+	// 把blob转换成file，type为croppedFileType
+	const uploadFile = new File([Blob], croppedFile?.name + 'jpeg' ?? '1.jpeg', { type: croppedFileType, lastModified: croppedFile?.lastModified });
 
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
