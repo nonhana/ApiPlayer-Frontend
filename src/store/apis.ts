@@ -40,16 +40,14 @@ export const apiStore = defineStore('apiStore', {
 			apiInfo: {},
 		};
 	},
-	persist: {
-		enabled: true, // true 表示开启持久化保存
-	},
+	persist: true,
 	actions: {
-		async getApiInfo(apiId: string) {
+		async getApiInfo(apiId: number) {
 			const res = await getApiInfo(apiId);
 			if (res.status == 200) {
 				this.apiInfo = res.data.api_info;
 			} else {
-				return Promise.reject(res.msg);
+				return Promise.reject(res.data);
 			}
 		},
 	},
