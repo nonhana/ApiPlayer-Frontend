@@ -16,10 +16,13 @@
 		</template>
 	</el-dialog>
 	<div class="project-wrap">
-		<div v-for="(project, index) in projectList" :key="index" class="project" @click="goDetail(index)">
+		<div v-if="baseStore.teamDetailedInfo.project_list.length === 0" class="empty-alert">
+			<el-empty description="该团队目前还没有项目" :image-size="200" />
+		</div>
+		<div v-for="(project, index) in baseStore.teamDetailedInfo.project_list" :key="index" class="project" @click="goDetail(index)">
 			<div class="project-header">
 				<div class="project-img">
-					<el-image shape="square" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
+					<el-image shape="square" size="20" :src="project.project_img">
 						<template #error>
 							<div class="image-slot">
 								<el-icon><Picture /></el-icon>
@@ -40,7 +43,7 @@
 				</div>
 			</div>
 			<div class="project-info">
-				<div class="project-name">{{ project.name }}</div>
+				<div class="project-name">{{ project.project_name }}</div>
 			</div>
 		</div>
 	</div>
@@ -51,52 +54,10 @@ import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { addRecentProject } from '../../api/projects';
-import { teamInfo } from '../../api/teams';
-
-import { useBaseStore } from '../../store/index';
-const baseStore = useBaseStore();
-
-interface Project {
-	id: number;
-	avatar: string;
-	name: string;
-}
+import { useBaseStore } from '@/store';
 
 const router = useRouter();
-// let projectList = reactive<Project[]>([]);
-let projectList = reactive<Project[]>([
-	{
-		id: 1,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		id: 2,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		id: 3,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		id: 4,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		id: 5,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-	{
-		id: 6,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-	},
-]);
-
+const baseStore = useBaseStore();
 const dialogVisible = ref<boolean>(false);
 let projectName = ref<string>('');
 
@@ -112,13 +73,11 @@ const rules = reactive<FormRules<RuleForm>>({
 });
 
 const goDetail = (index: number) => {
-	// baseStore.setCurTeamInfo({});
-	router.push({ path: `/project/${projectList[index].id}` });
-	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: projectList[index].id });
+	router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
+	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.teamDetailedInfo.project_list[index].project_id });
 };
 const deleteProject = (index: number) => {
-	console.log(222, projectList);
-	ElMessageBox.confirm('项目' + projectList[index].name + '将被删除', '警告', {
+	ElMessageBox.confirm('项目' + baseStore.teamDetailedInfo.project_list[index].project_name + '将被删除', '警告', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
@@ -137,7 +96,7 @@ const deleteProject = (index: number) => {
 		});
 };
 const changeProject = (index: number) => {
-	projectName.value = projectList[index].name;
+	projectName.value = baseStore.teamDetailedInfo.project_list[index].project_name;
 	dialogVisible.value = true;
 };
 const confirmChange = () => {
@@ -153,15 +112,11 @@ onMounted(async () => {
 <style scoped lang="less">
 .project-wrap {
 	width: 100%;
-	height: 100%;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 20px;
+	}
 	.project {
 		width: 20%;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
 		border: 1px solid #f2f4f7;
 		border-radius: 8px;
 		padding: 16px;

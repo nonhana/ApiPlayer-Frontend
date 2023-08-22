@@ -79,7 +79,9 @@
 		</el-form>
 		<template #footer>
 			<span class="dialog-footer">
-				<el-button type="default" size="large" plain color="rgb(255, 77, 79)" auto-insert-space class="change-btn">移除成员</el-button>
+				<el-button type="default" size="large" plain color="rgb(255, 77, 79)" auto-insert-space class="change-btn" @click="handleRemoveMember">
+					移除成员
+				</el-button>
 				<el-button type="default" size="large" auto-insert-space @click="settingDialog = false">取 消</el-button>
 				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmSetting">保存</el-button>
 			</span>
@@ -88,10 +90,13 @@
 	<div class="MemberPermission-wrap">
 		<div class="statistic">
 			<div class="statistic-item">
-				<el-statistic title="成员" :value="8" />
+				<el-statistic title="管理员" :value="adminNum" />
 			</div>
 			<div class="statistic-item">
-				<el-statistic title="游客" :value="0">
+				<el-statistic title="成员" :value="memberNum" />
+			</div>
+			<div class="statistic-item">
+				<el-statistic title="游客" :value="guestNum">
 					<template #title>
 						<div>
 							游客
@@ -101,9 +106,6 @@
 						</div>
 					</template>
 				</el-statistic>
-			</div>
-			<div class="statistic-item">
-				<el-statistic title="待定" :value="0" />
 			</div>
 		</div>
 		<div class="search-invite">
@@ -116,7 +118,7 @@
 		</div>
 		<div class="table">
 			<el-table
-				:data="tableData"
+				:data="baseStore.teamDetailedInfo.member_list"
 				height="250"
 				style="width: 100%"
 				:header-cell-style="{ fontWeight: '500', color: '#606266' }"
@@ -150,11 +152,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { Search, CirclePlusFilled, Refresh } from '@element-plus/icons-vue';
-import { TableColumnCtx, TableInstance, FormInstance, FormRules, ElMessage } from 'element-plus';
+import { TableColumnCtx, TableInstance, FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus';
 import { inviteUser, setMemberIdentity, removeMember } from '../../api/teams';
 import { searchUser } from '../../api/users';
 import { useBaseStore } from '@/store';
-const baseStore = useBaseStore();
 
 interface User {
 	avatar: string;
@@ -170,15 +171,14 @@ interface User {
 		},
 	];
 }
+const baseStore = useBaseStore();
 const user = ref<User>();
 const teamName = ref('个人空间');
 let map = new Map();
 map.set('团队所有者', 'danger');
 map.set('团队管理者', 'warning');
 map.set('团队成员', 'success');
-map.set('游客', '');
-map.set('待定', 'info');
-map.set('账号暂停', 'info');
+map.set('游客', 'info');
 const inviteDialog = ref(false);
 interface RuleForm {
 	username: string;
@@ -187,23 +187,7 @@ interface RuleForm {
 const inviteFormRef = ref<FormInstance>();
 const inviteForm = reactive<RuleForm>({
 	username: '',
-	searchUserData: [
-		{
-			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-			name: 'Tom',
-			email: '98839392@qq.com',
-		},
-		{
-			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-			name: 'Tom',
-			email: '98839392@qq.com',
-		},
-		{
-			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-			name: 'Tom',
-			email: '98839392@qq.com',
-		},
-	],
+	searchUserData: [],
 });
 const inviteFormRules = reactive<FormRules<RuleForm>>({
 	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
@@ -309,15 +293,24 @@ const filters = [
 	{ text: '团队管理员', value: '团队管理员' },
 	{ text: '团队成员', value: '团队成员' },
 	{ text: '游客', value: '游客' },
-	{ text: '待定', value: '待定' },
-	{ text: '账号暂停', value: '账号暂停' },
 ];
 
+const adminNum = computed(() => countUsersByRole('管理员'));
+const memberNum = computed(() => countUsersByRole('普通成员'));
+const guestNum = computed(() => countUsersByRole('游客'));
+const countUsersByRole = (role: string): number => {
+	const users = baseStore.teamDetailedInfo.member_list;
+	return users.filter((user) => user.role === role).length;
+};
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
 const search = () => {
-	const res = searchUser({ username: inviteForm.username });
+	searchUser({ username: inviteForm.username }).then(async (res) => {
+		if (res.data) {
+			inviteForm.searchUserData = res.data.data;
+		}
+	});
 };
 const confirmInvite = (user: User) => {};
 
@@ -332,6 +325,26 @@ const confirmSetting = () => {
 
 const filterTag = (value: string, row: User) => {
 	return row.tag === value;
+};
+
+const handleRemoveMember = () => {
+	ElMessageBox.confirm('确定移除成员：' + user.value.name + ' 吗？', '提醒', {
+		confirmButtonText: '确认',
+		cancelButtonText: '取消',
+		type: 'warning',
+	})
+		.then(() => {
+			ElMessage({
+				type: 'success',
+				message: '移除成功',
+			});
+		})
+		.catch(() => {
+			ElMessage({
+				type: 'info',
+				message: '取消移除',
+			});
+		});
 };
 
 const timeAgo = (row: User, column: TableColumnCtx<User>) => {

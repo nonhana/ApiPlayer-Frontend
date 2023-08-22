@@ -1,11 +1,20 @@
 <template>
 	<div>
-		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
-			<el-table-column prop="name" label="name" width="180" align="center">
-				<template #default="scope">
-					<input v-model="scope.row.name" type="text" class="ipt" style="width: 100px; text-align: center" />
+		<vxe-table
+			ref="tableRef"
+			border
+			show-overflow
+			:data="tableData"
+			:column-config="{ resizable: true }"
+			:menu-config="menuConfig"
+			:edit-config="{ trigger: 'click', mode: 'row', showStatus: true }"
+			@menu-click="contextMenuClickEvent"
+		>
+			<vxe-column width="200" field="param_name" title="参数名" :edit-render="{ autofocus: '.vxe-input--inner' }">
+				<template #edit="{ row }">
+					<vxe-input v-model="row.param_name" type="text"></vxe-input>
 				</template>
-			</el-table-column>
+			</vxe-column>
 			<el-table-column prop="type" label="type" width="180" align="center">
 				<template #default="scope">
 					<input v-model="scope.row.type" type="text" class="ipt" style="width: 100px; text-align: center" />
@@ -26,7 +35,7 @@
 					</el-icon>
 				</template>
 			</el-table-column>
-		</el-table>
+		</vxe-table>
 	</div>
 </template>
 

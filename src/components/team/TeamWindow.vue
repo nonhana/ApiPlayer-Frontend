@@ -11,7 +11,41 @@
 				<template #header>
 					<h1>新建项目</h1>
 				</template>
-				<el-input v-model="projectName" placeholder="项目名称" autocomplete="off" size="large" />
+				<el-form label-position="top" label-width="100px" :model="addProjectForm" style="max-width: 460px">
+					<el-form-item label="项目名称">
+						<el-input v-model="addProjectForm.project_name" />
+					</el-form-item>
+					<el-form-item label="项目图标">
+						<div class="user-head" @mouseenter="showTemplate = true" @mouseleave="showTemplate = false">
+							<transition name="fade">
+								<div class="template" @click="uploadFile">
+									<span>重新选取头像</span>
+								</div>
+							</transition>
+							<input v-show="false" ref="fileRef" type="file" @change="fileChange" />
+							<el-image :src="addProjectForm!.project_img">
+								<template #error>
+									<div
+										class="image-slot"
+										style="
+											display: flex;
+											justify-content: center;
+											align-items: center;
+											width: 100px;
+											height: 100px;
+											background: var(--el-fill-color-light);
+											color: var(--el-text-color-secondary);
+											font-size: 30px;
+										"
+									>
+										<el-icon><icon-picture /></el-icon>
+									</div>
+								</template>
+							</el-image>
+						</div>
+						<input v-show="false" ref="fileRef" type="file" @change="fileChange" />
+					</el-form-item>
+				</el-form>
 				<template #footer>
 					<span class="dialog-footer">
 						<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmCreate">新 建</el-button>
@@ -44,6 +78,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import type { TabsPaneContext } from 'element-plus';
 import { Search, Plus } from '@element-plus/icons-vue';
 import ProjectList from '../../components/team/ProjectList.vue';
@@ -61,7 +96,19 @@ const searchContent = ref<string>('');
 const dialogVisible = ref<boolean>(false);
 const projectName = ref<string>('');
 const isShowMiddleRight = ref<boolean>(true);
-const handleClick = (tab: TabsPaneContext, event: Event) => {
+interface AddProjectForm {
+	user_id: number;
+	team_id: number;
+	project_name: string;
+	project_img: string;
+}
+const addProjectForm: AddProjectForm = {
+	user_id: baseStore.user_info.user_id,
+	team_id: baseStore.teamDetailedInfo.team_info.team_id,
+	project_name: '',
+	project_img: '',
+};
+const handleClick = (tab: TabsPaneContext) => {
 	if (tab.paneName === 'first') {
 		isShowMiddleRight.value = true;
 	} else if (tab.paneName == 'second' || tab.paneName == 'third') {
@@ -69,19 +116,26 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 	}
 };
 const getTeamInfo = () => {
-	const res = teamInfo({ team_id: Number(route.params.team_id), user_id: baseStore.user_info.user_id });
-	baseStore.setTeamDetailedInfo(res);
+	teamInfo({ team_id: Number(route.params.team_id), user_id: baseStore.user_info.user_id }).then(async (res) => {
+		if (res.data) {
+			baseStore.setTeamDetailedInfo(res.data);
+		}
+	});
 };
 const createProject = () => {
 	dialogVisible.value = true;
 };
 const confirmCreate = () => {
-	const res = addProject({
+	addProject({
 		user_id: baseStore.user_info.user_id,
 		team_id: baseStore.teamDetailedInfo.team_info.team_id,
 		project_name: projectName.value,
 		project_img: '',
 		project_desc: '',
+	}).then(async (res) => {
+		if (res.data) {
+			ElMessage.success('新建项目成功');
+		}
 	});
 	dialogVisible.value = false;
 };

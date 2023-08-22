@@ -11,14 +11,11 @@ interface UserInfo {
 }
 
 interface RecentlyVisitedListItem {
-	// projectId: number;
-	// projectImg: string;
-	// projectName: string;
-	// lastVisitedTime: string;
-	id: number;
-	avatar: string;
-	name: string;
-	time: string;
+	project_id: number;
+	project_name: string;
+	project_img: string;
+	project_desc: string;
+	last_access_time: string;
 }
 
 interface MemberList {
@@ -90,4 +87,5 @@ export const useBaseStore = defineStore(Names.Base, {
 			this.curProjectInfo = info;
 		},
 	},
+	persist: true,
 });

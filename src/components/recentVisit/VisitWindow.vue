@@ -4,7 +4,7 @@
 			<div class="visit-name">最近访问</div>
 		</div>
 		<div class="visit-container">
-			<div v-for="(item, index) in projectList" :key="index" class="project" @click="goDetail(index)">
+			<div v-for="(item, index) in baseStore.lastVisitedList" :key="index" class="project" @click="goDetail(index)">
 				<div class="project-img">
 					<el-image shape="square" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
 						<template #error>
@@ -15,8 +15,8 @@
 					</el-image>
 				</div>
 				<div class="project-info">
-					<div class="project-name">{{ item.name }}</div>
-					<div class="visit-time">最近访问：{{ timeAgo(item.time) }}</div>
+					<div class="project-name">{{ item.project_name }}</div>
+					<div class="visit-time">最近访问：{{ timeAgo(item.last_access_time) }}</div>
 				</div>
 			</div>
 		</div>
@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
-import { recentlyVisited } from '../../api/projects';
+import { onMounted } from 'vue';
+import { recentlyVisited, addRecentProject } from '../../api/projects';
 import { useRouter } from 'vue-router';
 import { useBaseStore } from '../../store/index';
 
@@ -93,11 +93,15 @@ const timeAgo = (dateTime: string) => {
 	return result;
 };
 const getRecentlyVisited = () => {
-	const res: any = recentlyVisited({ user_id: baseStore.user_info.user_id });
-	baseStore.setLastVisitedList(res.project_list);
+	recentlyVisited({ user_id: baseStore.user_info.user_id }).then(async (res) => {
+		if (res.data) {
+			baseStore.setLastVisitedList(res.data.data);
+		}
+	});
 };
 const goDetail = (index: number) => {
-	router.push({ path: `/interface/${projectList[index].id}` });
+	router.push({ path: `/project/${baseStore.lastVisitedList[index].project_id}` });
+	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.lastVisitedList[index].project_id });
 };
 onMounted(() => {
 	getRecentlyVisited();

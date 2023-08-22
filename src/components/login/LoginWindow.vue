@@ -226,7 +226,6 @@ const myLogin = (type: number) => {
 						// console.log('id:', userInfo.user_id);
 						store.setUserInfo(userInfo);
 						console.log(store.user_info);
-
 						// router.push({ name: 'home' });
 						router.push({ name: 'main' });
 						ElNotification({
