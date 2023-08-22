@@ -14,7 +14,7 @@
 		"element-plus": "^2.3.8",
 		"json-schema-editor-vue3": "^1.2.0",
 		"pinia": "^2.1.6",
-		"pinia-plugin-persist": "^1.0.0",
+		"pinia-plugin-persistedstate": "^3.2.0",
 		"ry-edit-table": "^1.0.8",
 		"vue": "^3.3.4",
 		"vue-picture-cropper": "^0.6.1",

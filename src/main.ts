@@ -8,7 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import JsonSchemaEditor from 'json-schema-editor-vue3';
 import 'json-schema-editor-vue3/lib/json-schema-editor-vue3.css';
-import piniaPersist from 'pinia-plugin-persist';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
 const app = createApp(App);
 const store = createPinia();
@@ -17,7 +17,7 @@ app.use(ElementPlus, { locale: zhCn });
 app.use(router);
 app.use(store);
 app.use(JsonSchemaEditor);
-store.use(piniaPersist);
+store.use(piniaPluginPersistedstate);
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 	app.component(key, component);
