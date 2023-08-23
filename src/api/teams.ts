@@ -1,5 +1,23 @@
 import myAxios from './axios';
 
+export interface TeamIdentity {
+	team_id: number;
+	user_id: number;
+	team_user_identity: number;
+	team_user_name: string;
+	team_project_indentity_list: {
+		project_id: number;
+		project_user_identity: number;
+	}[];
+}
+export interface TeamInfo {
+	team_id: number;
+	user_id: number;
+	team_name?: string;
+	team_desc?: string;
+	team_user_name?: string;
+}
+
 // 获取团队列表
 export const teamList = (paramsList: { user_id: number }) => {
 	return myAxios({
@@ -28,7 +46,7 @@ export const deleteTeam = (paramsList: { team_id: number }) => {
 };
 
 //获取团队详情信息
-export const teamInfo = (paramsList: { team_id: number; user_id: number }) => {
+export const teamInfo = (paramsList: { team_id: number }) => {
 	return myAxios({
 		url: '/teams/teaminfo',
 		method: 'GET',
@@ -37,7 +55,7 @@ export const teamInfo = (paramsList: { team_id: number; user_id: number }) => {
 };
 
 //更新团队信息
-export const updateTeam = (paramsList: { team_id: number; user_id: number; team_name: string; team_desc: string; team_user_name: string }) => {
+export const updateTeam = (paramsList: TeamInfo) => {
 	return myAxios({
 		url: '/teams/updateteam',
 		method: 'POST',
@@ -46,7 +64,7 @@ export const updateTeam = (paramsList: { team_id: number; user_id: number; team_
 };
 
 //邀请用户加入团队
-export const inviteUser = (paramsList: { team_id: number; user_id: number; team_user_name: string }) => {
+export const inviteUser = (paramsList: { team_id: number; user_id: number; team_user_name?: string }) => {
 	return myAxios({
 		url: '/teams/inviteuser',
 		method: 'POST',
@@ -55,16 +73,7 @@ export const inviteUser = (paramsList: { team_id: number; user_id: number; team_
 };
 
 //设置成员权限
-export const setMemberIdentity = (paramsList: {
-	team_id: number;
-	user_id: number;
-	team_user_identity: number;
-	team_user_name: string;
-	team_project_indentity_list: {
-		project_id: string;
-		project_user_identity: number;
-	}[];
-}) => {
+export const setMemberIdentity = (paramsList: TeamIdentity) => {
 	return myAxios({
 		url: '/teams/setmemberidentity',
 		method: 'POST',

@@ -15,8 +15,8 @@
 				<div>
 					<el-tabs v-model="activeName" class="demo-tabs" style="padding-left: 20px">
 						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
-						<el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi"></Edit> </el-tab-pane>
-						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
+						<!-- <el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane> -->
+						<!-- <el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane> -->
 						<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
 					</el-tabs>
 				</div>
@@ -27,11 +27,9 @@
 
 <script lang="ts" setup>
 import { ref, onBeforeMount, watch } from 'vue';
-import type { TabsPaneContext } from 'element-plus';
 import Doc from './ModelDetails/doc/index.vue';
 import Edit from './ModelDetails/edit/index.vue';
 import Test from './ModelDetails/test/index.vue';
-// import Tmp from './ModelDetails/tmp/index.vue';
 import { apiStore } from '../../store/apis';
 import { useRouter, useRoute } from 'vue-router';
 import SideBar from './ModelDetails/components/SideBar.vue';
@@ -42,10 +40,8 @@ import { onBeforeRouteUpdate } from 'vue-router';
 const activeName = ref('first');
 
 // 点击运行跳转
-// const jumpUrl = ref('');
 const jumpRunApi = () => {
 	activeName.value = 'third';
-	// jumpUrl.value = para
 };
 
 const apiOperation = apiStore();
@@ -53,23 +49,27 @@ const apiInfo = ref(apiOperation.apiInfo);
 const router = useRouter();
 const thisId = router.currentRoute.value.query.api_id;
 onBeforeMount(() => {
-	getInfo(thisId);
+	if (thisId) {
+		getInfo(thisId);
+	}
 	apiInfo.value = apiOperation.apiInfo;
 });
 
-const getInfo = async (thisId) => {
+const getInfo = async (thisId: any) => {
 	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
 };
 
 onBeforeRouteUpdate((to) => {
 	console.log('to', to);
-	getInfo(to.query.api_id);
+	if (thisId) {
+		getInfo(to.query.api_id);
+	}
 });
 
 watch(
 	apiOperation.apiInfo,
-	(newVal, oldVal) => {
+	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
 		}
@@ -77,12 +77,12 @@ watch(
 	{ immediate: true, deep: true }
 );
 
-// const route = useRoute();
-// watch(route, (newValue, oldValue) => {
-// 	console.log('projecrwatch 已触发', newValue.query.api_id, oldValue);
-// 	getInfo(newValue.query.api_id);
-// 	apiInfo.value = apiOperation.apiInfo;
-// });
+const route = useRoute();
+watch(route, (newValue, oldValue) => {
+	console.log('projectwatch 已触发', newValue.query.api_id, oldValue);
+	getInfo(newValue.query.api_id);
+	apiInfo.value = apiOperation.apiInfo;
+});
 </script>
 
 <style scoped lang="less">

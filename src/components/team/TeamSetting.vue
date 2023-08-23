@@ -20,8 +20,8 @@
 			<div class="dialog-title">团队描述</div>
 		</template>
 		<el-form ref="teamFormRef" :model="teamForm" :rules="teamRules" status-icon label-position="top" label-width="100px">
-			<el-form-item label="名称" prop="name">
-				<el-input v-model="teamName" placeholder="" autocomplete="off" size="large" />
+			<el-form-item label="描述" prop="name">
+				<el-input v-model="teamDesc" placeholder="" autocomplete="off" size="large" />
 			</el-form-item>
 		</el-form>
 		<template #footer>
@@ -71,7 +71,7 @@
 			团队后，该团队下的所有项目都将被同步删除，且不可恢复！
 		</div>
 		<div class="input-label">请输入团队名确定操作</div>
-		<el-input v-model="printTeamName" placeholder="" autocomplete="off" size="large" />
+		<el-input v-model="confrimTeamName" placeholder="" autocomplete="off" size="large" />
 		<template #footer>
 			<span class="dialog-footer">
 				<el-button type="default" size="large" auto-insert-space @click="deleteTeamDialog = false">取消</el-button>
@@ -158,25 +158,27 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { teamInfo, updateTeam, deleteTeam } from '../../api/teams';
-import { useBaseStore } from '../../store/index';
+import { updateTeam, deleteTeam } from '@/api/teams';
+import { useBaseStore } from '@/store';
+import { useRoute } from 'vue-router';
 
-const baseStore = useBaseStore();
-
-const deleteTeamDialog = ref(false);
-const changeTeamDialog = ref(false);
-const changeTeamNameDialog = ref(false);
-const changeTeamDescDialog = ref(false);
-const changeMyNameDialog = ref(false);
-let teamName = ref<string>('');
-let myName = ref<string>('');
-let teamDesc = ref<string>('');
-const printTeamName = ref('');
-const receiver = ref('');
-const receivers = reactive([]);
 interface RuleForm {
 	name: string;
 }
+
+const route = useRoute();
+const baseStore = useBaseStore();
+const deleteTeamDialog = ref<boolean>(false);
+const changeTeamDialog = ref<boolean>(false);
+const changeTeamNameDialog = ref<boolean>(false);
+const changeTeamDescDialog = ref<boolean>(false);
+const changeMyNameDialog = ref<boolean>(false);
+const teamName = ref<string>('');
+const teamDesc = ref<string>('');
+const myName = ref<string>('');
+const confrimTeamName = ref<string>('');
+const receiver = ref<string>('');
+const receivers = reactive<any[]>([]);
 const teamFormRef = ref<FormInstance>();
 const teamForm = reactive<RuleForm>({
 	name: '',
@@ -191,25 +193,51 @@ const userForm = reactive<RuleForm>({
 const userRules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入团队内名称', trigger: 'blur' }],
 });
+
 const changeTeamName = () => {
 	changeTeamNameDialog.value = true;
 };
-const confirmChangeTeamName = () => {
+const confirmChangeTeamName = async () => {
+	await updateTeam({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: baseStore.user_info.user_id,
+		team_name: teamName.value,
+	});
+	await baseStore.getTeamInfo(Number(route.params.team_id));
 	changeTeamNameDialog.value = false;
 };
 const changeTeamDesc = () => {
 	changeTeamDescDialog.value = true;
 };
-const confirmChangeTeamDesc = () => {
+const confirmChangeTeamDesc = async () => {
+	await updateTeam({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: baseStore.user_info.user_id,
+		team_desc: teamDesc.value,
+	});
+	await baseStore.getTeamInfo(Number(route.params.team_id));
 	changeTeamDescDialog.value = false;
 };
 const changeMyName = () => {
 	changeMyNameDialog.value = true;
 };
-const confirmChangeMyName = () => {
+const confirmChangeMyName = async () => {
+	console.log({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: baseStore.user_info.user_id,
+		team_user_name: myName.value,
+	});
+	await updateTeam({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: baseStore.user_info.user_id,
+		team_user_name: myName.value,
+	});
+	await baseStore.getTeamInfo(Number(route.params.team_id));
 	changeMyNameDialog.value = false;
 };
 const changeLeader = () => {
+	// 将自己的权限变为团队管理员，把团队所有者的权限交给他人
+
 	changeTeamDialog.value = true;
 };
 const confirmChangeLeader = () => {
@@ -218,18 +246,18 @@ const confirmChangeLeader = () => {
 const handleDeleteTeam = () => {
 	deleteTeamDialog.value = true;
 };
-const confirmDelete = () => {
+const confirmDelete = async () => {
+	await deleteTeam({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+	});
+	window.location.reload();
 	deleteTeamDialog.value = false;
 };
-onMounted(() => {
-	// teamForm.name = baseStore.curTeamInfo.team_name;
-	teamName.value = baseStore.curTeamInfo.team_name;
-	// baseStore.teamDetailedInfo.member_list.forEach((item, index) => {
-	// 	if (item.user_id === baseStore.user_info.user_id) {
-	// 		myName.value = baseStore.teamDetailedInfo.member_list[index].user_team_name;
-	// 	}
-	// });
-	teamDesc.value = baseStore.curTeamInfo.team_desc ?? '';
+
+onMounted(async () => {
+	teamName.value = baseStore.teamDetailedInfo.team_info.team_name;
+	teamDesc.value = baseStore.teamDetailedInfo.team_info.team_desc ?? '';
+	myName.value = baseStore.teamDetailedInfo.team_info.team_user_name ?? '';
 });
 </script>
 
@@ -292,24 +320,19 @@ onMounted(() => {
 		}
 	}
 }
-
 .alert {
 	margin-bottom: 20px;
 }
-
 .input-label {
 	margin-bottom: 5px;
 }
-
 .select {
 	width: 100%;
 }
-
 .dialog-btn {
 	color: #fff;
 	font-size: 14px;
 }
-
 :deep(.el-divider--horizontal) {
 	margin: 0;
 }

@@ -1,5 +1,23 @@
 <template>
 	<div class="CommonAside-wrap">
+		<el-menu class="el-menu-vertical-demo" router :default-active="$route.path">
+			<el-sub-menu index="1">
+				<template #title>
+					<el-icon><User /></el-icon>
+					<span>我的团队</span>
+				</template>
+				<el-menu-item v-for="(team, index) in baseStore.teamInfo" :key="index" :index="'/team/' + team.team_id">{{ team.team_name }}</el-menu-item>
+				<el-menu-item @click="createTeam">
+					<el-icon><Plus /></el-icon>
+					<span>新建团队</span>
+				</el-menu-item>
+			</el-sub-menu>
+			<el-menu-item index="/recentVisit">
+				<el-icon><Clock /></el-icon>
+				<span>最近访问</span>
+			</el-menu-item>
+		</el-menu>
+
 		<el-dialog v-model="dialogVisible" title="创建团队" width="28%" center>
 			<template #header>
 				<h1>创建团队</h1>
@@ -11,72 +29,46 @@
 				</span>
 			</template>
 		</el-dialog>
-		<el-menu class="el-menu-vertical-demo" router :default-active="$route.path">
-			<el-sub-menu index="1">
-				<template #title>
-					<el-icon><User /></el-icon>
-					<span>我的团队</span>
-				</template>
-				<el-menu-item v-for="(team, index) in baseStore.teamInfo" :key="index" :index="'/team/' + team.team_id" @click="changeCurTeamInfo(team)">{{
-					team.team_name
-				}}</el-menu-item>
-				<el-menu-item @click="createTeam">
-					<el-icon><Plus /></el-icon>
-					<span>新建团队</span>
-				</el-menu-item>
-			</el-sub-menu>
-			<el-menu-item index="/recentVisit">
-				<el-icon><Clock /></el-icon>
-				<span>最近访问</span>
-			</el-menu-item>
-		</el-menu>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
-import { teamList, addTeam } from '../api/teams';
 import { useRouter } from 'vue-router';
-import { useBaseStore } from '../store/index';
-
-interface TeamInfo {
-	team_desc?: string;
-	team_id: number;
-	team_name: string;
-	team_user_name?: string;
-}
+import { teamList, addTeam } from '@/api/teams';
+import { useBaseStore } from '@/store/index';
+import { ElMessage } from 'element-plus';
 
 const customRouter = useRouter();
 const baseStore = useBaseStore();
 const dialogVisible = ref<boolean>(false);
 const teamName = ref<string>('');
-const getTeamList = () => {
-	teamList({ user_id: baseStore.user_info.user_id }).then(async (res) => {
-		if (res.data) {
-			baseStore.setTeamInfo(res.data.data);
-			customRouter.push({ path: `/team/${res.data.data[0].team_id}` });
-		}
-	});
+
+const getTeamList = async () => {
+	const res = await teamList({ user_id: baseStore.user_info.user_id });
+	if (res.data) {
+		baseStore.setTeamInfo(res.data.data);
+		customRouter.push({ path: `/team/${res.data.data[0].team_id}` });
+	}
 };
 const createTeam = () => {
 	dialogVisible.value = true;
 };
-const confirmCreate = () => {
+const confirmCreate = async () => {
 	dialogVisible.value = false;
-	addTeam({
+	const res = await addTeam({
 		user_id: baseStore.user_info.user_id,
 		team_name: teamName.value,
 		team_desc: '',
 		team_user_name: '',
 		project_img: '',
-	}).then(async (res) => {
-		if (res.data) {
-			ElMessage.success('新建团队成功');
-		}
 	});
-	// console.log(res);
+
+	if (res.data.result_code === 0) {
+		ElMessage.success('新建团队成功');
+		getTeamList();
+	}
 };
-// const recentVisit = () => {};
 
 onMounted(() => {
 	getTeamList();

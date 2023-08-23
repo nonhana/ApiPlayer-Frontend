@@ -1,5 +1,5 @@
 <template>
-	<div class="index" v-if="apiInfo">
+	<div v-if="apiInfo" class="index">
 		<el-row>
 			<el-col :span="3">
 				<el-select v-model="method" class="m-2" placeholder="Select" size="large">
@@ -47,23 +47,23 @@
 			<div v-if="apiInfo.api_request_params">
 				<el-tabs v-model="activeName" class="edit-tabs">
 					<el-tab-pane label="Parmas" name="first">
-						<ParamsAndHeader :requestData="apiInfo.api_request_params[0]"></ParamsAndHeader>
+						<ParamsAndHeader :request-data="apiInfo.api_request_params[0]"></ParamsAndHeader>
 					</el-tab-pane>
 					<el-tab-pane label="Body" name="second">
 						<el-tabs v-model="bodyActiveName" class="body-tabs">
 							<el-tab-pane label="form-data" name="bodyFirst">
-								<ParamsAndHeader :requestData="apiInfo.api_request_params[1]"></ParamsAndHeader>
+								<ParamsAndHeader :request-data="apiInfo.api_request_params[1]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="x-www-form-unlencoded" name="bodySecond">
-								<ParamsAndHeader :requestData="apiInfo.api_request_params[2]"></ParamsAndHeader>
+								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
 					<el-tab-pane label="Cookie" name="third">
-						<ParamsAndHeader :requestData="apiInfo.api_request_params[3]"></ParamsAndHeader>
+						<ParamsAndHeader :request-data="apiInfo.api_request_params[3]"></ParamsAndHeader>
 					</el-tab-pane>
 					<el-tab-pane label="Header" name="fourth">
-						<ParamsAndHeader :requestData="apiInfo.api_request_params[4]"></ParamsAndHeader>
+						<ParamsAndHeader :request-data="apiInfo.api_request_params[4]"></ParamsAndHeader>
 					</el-tab-pane>
 				</el-tabs>
 			</div>
@@ -75,7 +75,7 @@
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="item.http_status">
-						<JsonSchemaEditor></JsonSchemaEditor>
+						<!-- <JsonSchemaEditor></JsonSchemaEditor> -->
 					</el-tab-pane>
 				</div>
 			</el-tabs>
@@ -133,7 +133,7 @@ let activeName = ref('first');
 let bodyActiveName = ref('bodyFirst');
 
 const apiOperation = apiStore();
-const apiInfo = ref(apiOperation.apiInfo);
+const apiInfo = ref<any>(apiOperation.apiInfo);
 
 watch(
 	apiOperation.apiInfo,

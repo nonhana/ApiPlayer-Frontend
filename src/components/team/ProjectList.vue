@@ -15,6 +15,7 @@
 			</span>
 		</template>
 	</el-dialog>
+
 	<div class="project-wrap">
 		<div v-if="baseStore.teamDetailedInfo.project_list.length === 0" class="empty-alert">
 			<el-empty description="该团队目前还没有项目" :image-size="200" />
@@ -48,12 +49,14 @@
 		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { addRecentProject } from '../../api/projects';
+import { addRecentProject } from '@/api/projects';
+import { teamInfo } from '@/api/teams';
 import { useBaseStore } from '@/store';
 
 const router = useRouter();
@@ -102,18 +105,18 @@ const changeProject = (index: number) => {
 const confirmChange = () => {
 	dialogVisible.value = false;
 };
+
 onMounted(async () => {
-	const res = await teamInfo({ team_id: baseStore.curTeamInfo.team_id, user_id: baseStore.user_info.user_id });
-	console.log('teamInfo', res.data);
-	// projectList = res.data.project_list;
+	await teamInfo({ team_id: baseStore.curTeamInfo.team_id });
 });
 </script>
 
 <style scoped lang="less">
 .project-wrap {
 	width: 100%;
-	}
+	display: flex;
 	.project {
+		margin-right: 20px;
 		width: 20%;
 		display: flex;
 		flex-direction: column;
@@ -121,6 +124,7 @@ onMounted(async () => {
 		border-radius: 8px;
 		padding: 16px;
 		cursor: pointer;
+		transition: all 0.3s;
 		.dialog-title {
 			color: rgba(16, 24, 40, 0.8);
 			font-size: 16px;
@@ -144,6 +148,10 @@ onMounted(async () => {
 				font-size: 14px;
 			}
 		}
+	}
+	.project:hover {
+		// 弥散阴影
+		box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
 	}
 }
 

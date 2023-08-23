@@ -37,21 +37,20 @@ interface Project {
 	name: string;
 	time: string;
 }
-// let projectList: Project[] = reactive([
-// 	{
-// 		id: 1,
-// 		avatar: '../../static/svg/LoginLogo.svg',
-// 		name: 'test',
-// 		time: '2023-08-11 15:34:12',
-// 	},
-// 	{
-// 		id: 2,
-// 		avatar: '../../static/svg/LoginLogo.svg',
-// 		name: 'test',
-// 		time: '2023-08-11 13:34:12',
-// 	},
-// ]);
-let projectList: Project[] = reactive([]);
+const projectList: Project[] = [
+	{
+		id: 1,
+		avatar: '../../static/svg/LoginLogo.svg',
+		name: 'test',
+		time: '2023-08-11 15:34:12',
+	},
+	{
+		id: 2,
+		avatar: '../../static/svg/LoginLogo.svg',
+		name: 'test',
+		time: '2023-08-11 13:34:12',
+	},
+];
 
 const timeAgo = (dateTime: string) => {
 	const minute = 1000 * 60;
@@ -105,7 +104,6 @@ const goDetail = (index: number) => {
 };
 onMounted(() => {
 	getRecentlyVisited();
-	projectList = baseStore.lastVisitedList;
 });
 </script>
 

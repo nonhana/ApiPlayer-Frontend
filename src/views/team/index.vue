@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import TeamWindow from '../../components/team/TeamWindow.vue';
+import TeamWindow from '@/components/team/TeamWindow.vue';
 </script>
 
 <style scoped lang="less">

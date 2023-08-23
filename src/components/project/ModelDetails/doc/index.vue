@@ -119,7 +119,6 @@ watch(
 	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
-			console.log('apiInfo.value', apiInfo.value);
 		}
 	},
 	{ immediate: true, deep: true }

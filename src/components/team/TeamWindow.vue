@@ -1,9 +1,9 @@
 <template>
 	<div class="team-wrap">
 		<div class="team-header">
-			<div class="team-name">个人空间</div>
+			<div class="team-name">{{ baseStore.teamDetailedInfo.team_info.team_name }}</div>
 			<div>
-				<el-tag class="mx-1" type="warning" effect="light">团队所有者</el-tag>
+				<el-tag :type="colorMap.get(identityMap.get(userIdentity))">{{ identityMap.get(userIdentity) }}</el-tag>
 			</div>
 		</div>
 		<div class="team-middle">
@@ -77,50 +77,47 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { TabsPaneContext } from 'element-plus';
 import { Search, Plus } from '@element-plus/icons-vue';
-import ProjectList from '../../components/team/ProjectList.vue';
-import MemberPermission from '../../components/team/MemberPermission.vue';
-import TeamSetting from '../../components/team/TeamSetting.vue';
-import { useRouter, useRoute } from 'vue-router';
-import { addProject } from '../../api/projects';
-import { teamInfo } from '../../api/teams';
-import { useBaseStore } from '../../store/index';
+import ProjectList from '@/components/team/ProjectList.vue';
+import MemberPermission from '@/components/team/MemberPermission.vue';
+import TeamSetting from '@/components/team/TeamSetting.vue';
+import { useRoute } from 'vue-router';
+import { addProject } from '@/api/projects';
+import { useBaseStore } from '@/store/index';
 
-const route = useRoute();
-const baseStore = useBaseStore();
-const activeName = ref('first');
-const searchContent = ref<string>('');
-const dialogVisible = ref<boolean>(false);
-const projectName = ref<string>('');
-const isShowMiddleRight = ref<boolean>(true);
 interface AddProjectForm {
 	user_id: number;
 	team_id: number;
 	project_name: string;
 	project_img: string;
 }
+
+const baseStore = useBaseStore();
+const colorMap = new Map().set('团队所有者', 'danger').set('团队管理者', 'warning').set('团队成员', 'success').set('游客', 'info');
+const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
+const userIdentity = ref<number>(0);
+const route = useRoute();
+const activeName = ref('first');
+const searchContent = ref<string>('');
+const dialogVisible = ref<boolean>(false);
+const projectName = ref<string>('');
+const isShowMiddleRight = ref<boolean>(true);
 const addProjectForm: AddProjectForm = {
 	user_id: baseStore.user_info.user_id,
 	team_id: baseStore.teamDetailedInfo.team_info.team_id,
 	project_name: '',
 	project_img: '',
 };
+
 const handleClick = (tab: TabsPaneContext) => {
 	if (tab.paneName === 'first') {
 		isShowMiddleRight.value = true;
 	} else if (tab.paneName == 'second' || tab.paneName == 'third') {
 		isShowMiddleRight.value = false;
 	}
-};
-const getTeamInfo = () => {
-	teamInfo({ team_id: Number(route.params.team_id), user_id: baseStore.user_info.user_id }).then(async (res) => {
-		if (res.data) {
-			baseStore.setTeamDetailedInfo(res.data);
-		}
-	});
 };
 const createProject = () => {
 	dialogVisible.value = true;
@@ -139,9 +136,14 @@ const confirmCreate = () => {
 	});
 	dialogVisible.value = false;
 };
-onMounted(() => {
-	getTeamInfo();
-});
+
+watch(
+	() => route.params.team_id,
+	async (newV, _) => {
+		userIdentity.value = await baseStore.getTeamInfo(Number(newV));
+	},
+	{ immediate: true, deep: true }
+);
 </script>
 
 <style scoped lang="less">
@@ -154,6 +156,7 @@ onMounted(() => {
 	gap: 30px;
 	.team-header {
 		display: flex;
+		align-items: center;
 
 		.team-name {
 			color: rgba(16, 24, 40, 0.8);
