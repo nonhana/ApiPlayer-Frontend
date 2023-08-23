@@ -1,22 +1,14 @@
 <template>
 	<div>
-		<el-icon @click="handleAddDetailsEnd">
-			<Plus />
-		</el-icon>
 		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
 			<el-table-column prop="name" label="name" width="180" align="center">
 				<template #default="scope">
-					<input v-model="scope.row.name" type="text" class="ipt" style="width: 100px; text-align: center" />
+					<input v-model="scope.row.param_name" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
 			</el-table-column>
-			<el-table-column prop="type" label="type" width="180" align="center">
+			<el-table-column prop="value" label="value" width="180" align="center">
 				<template #default="scope">
-					<input v-model="scope.row.type" type="text" class="ipt" style="width: 100px; text-align: center" />
-				</template>
-			</el-table-column>
-			<el-table-column prop="desc" label="desc" width="180" align="center">
-				<template #default="scope">
-					<input v-model="scope.row.desc" type="text" class="ipt" style="width: 100px; text-align: center" />
+					<input v-model="scope.row.param_value" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
 			</el-table-column>
 			<el-table-column label="operate" align="center" width="100">
@@ -45,13 +37,17 @@ const props = defineProps({
 	},
 });
 const { requestData } = toRefs(props);
-let tableData = requestData.value.params_list ? ref(requestData.value.params_list) : ref([]);
+let tableData = ref(requestData.value.params_list);
 
 watch(
 	props.requestData,
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
-			tableData.value = newVal.params_list;
+			requestData.value = newVal;
+			// if(JSON.stringify(requestData.value.params_list) == "{}"){
+			// 	requestData.value.params_list =
+
+			// }
 			console.log('newVal', newVal);
 		}
 	},
@@ -73,15 +69,6 @@ const handleAddDetails = (index) => {
 		desc: '',
 	};
 	tableData.value.splice(index + 1, 0, obj);
-};
-
-const handleAddDetailsEnd = () => {
-	let obj = {
-		name: '',
-		type: '',
-		desc: '',
-	};
-	tableData.value.push(obj);
 };
 
 // 删除单个行

@@ -1,8 +1,8 @@
 <template>
-	<div class="index" v-if="apiInfo">
+	<div class="index">
 		<el-row>
 			<el-col :span="3">
-				<el-select v-model="method" class="m-2" placeholder="Select" size="large">
+				<el-select v-model="apiInfo.api_method" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" /> </el-select
 			></el-col>
 			<el-col :span="14">
@@ -22,16 +22,16 @@
 		</el-row>
 		<el-row>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_name" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.api_name" size="large" />
 			</el-col>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.dictionary_id" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.dictionary_id" size="large" />
 			</el-col>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_status" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.api_status" size="large" />
 			</el-col>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_principal_id" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.api_principal_id" size="large" />
 			</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 5px">
@@ -57,6 +57,9 @@
 							<el-tab-pane label="x-www-form-unlencoded" name="bodySecond">
 								<ParamsAndHeader :requestData="apiInfo.api_request_params[2]"></ParamsAndHeader>
 							</el-tab-pane>
+							<el-tab-pane label="json" name="bodyThird">
+								<el-input v-model="apiInfo.api_request_JSON" :rows="4" type="textarea" />
+							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
 					<el-tab-pane label="Cookie" name="third">
@@ -75,7 +78,7 @@
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="item.http_status">
-						<JsonSchemaEditor></JsonSchemaEditor>
+						<JsonSchemaEditor :responseData="item.response_body"></JsonSchemaEditor>
 					</el-tab-pane>
 				</div>
 			</el-tabs>
@@ -135,6 +138,25 @@ let bodyActiveName = ref('bodyFirst');
 const apiOperation = apiStore();
 const apiInfo = ref(apiOperation.apiInfo);
 
+const options = [
+	{
+		value: 'post',
+		label: 'post',
+	},
+	{
+		value: 'get',
+		label: 'get',
+	},
+	{
+		value: 'put',
+		label: 'put',
+	},
+	{
+		value: 'delete',
+		label: 'delete',
+	},
+];
+
 watch(
 	apiOperation.apiInfo,
 	(newVal, oldVal) => {
@@ -164,6 +186,10 @@ const emit = defineEmits<{
 
 const runApi = () => {
 	emit('clickrun');
+};
+
+const saveApiInfo = () => {
+	console.log('apiInfo.value.api_responses[0].response_body', apiInfo.value.api_responses[0].response_body);
 };
 
 // let responseActiveName = apiInfo.value.api_response[0].id;
