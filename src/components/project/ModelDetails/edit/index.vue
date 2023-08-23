@@ -165,6 +165,7 @@ watch(
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
+			tmppResponse = newVal.api_responses;
 		}
 	},
 	{ immediate: true, deep: true }
@@ -187,18 +188,18 @@ const runApi = () => {
 
 const saveApiInfo = async () => {
 	// const saveBody = {
-	// 	api_id: 0,
-	// 	dictionary_id: 0,
-	// 	api_name: 'string',
-	// 	api_url: 'string',
-	// 	api_method: 'string',
-	// 	api_status: 0,
-	// 	api_principal_id: 0,
-	// 	api_editor_id: 0,
-	// 	api_desc: 'string',
-	// 	api_request_params: ,
-	// 	api_request_JSON: 'string',
-	// 	api_responses: ,
+	// 	api_id: apiInfo.value.api_id,
+	// 	dictionary_id: apiInfo.value.dictionary_id,
+	// 	api_name: apiInfo.value.api_name,
+	// 	api_url: apiInfo.value.api_url,
+	// 	api_method: apiInfo.value.api_method,
+	// 	api_status: apiInfo.value.api_status,
+	// 	api_request_JSON: apiInfo.value.api_request_JSON,
+	// 	api_editor_id: apiInfo.value.api_editor_id,
+	// 	api_desc: apiInfo.value.api_desc,
+	// 	api_request_params: null,
+	// 	api_request_JSON: apiInfo.value.api_request_JSON,
+	// 	api_responses: null,
 	// };
 	// const res = await updateApi(saveBody);
 	// if (res.status == 200) {
@@ -221,8 +222,14 @@ const saveResponse = (para) => {
 	let tmp = ref({ root: {} });
 	if (para.root) {
 		tmp.value.root = JSON.stringify(para.root);
-		tmppResponse = JSON.stringify(tmp.value);
-		console.log('tmpp', tmppResponse[resActiveName.value]);
+		let tmpp = JSON.stringify(tmp.value);
+		tmpp = JSON.stringify(tmpp);
+		// tmppResponse[resActiveName.value].response_body = tmpp;
+		console.log('tmpp', tmpp);
+		console.log('tmppResponse[resActiveName.value].value', tmppResponse[resActiveName.value]);
+		// tmppResponse[resActiveName.value].response_body = tmpp;
+		// apiInfo.value.api_responses[resActiveName].response_body = tmppResponse;
+		// console.log('apiInfo.value.api_responses[resActiveName].response_body', apiInfo.value.api_responses[resActiveName].response_body);
 	}
 };
 
