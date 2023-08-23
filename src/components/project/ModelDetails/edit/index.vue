@@ -78,7 +78,7 @@
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="item.http_status">
-						<JsonSchemaEditor :responseData="item.response_body"></JsonSchemaEditor>
+						<JsonSchemaEditor :responseData="item.response_body" @sendResponse="saveResponse"></JsonSchemaEditor>
 					</el-tab-pane>
 				</div>
 			</el-tabs>
@@ -98,6 +98,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { updateApi, deleteApi } from '@/api/apis.ts';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { onBeforeRouteUpdate } from 'vue-router';
+import { treeEmits } from 'element-plus/es/components/tree-v2/src/virtual-tree.js';
 
 interface Request {
 	api_desc: string;
@@ -171,7 +172,6 @@ const getInfo = async (thisId) => {
 	apiInfo.value = apiOperation.apiInfo;
 };
 onBeforeRouteUpdate((to) => {
-	console.log('todoc', to);
 	getInfo(to.query.api_id);
 });
 // const route = useRoute();
@@ -189,7 +189,11 @@ const runApi = () => {
 };
 
 const saveApiInfo = () => {
-	console.log('apiInfo.value.api_responses[0].response_body', apiInfo.value.api_responses[0].response_body);
+	console.log('apiInfo.value', apiInfo.value);
+};
+
+const saveResponse = (para) => {
+	// apiInfo.api_responses[].response_body
 };
 
 // let responseActiveName = apiInfo.value.api_response[0].id;
