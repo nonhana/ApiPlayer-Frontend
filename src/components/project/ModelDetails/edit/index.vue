@@ -77,7 +77,7 @@
 		<el-row>
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
-					<el-tab-pane :label="item.response_name" :name="item.http_status">
+					<el-tab-pane :label="item.response_name" :name="index">
 						<JsonSchemaEditor :responseData="item.response_body" @sendResponse="saveResponse"></JsonSchemaEditor>
 					</el-tab-pane>
 				</div>
@@ -135,6 +135,7 @@ interface ApiResponse {
 const method = ref('get');
 let activeName = ref('first');
 let bodyActiveName = ref('bodyFirst');
+let resActiveName = ref(0);
 
 const apiOperation = apiStore();
 const apiInfo = ref(apiOperation.apiInfo);
@@ -157,6 +158,7 @@ const options = [
 		label: 'delete',
 	},
 ];
+let tmppResponse;
 
 watch(
 	apiOperation.apiInfo,
@@ -174,11 +176,6 @@ const getInfo = async (thisId) => {
 onBeforeRouteUpdate((to) => {
 	getInfo(to.query.api_id);
 });
-// const route = useRoute();
-// watch(route, (newValue, oldValue) => {
-// 	console.log('watch 已触发', newValue, oldValue);
-// 	apiInfo.value = apiOperation.apiInfo;
-// });
 
 const emit = defineEmits<{
 	(event: 'clickrun'): void;
@@ -188,12 +185,45 @@ const runApi = () => {
 	emit('clickrun');
 };
 
-const saveApiInfo = () => {
-	console.log('apiInfo.value', apiInfo.value);
+const saveApiInfo = async () => {
+	// const saveBody = {
+	// 	api_id: 0,
+	// 	dictionary_id: 0,
+	// 	api_name: 'string',
+	// 	api_url: 'string',
+	// 	api_method: 'string',
+	// 	api_status: 0,
+	// 	api_principal_id: 0,
+	// 	api_editor_id: 0,
+	// 	api_desc: 'string',
+	// 	api_request_params: ,
+	// 	api_request_JSON: 'string',
+	// 	api_responses: ,
+	// };
+	// const res = await updateApi(saveBody);
+	// if (res.status == 200) {
+	// 	console.log('保存成功');
+	// } else {
+	// 	return Promise.reject(res.msg);
+	// }
+};
+const deleteApiInfo = async () => {
+	const res = await deleteApi(apiInfo.value.api_id);
+	if (res.status == 200) {
+		console.log('删除成功');
+	} else {
+		return Promise.reject(res.msg);
+	}
 };
 
 const saveResponse = (para) => {
-	// apiInfo.api_responses[].response_body
+	console.log('para', para);
+	let tmp = ref({ root: {} });
+	if (para.root) {
+		tmp.value.root = JSON.stringify(para.root);
+		tmppResponse = JSON.stringify(tmp.value);
+		console.log('tmpp', tmppResponse[resActiveName.value]);
+	}
 };
 
 // let responseActiveName = apiInfo.value.api_response[0].id;
