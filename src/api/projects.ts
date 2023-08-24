@@ -136,3 +136,26 @@ export const updateProjectGlobalInfo = (paramsList: ProjectGlobalInfo) => {
 		data: paramsList,
 	});
 };
+// 删除项目
+export const deleteProject = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/deleteproject',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+// 上传项目图标图片
+
+export const uploadProjectIcon = (paramsList: { projectIcon: File }) => {
+	return myAxios({
+		url: '/projects/uploadprojecticon',
+		method: 'POST',
+		data: paramsList,
+		headers: {
+			Authorization: localStorage.getItem('token') ?? '',
+			'Content-Type': 'multipart/form-data',
+			// 'Content-Type': '	application/json; charset=utf-8',
+		},
+	});
+};

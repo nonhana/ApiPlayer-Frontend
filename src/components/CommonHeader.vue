@@ -4,7 +4,7 @@
 		<div class="user-info">
 			<img class="message" src="../static/svg/HeaderMessage.svg" />
 			<el-dropdown class="user-head" @command="userAction">
-				<img :src="userInfo.user_img" />
+				<img :src="userImg" />
 				<template #dropdown>
 					<el-dropdown-menu>
 						<el-dropdown-item command="1">
@@ -29,9 +29,15 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import type { UserInfo } from '../utils/types';
+import { ref, reactive, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue';
+
+const cxt = getCurrentInstance();
+const bus = cxt?.appContext.config.globalProperties.$bus;
 
 const router = useRouter();
-const userInfo: UserInfo = JSON.parse(localStorage.getItem('userInfo') as string);
+
+const userImg = ref(JSON.parse(localStorage.getItem('userInfo')!).user_img);
+let userInfo: UserInfo = reactive(JSON.parse(localStorage.getItem('userInfo') as string));
 
 const userAction = (command: string) => {
 	switch (command) {
@@ -53,6 +59,14 @@ const userAction = (command: string) => {
 			break;
 	}
 };
+onMounted(() => {
+	bus.on('updateAvatar', () => {
+		userImg.value = JSON.parse(localStorage.getItem('userInfo')!).user_img;
+	});
+});
+onBeforeUnmount(() => {
+	bus.off('updateAvatar');
+});
 </script>
 
 <style scoped lang="less">
@@ -64,13 +78,16 @@ const userAction = (command: string) => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+
 	.user-info {
 		display: flex;
 		align-items: center;
+
 		.message {
 			margin-right: 40px;
 			cursor: pointer;
 		}
+
 		.user-head {
 			margin-right: 20px;
 			width: 40px;
@@ -102,6 +119,7 @@ const userAction = (command: string) => {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
 	img {
 		margin-right: 10px;
 	}

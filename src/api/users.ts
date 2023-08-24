@@ -68,3 +68,30 @@ export const searchUser = (paramsList: { username: string }) => {
 		params: paramsList,
 	});
 };
+
+// 修改邮箱
+export const changEmail = (paramsList: { newEmail: string; captcha: string }) => {
+	return myAxios({
+		url: '/users/change-email',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+// 修改密码
+export const changPassword = (paramsList: { newPassword: string; captcha: string }) => {
+	return myAxios({
+		url: '/users/change-password',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+// 修改密码时发送邮件
+export const sendCaptchaChangPassword = () => {
+	return myAxios({
+		url: '/users/send-captcha-when-change-password',
+		method: 'POST',
+		// data: paramsList,
+	});
+};

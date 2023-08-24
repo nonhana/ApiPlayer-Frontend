@@ -1,4 +1,6 @@
 <template>
+	<!-- <div class="main_container"> -->
+	<!-- <CommonHeader></CommonHeader> -->
 	<el-dialog v-model="changeTeamNameDialog" title="修改项目名称" width="28%">
 		<template #header>
 			<div class="dialog-title">修改项目名称</div>
@@ -11,7 +13,9 @@
 		<template #footer>
 			<span class="dialog-footer">
 				<el-button type="default" size="large" auto-insert-space @click="changeTeamNameDialog = false">取消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeTeamName">保 存</el-button>
+				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeProjectName"
+					>保 存</el-button
+				>
 			</span>
 		</template>
 	</el-dialog>
@@ -27,11 +31,13 @@
 		<template #footer>
 			<span class="dialog-footer">
 				<el-button type="default" size="large" auto-insert-space @click="changeTeamDescDialog = false">取消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeTeamDesc">保 存</el-button>
+				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeProjectDesc"
+					>保 存</el-button
+				>
 			</span>
 		</template>
 	</el-dialog>
-	<el-dialog v-model="changeMyNameDialog" title="修改昵称" width="28%">
+	<!-- <el-dialog v-model="changeMyNameDialog" title="修改昵称" width="28%">
 		<template #header>
 			<div class="dialog-title">修改昵称</div>
 		</template>
@@ -46,7 +52,7 @@
 				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeMyName">确定</el-button>
 			</span>
 		</template>
-	</el-dialog>
+	</el-dialog> -->
 	<el-dialog v-model="moveToOtherTeamDialog" title="移交团队" width="25%">
 		<template #header>
 			<div class="dialog-title">移交团队</div>
@@ -79,6 +85,18 @@
 			</span>
 		</template>
 	</el-dialog>
+	<el-dialog v-model="uploadIconDialog" title="上传图标" width="33%">
+		<div style="margin: auto; width: 100px; font-size: 16px; border-radius: 4px; border: 1px solid #b1afaf; text-align: center" @click="uploadFile">
+			选择图标
+		</div>
+		<input v-show="false" class="uploadBtn" ref="fileRef" placeholder="选择图标" autocomplete="off" type="file" @change="fileChange" />
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button type="default" size="large" auto-insert-space @click="uploadIconDialog = false">取消</el-button>
+				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmUploadIcon">上 传</el-button>
+			</span>
+		</template>
+	</el-dialog>
 	<div class="setting-wrap">
 		<div class="header">基本设置</div>
 		<el-divider />
@@ -89,7 +107,7 @@
 					<div class="left">
 						<div class="left-content">
 							<div class="label title">项目名称</div>
-							<div class="label description">ApiPlayer</div>
+							<div class="label description">{{ projectInfo?.project_name }}</div>
 						</div>
 					</div>
 					<div>
@@ -101,7 +119,7 @@
 					<div class="left">
 						<div class="left-content">
 							<div class="label title">项目ID</div>
-							<div class="label description">{{ 3099285 }}</div>
+							<div class="label description">{{ projectInfo?.project_id }}</div>
 						</div>
 					</div>
 				</div>
@@ -111,20 +129,20 @@
 						<div class="left-content">
 							<div class="label title">项目图标</div>
 							<div class="label description">
-								<img v-if="projectInfo?.project_img" :src="projectInfo.project_img" alt="" />
+								<img v-if="projectInfo?.project_img" :src="projectInfo.project_img" alt="" style="width: 50px; border-radius: 4px" />
 								<img v-if="!projectInfo?.project_img" style="width: 40px; border-radius: 6px" src="../../../static/projectIcons/12.jpg" />
 							</div>
 						</div>
 					</div>
 					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button">编 辑</el-button>
+						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="uploadIcon">上传图标</el-button>
 					</div>
 				</div>
 				<el-divider />
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
-							<div class="label title">简介</div>
+							<div class="label title">项目简介</div>
 							<div class="label description">{{ projectInfo?.project_desc ?? '' }}</div>
 						</div>
 					</div>
@@ -132,7 +150,7 @@
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamDesc">编 辑</el-button>
 					</div>
 				</div>
-				<el-divider />
+				<!-- <el-divider />
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
@@ -143,9 +161,9 @@
 					<div>
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeMyName">编 辑</el-button>
 					</div>
-				</div>
+				</div> -->
 			</div>
-			<div class="container">
+			<!-- <div class="container">
 				<div class="container-header">项目操作</div>
 				<div class="content">
 					<div class="list">
@@ -160,7 +178,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div> -->
 			<div></div>
 		</div>
 		<div class="container">
@@ -188,20 +206,24 @@
 						</div>
 					</div>
 					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="handleDeleteTeam" style="color: red">删 除</el-button>
+						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" style="color: red" @click="handleDeleteTeam">删 除</el-button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	<!-- </div> -->
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, onBeforeMount } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage } from 'element-plus';
-import { getProjectInfo, updataBasicInfo, deleteProject } from '../../../api/projects';
+import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
 import { useBaseStore } from '../../../store/index';
+import { storeToRefs } from 'pinia';
+import { ElNotification } from 'element-plus';
+import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '../../../api/users.ts';
 
 interface ProjectInfo {
 	project_current_type?: number;
@@ -218,16 +240,20 @@ const deleteTeamDialog = ref(false);
 const moveToOtherTeamDialog = ref(false);
 const changeTeamNameDialog = ref(false);
 const changeTeamDescDialog = ref(false);
-const changeMyNameDialog = ref(false);
+const uploadIconDialog = ref(false);
 
 let projectInfo = reactive<ProjectInfo>({});
-let projectName = ref('ApiPalyer');
-let projectDesc = ref('第六届青训营前端大项目2 - HTTP 接口管理平台');
+let projectName = ref(projectInfo.project_name);
+let projectDesc = ref(projectInfo.project_desc);
 
-const myName = ref('');
 const printTeamName = ref('');
 const receiver = ref('');
 const receivers = reactive([]);
+
+const fileRef = ref<HTMLInputElement>();
+const uploadIconFile = ref();
+let sourceFile: File | null | undefined = null;
+
 interface RuleForm {
 	name: string;
 }
@@ -247,39 +273,53 @@ const userRules = reactive<FormRules<RuleForm>>({
 });
 
 const getProjectInfos = async () => {
-	const res = await getProjectInfo({
-		// project_id: baseStore.curProjectInfo.project_id ?? 4,
-		project_id: 3,
+	// projectInfo = storeToRefs(baseStore).curProjectInfo;
+	const res = await getProjectBasicInfo({
+		project_id: baseStore.curProjectInfo.project_id ?? 5,
 	});
-	projectInfo = res.data.project_info;
+	console.log('res282:', res);
+	// projectInfo = { ...res.data.project_info };
+	const resData = res.data.project_info;
+	projectInfo.project_current_type = resData.project_current_type;
+	projectInfo.project_desc = resData.project_desc;
+	projectInfo.project_id = resData.project_id;
+	projectInfo.project_img = resData.project_img;
+	projectInfo.project_name = resData.project_name;
+
+	console.log('projectInfo', projectInfo);
 	projectDesc.value = projectInfo?.project_desc ?? '';
 	projectName.value = projectInfo?.project_name ?? '';
 };
 
+// 修改项目名称
 const changeTeamName = () => {
 	changeTeamNameDialog.value = true;
 };
-const confirmChangeTeamName = async () => {
+// 确认修改项目名称
+const confirmChangeProjectName = async () => {
 	changeTeamNameDialog.value = false;
-	await updataBasicInfo({ project_name: projectName.value });
+	await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id ?? 4, project_name: projectName.value });
 	await getProjectInfos();
 	projectName.value = projectInfo!.project_name!;
 };
+// 修改团队描述;
 const changeTeamDesc = () => {
 	changeTeamDescDialog.value = true;
 };
-const confirmChangeTeamDesc = async () => {
+const confirmChangeProjectDesc = async () => {
 	changeTeamDescDialog.value = false;
-	await updataBasicInfo({ project_desc: projectDesc.value });
+	console.log(projectDesc.value);
+	await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_desc: projectDesc.value });
 	await getProjectInfos();
+	console.log('projectInfo', projectInfo);
 	projectDesc.value = projectInfo.project_desc!;
 };
-const changeMyName = () => {
-	changeMyNameDialog.value = true;
-};
-const confirmChangeMyName = () => {
-	changeMyNameDialog.value = false;
-};
+// const changeMyName = () => {
+// 	changeMyNameDialog.value = true;
+// };
+// const confirmChangeMyName = () => {
+// 	changeMyNameDialog.value = false;
+// };
 const moveToOtherTeam = () => {
 	moveToOtherTeamDialog.value = true;
 };
@@ -299,23 +339,77 @@ const confirmDelete = () => {
 	}
 };
 
+// 上传项目图标
+const uploadIcon = () => {
+	uploadIconDialog.value = true;
+};
+
+// 点击上传文件
+const uploadFile = () => {
+	fileRef.value?.click();
+};
+
+// 监听文件变化
+const fileChange = () => {
+	// windowShowList.value[0] = true;
+	sourceFile = fileRef.value?.files?.[0] || null;
+
+	if (sourceFile != null) {
+		// sourceFileURL = URL.createObjectURL(sourceFile as Blob);
+	}
+};
+const confirmUploadIcon = async () => {
+	uploadIconDialog.value = false;
+	console.log('icon', sourceFile);
+	// const res = await uploadAvatar({ avatar: sourceFile! });
+	if (sourceFile) {
+		const res = await uploadProjectIcon({ projectIcon: sourceFile });
+		console.log('res1:', res);
+		baseStore.setCurProjectInfo({
+			project_id: projectInfo.project_id ?? 4,
+			project_img: res.data.project_icon_path,
+			project_name: projectInfo.project_name!,
+		});
+		projectInfo.project_img = res.data.project_icon_path;
+		sourceFile = null;
+	} else {
+		ElNotification({
+			title: '上传失败',
+			message: '文件格式错误',
+			type: 'warning',
+		});
+	}
+};
+// console.log('setup');
+// getProjectInfos();
+
 onMounted(async () => {
-	getProjectInfos();
-	// if (baseStore.curProjectInfo.project_id !== undefined) {
-	// const res = await getProjectInfo({
-	// 	// project_id: baseStore.curProjectInfo.project_id ?? 4,
-	// 	project_id: 3,
-	// });
-	// projectInfo = res.data.project_info;
-	// console.log(res.data);
-	// }
+	await getProjectInfos();
+	console.log(projectInfo);
+
+	// 	console.log(111);
+	// 	// if (baseStore.curProjectInfo.project_id !== undefined) {
+	// 	// const res = await getProjectInfo({
+	// 	// 	// project_id: baseStore.curProjectInfo.project_id ?? 4,
+	// 	// 	project_id: 3,
+	// 	// });
+	// 	// projectInfo = res.data.project_info;
+	// 	// console.log(res.data);
+	// 	// }
 });
 </script>
 
 <style scoped lang="less">
+// .main_container {
+// 	width: 100%;
+// 	height: 100%;
+// 	display: flex;
+// 	flex-direction: column;
+// }
 .setting-wrap {
 	width: 90%;
-	margin-left: 50px;
+	margin-left: 0px;
+
 	.header {
 		height: 80px;
 		font-size: 24px;
@@ -402,5 +496,9 @@ onMounted(async () => {
 
 :deep(.el-divider--horizontal) {
 	margin: 0;
+}
+.uploadBtn:hover {
+	border-color: #d9d0f4;
+	color: #d9d0f4;
 }
 </style>

@@ -115,9 +115,11 @@ const goDetail = (index: number) => {
 	// baseStore.setCurTeamInfo({});
 	router.push({ path: `/project/${projectList[index].id}` });
 	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: projectList[index].id });
+	baseStore.setCurProjectInfo({ project_id: projectList[index].id, project_img: projectList[index].avatar, project_name: projectList[index].name });
+	// baseStore.setCurProjectInfo({ project_id: 4, project_img: projectList[index].avatar, project_name: projectList[index].name });
 };
 const deleteProject = (index: number) => {
-	console.log(222, projectList);
+	// console.log(222, projectList);
 	ElMessageBox.confirm('项目' + projectList[index].name + '将被删除', '警告', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',

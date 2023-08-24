@@ -67,7 +67,7 @@ export const useBaseStore = defineStore(Names.Base, {
 			teamInfo: [] as TeamInfo[],
 			teamDetailedInfo: <TeamDetailedInfo>{},
 			curTeamInfo: <TeamInfo>{},
-			curProjectInfo: <ProjectInfo>{},
+			curProjectInfo: <ProjectList>{},
 		};
 	},
 	actions: {
@@ -86,8 +86,11 @@ export const useBaseStore = defineStore(Names.Base, {
 		setCurTeamInfo(info: TeamInfo) {
 			this.curTeamInfo = info;
 		},
-		setCurProjectInfo(info: ProjectInfo) {
+		setCurProjectInfo(info: ProjectList) {
 			this.curProjectInfo = info;
 		},
+	},
+	persist: {
+		enabled: true, // true 表示开启持久化保存
 	},
 });
