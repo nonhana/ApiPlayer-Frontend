@@ -222,7 +222,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
 import { useBaseStore } from '../../../store/index';
 import { ElNotification } from 'element-plus';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 interface ProjectInfo {
 	project_current_type?: number;
@@ -235,6 +235,7 @@ interface ProjectInfo {
 
 const baseStore = useBaseStore();
 const router = useRouter();
+const route = useRoute();
 
 const deleteTeamDialog = ref(false);
 const moveToOtherTeamDialog = ref(false);
@@ -387,6 +388,7 @@ const confirmUploadIcon = async () => {
 };
 
 onMounted(async () => {
+	baseStore.curProjectInfo.project_id = parseInt(route.params.project_id as string);
 	await getProjectInfos();
 	console.log(projectInfo);
 });

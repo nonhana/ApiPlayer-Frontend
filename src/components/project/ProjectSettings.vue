@@ -1,6 +1,6 @@
 <template>
 	<div class="main">
-		<CommonHeader></CommonHeader>
+		<!-- <CommonHeader></CommonHeader> -->
 		<div class="container">
 			<SideNav></SideNav>
 			<Settings></Settings>
@@ -27,9 +27,10 @@ import CommonHeader from '@/components/CommonHeader.vue';
 	background-color: #fff;
 }
 .container {
-	width: 100%;
+	width: 1300px;
 	height: 100%;
 	display: flex;
+	flex: 1;
 	justify-content: space-evenly;
 }
 </style>

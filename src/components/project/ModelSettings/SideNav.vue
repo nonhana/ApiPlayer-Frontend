@@ -55,7 +55,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Search, CirclePlusFilled, Refresh } from '@element-plus/icons-vue';
 import { FormInstance, FormRules, ElMessage } from 'element-plus';
 // import { inviteUser, setMemberIdentity, removeMember } from '@/api/teams';
@@ -76,13 +76,13 @@ const clickhandler = (type: number): void => {
 			break;
 		case 1:
 			if (route.path.indexOf('projectMain') === -1) {
-				router.push('/projectMain/1');
+				router.push(`/projectMain/${route.params.project_id}`);
 			}
 			break;
 		case 2:
 			router.push('/projectSettings');
 			if (route.path.indexOf('projectSettings') === -1) {
-				router.push('/projectSettings');
+				router.push(`/projectSettings/${route.params.project_id}`);
 			}
 			break;
 		case 3:
