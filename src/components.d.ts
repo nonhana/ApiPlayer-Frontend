@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     CommonAside: typeof import('./components/CommonAside.vue')['default']
     CommonHeader: typeof import('./components/CommonHeader.vue')['default']
+    Default: typeof import('./components/project/ModelDetails/components/Default.vue')['default']
     Doc: typeof import('./components/project/ModelDetails/doc/index.vue')['default']
     Edit: typeof import('./components/project/ModelDetails/edit/index.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
@@ -71,6 +72,7 @@ declare module 'vue' {
     TeamSetting: typeof import('./components/team/TeamSetting.vue')['default']
     TeamWindow: typeof import('./components/team/TeamWindow.vue')['default']
     Test: typeof import('./components/project/ModelDetails/test/index.vue')['default']
+    TestRequestTable: typeof import('./components/project/ModelDetails/components/TestRequestTable.vue')['default']
     Tmp: typeof import('./components/project/ModelDetails/components/tmp.vue')['default']
     TmpTable: typeof import('./components/project/ModelDetails/tmp/tmp-table.vue')['default']
     TreeEdit: typeof import('./components/project/ModelDetails/tmp/tree-edit.vue')['default']
