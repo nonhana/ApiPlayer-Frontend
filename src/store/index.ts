@@ -59,6 +59,13 @@ interface ProjectInfo {
 	team_id?: number;
 }
 
+const teamConstance = {
+	TEAM_OWNER: 0,
+	TEAM_MANAGER: 1,
+	TEAM_MEMBER: 2,
+	GUEST: 3,
+};
+
 export const useBaseStore = defineStore(Names.Base, {
 	state: () => {
 		return {
@@ -70,6 +77,21 @@ export const useBaseStore = defineStore(Names.Base, {
 			curTeamInfo: <TeamInfo>{},
 			curProjectInfo: <ProjectList>{},
 		};
+	},
+
+	getters: {
+		inviteMemberBtnVisible(): boolean {
+			const { TEAM_OWNER, TEAM_MANAGER } = teamConstance;
+			return [TEAM_OWNER, TEAM_MANAGER].includes(this.teamIdentity);
+		},
+		disbandBtnVisible(): boolean {
+			const { TEAM_OWNER } = teamConstance;
+			return [TEAM_OWNER].includes(this.teamIdentity);
+		},
+		teamSettingBtnVisible(): boolean {
+			const { TEAM_OWNER, TEAM_MANAGER, TEAM_MEMBER } = teamConstance;
+			return [TEAM_OWNER, TEAM_MANAGER, TEAM_MEMBER].includes(this.teamIdentity);
+		},
 	},
 	actions: {
 		setUserInfo(info: UserInfo) {
