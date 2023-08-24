@@ -27,16 +27,11 @@ watch(
 	() => props.responseData,
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
-			// tree.value = JSON.parse(JSON.parse(newVal));
 			if (newVal.root) {
 				tree.value.root = newVal.root;
 			} else {
 				tree.value.root = newVal;
 			}
-			// console.log('rootSchema', rootSchema);
-			console.log('tree.value', tree.value);
-			// console.log('typeof newVal', typeof newVal);
-			console.log('typeof tree.value', typeof tree.value);
 		}
 	},
 	{ immediate: true, deep: true }

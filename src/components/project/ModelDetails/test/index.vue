@@ -51,7 +51,7 @@
 		<el-row>
 			<span>返回响应</span>
 		</el-row>
-		<el-row>
+		<el-row v-if="result.result_code">
 			<el-row>
 				<el-tabs v-model="responseActiveName" type="card" class="res-tabs">
 					<el-tab-pane :label="map.boolean[result.result_code]" :name="first">
@@ -84,7 +84,8 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_value: '',
+				param_type: null,
+				param_desc: '',
 			},
 		],
 	},
@@ -93,7 +94,8 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_value: '',
+				param_type: null,
+				param_desc: '',
 			},
 		],
 	},
@@ -102,7 +104,8 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_value: '',
+				param_type: null,
+				param_desc: '',
 			},
 		],
 	},
@@ -111,7 +114,8 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_value: '',
+				param_type: null,
+				param_desc: '',
 			},
 		],
 	},
@@ -120,7 +124,8 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_value: '',
+				param_type: null,
+				param_desc: '',
 			},
 		],
 	},

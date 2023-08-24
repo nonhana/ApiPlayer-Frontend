@@ -3,8 +3,9 @@
 		<el-row>
 			<el-col :span="3">
 				<el-select v-model="apiInfo.api_method" class="m-2" placeholder="Select" size="large">
-					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" /> </el-select
-			></el-col>
+					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+				</el-select>
+			</el-col>
 			<el-col :span="14">
 				<el-input v-model="apiInfo.api_url" placeholder="Please input" size="large" />
 			</el-col>
@@ -27,8 +28,11 @@
 			<el-col :span="6">
 				<el-input v-model="apiInfo.dictionary_id" size="large" />
 			</el-col>
-			<el-col :span="6">
-				<el-input v-model="apiInfo.api_status" size="large" />
+			<el-col :span="5">
+				<el-select v-model="apiInfo.api_status" class="m-2" placeholder="Select" size="large">
+					<el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+				</el-select>
+				<!-- <el-input v-model="apiInfo.api_status" size="large" /> -->
 			</el-col>
 			<el-col :span="6">
 				<el-input v-model="apiInfo.api_principal_id" size="large" />
@@ -73,12 +77,15 @@
 		</el-row>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
-			<el-icon @click="addResponse" style="margin-top: 5px">
-				<Plus />
+			<el-icon style="margin-left: 10px" @click="addResponse">
+				<Plus style="margin-top: 5px" />
+			</el-icon>
+			<el-icon style="margin-left: 10px" @click="deleteResponse">
+				<Minus style="margin-top: 5px" />
 			</el-icon>
 		</el-row>
 		<el-row>
-			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
+			<el-tabs v-model="resActiveName" type="card" class="demo-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="index">
 						<el-row>
@@ -146,6 +153,53 @@ let resActiveName = ref(0);
 
 const apiOperation = apiStore();
 const apiInfo = ref(apiOperation.apiInfo);
+const requestParams = ref([
+	{
+		type: 0,
+		params_list: [
+			{
+				param_name: '',
+				param_value: '',
+			},
+		],
+	},
+	{
+		type: 1,
+		params_list: [
+			{
+				param_name: '',
+				param_value: '',
+			},
+		],
+	},
+	{
+		type: 2,
+		params_list: [
+			{
+				param_name: '',
+				param_value: '',
+			},
+		],
+	},
+	{
+		type: 3,
+		params_list: [
+			{
+				param_name: '',
+				param_value: '',
+			},
+		],
+	},
+	{
+		type: 4,
+		params_list: [
+			{
+				param_name: '',
+				param_value: '',
+			},
+		],
+	},
+]);
 
 const options = [
 	{
@@ -166,11 +220,40 @@ const options = [
 	},
 ];
 
+const statusOptions = [
+	{
+		value: 0,
+		label: '开发中',
+	},
+	{
+		value: 1,
+		label: '测试中',
+	},
+	{
+		value: 2,
+		label: '已发布',
+	},
+	{
+		value: 3,
+		label: '将废弃',
+	},
+];
+
 watch(
 	apiOperation.apiInfo,
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
+			// console.log('requestParams', requestParams.value.length);
+
+			for (let i = 0; i < requestParams.value.length; i++) {
+				for (let j = 0; j < apiInfo.value.api_request_params.length; j++) {
+					if (requestParams.value[i].type == apiInfo.value.api_request_params[j].type) {
+						requestParams.value[i] = apiInfo.value.api_request_params[j];
+					}
+				}
+			}
+			apiInfo.value.api_request_params = requestParams;
 		}
 	},
 	{ immediate: true, deep: true }
@@ -192,26 +275,25 @@ const runApi = () => {
 };
 
 const saveApiInfo = async () => {
-	// const saveBody = {
-	// 	api_id: apiInfo.value.api_id,
-	// 	dictionary_id: apiInfo.value.dictionary_id,
-	// 	api_name: apiInfo.value.api_name,
-	// 	api_url: apiInfo.value.api_url,
-	// 	api_method: apiInfo.value.api_method,
-	// 	api_status: apiInfo.value.api_status,
-	// 	api_request_JSON: apiInfo.value.api_request_JSON,
-	// 	api_editor_id: apiInfo.value.api_editor_id,
-	// 	api_desc: apiInfo.value.api_desc,
-	// 	api_request_params: null,
-	// 	api_request_JSON: apiInfo.value.api_request_JSON,
-	// 	api_responses: null,
-	// };
-	// const res = await updateApi(saveBody);
-	// if (res.status == 200) {
-	// 	console.log('保存成功');
-	// } else {
-	// 	return Promise.reject(res.msg);
-	// }
+	const saveBody = {
+		api_id: apiInfo.value.api_id,
+		dictionary_id: apiInfo.value.dictionary_id,
+		api_name: apiInfo.value.api_name,
+		api_url: apiInfo.value.api_url,
+		api_method: apiInfo.value.api_method,
+		api_status: apiInfo.value.api_status,
+		api_editor_id: apiInfo.value.api_editor_id,
+		api_desc: apiInfo.value.api_desc,
+		api_request_params: apiInfo.value.api_request_params,
+		api_request_JSON: apiInfo.value.api_request_JSON,
+		api_responses: apiInfo.value.api_request_JSON,
+	};
+	const res = await updateApi(saveBody);
+	if (res.status == 200) {
+		console.log('保存成功');
+	} else {
+		return Promise.reject(res.msg);
+	}
 };
 const deleteApiInfo = async () => {
 	const res = await deleteApi(apiInfo.value.api_id);
@@ -227,17 +309,24 @@ const addResponse = () => {
 		response_id: null,
 		http_status: null,
 		response_name: null,
-		response_body: null,
+		response_body: {
+			root: {
+				type: 'object',
+			},
+		},
 	};
 	apiInfo.value.api_responses.push(obj);
+};
+
+const deleteResponse = () => {
+	apiInfo.value.api_responses.splice(resActiveName.value, 1);
+	resActiveName.value--;
 };
 
 const saveResponse = (para) => {
 	apiInfo.value.api_responses[resActiveName.value].response_body = para;
 	// console.log('apiInfo.value.api_responses[resActiveName.value].response_body', apiInfo.value.api_responses[resActiveName.value].response_body);
 };
-
-// let responseActiveName = apiInfo.value.api_response[0].id;
 </script>
 
 <style scoped lang="less">

@@ -10,7 +10,7 @@
 					{{ apiInfo.api_method }}
 				</el-tag>
 				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiInfo.api_url }}</el-text>
-				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ apiInfo.api_status }}</el-text>
+				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ statusMap.boolean[apiInfo.api_status] }}</el-text>
 			</el-col>
 		</el-row>
 		<el-row>
@@ -109,6 +109,8 @@ interface ApiResponse {
 	response_name: string;
 }
 const map = { boolean: { 0: 'Params', 1: 'Body(form-data)', 2: 'Body(x-www-form-unlencoded)', 3: 'Cookie', 4: 'Header' } };
+const statusMap = { boolean: { 0: '开发中', 1: '测试中', 2: '已发布', 3: '将废弃' } };
+
 // const activeName = ref();
 
 const apiOperation = apiStore();
