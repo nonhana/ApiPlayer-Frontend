@@ -1,8 +1,8 @@
 <template>
-	<div v-if="apiInfo" class="index">
+	<div class="index">
 		<el-row>
 			<el-col :span="3">
-				<el-select v-model="method" class="m-2" placeholder="Select" size="large">
+				<el-select v-model="apiInfo.api_method" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" /> </el-select
 			></el-col>
 			<el-col :span="14">
@@ -22,16 +22,16 @@
 		</el-row>
 		<el-row>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_name" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.api_name" size="large" />
 			</el-col>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.dictionary_id" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.dictionary_id" size="large" />
 			</el-col>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_status" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.api_status" size="large" />
 			</el-col>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_principal_id" placeholder="Please input" size="large" />
+				<el-input v-model="apiInfo.api_principal_id" size="large" />
 			</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 5px">
@@ -47,23 +47,26 @@
 			<div v-if="apiInfo.api_request_params">
 				<el-tabs v-model="activeName" class="edit-tabs">
 					<el-tab-pane label="Parmas" name="first">
-						<ParamsAndHeader :request-data="apiInfo.api_request_params[0]"></ParamsAndHeader>
+						<ParamsAndHeader :requestData="apiInfo.api_request_params[0]"></ParamsAndHeader>
 					</el-tab-pane>
 					<el-tab-pane label="Body" name="second">
 						<el-tabs v-model="bodyActiveName" class="body-tabs">
 							<el-tab-pane label="form-data" name="bodyFirst">
-								<ParamsAndHeader :request-data="apiInfo.api_request_params[1]"></ParamsAndHeader>
+								<ParamsAndHeader :requestData="apiInfo.api_request_params[1]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="x-www-form-unlencoded" name="bodySecond">
-								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
+								<ParamsAndHeader :requestData="apiInfo.api_request_params[2]"></ParamsAndHeader>
+							</el-tab-pane>
+							<el-tab-pane label="json" name="bodyThird">
+								<el-input v-model="apiInfo.api_request_JSON" :rows="4" type="textarea" />
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
 					<el-tab-pane label="Cookie" name="third">
-						<ParamsAndHeader :request-data="apiInfo.api_request_params[3]"></ParamsAndHeader>
+						<ParamsAndHeader :requestData="apiInfo.api_request_params[3]"></ParamsAndHeader>
 					</el-tab-pane>
 					<el-tab-pane label="Header" name="fourth">
-						<ParamsAndHeader :request-data="apiInfo.api_request_params[4]"></ParamsAndHeader>
+						<ParamsAndHeader :requestData="apiInfo.api_request_params[4]"></ParamsAndHeader>
 					</el-tab-pane>
 				</el-tabs>
 			</div>
@@ -74,8 +77,8 @@
 		<el-row>
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
-					<el-tab-pane :label="item.response_name" :name="item.http_status">
-						<!-- <JsonSchemaEditor></JsonSchemaEditor> -->
+					<el-tab-pane :label="item.response_name" :name="index">
+						<JsonSchemaEditor :responseData="item.response_body" @sendResponse="saveResponse"></JsonSchemaEditor>
 					</el-tab-pane>
 				</div>
 			</el-tabs>
@@ -95,6 +98,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { updateApi, deleteApi } from '@/api/apis.ts';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { onBeforeRouteUpdate } from 'vue-router';
+import { treeEmits } from 'element-plus/es/components/tree-v2/src/virtual-tree.js';
 
 interface Request {
 	api_desc: string;
@@ -131,15 +135,37 @@ interface ApiResponse {
 const method = ref('get');
 let activeName = ref('first');
 let bodyActiveName = ref('bodyFirst');
+let resActiveName = ref(0);
 
 const apiOperation = apiStore();
-const apiInfo = ref<any>(apiOperation.apiInfo);
+const apiInfo = ref(apiOperation.apiInfo);
+
+const options = [
+	{
+		value: 'post',
+		label: 'post',
+	},
+	{
+		value: 'get',
+		label: 'get',
+	},
+	{
+		value: 'put',
+		label: 'put',
+	},
+	{
+		value: 'delete',
+		label: 'delete',
+	},
+];
+let tmppResponse;
 
 watch(
 	apiOperation.apiInfo,
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
+			tmppResponse = newVal.api_responses;
 		}
 	},
 	{ immediate: true, deep: true }
@@ -149,14 +175,8 @@ const getInfo = async (thisId) => {
 	apiInfo.value = apiOperation.apiInfo;
 };
 onBeforeRouteUpdate((to) => {
-	console.log('todoc', to);
 	getInfo(to.query.api_id);
 });
-// const route = useRoute();
-// watch(route, (newValue, oldValue) => {
-// 	console.log('watch 已触发', newValue, oldValue);
-// 	apiInfo.value = apiOperation.apiInfo;
-// });
 
 const emit = defineEmits<{
 	(event: 'clickrun'): void;
@@ -164,6 +184,53 @@ const emit = defineEmits<{
 
 const runApi = () => {
 	emit('clickrun');
+};
+
+const saveApiInfo = async () => {
+	// const saveBody = {
+	// 	api_id: apiInfo.value.api_id,
+	// 	dictionary_id: apiInfo.value.dictionary_id,
+	// 	api_name: apiInfo.value.api_name,
+	// 	api_url: apiInfo.value.api_url,
+	// 	api_method: apiInfo.value.api_method,
+	// 	api_status: apiInfo.value.api_status,
+	// 	api_request_JSON: apiInfo.value.api_request_JSON,
+	// 	api_editor_id: apiInfo.value.api_editor_id,
+	// 	api_desc: apiInfo.value.api_desc,
+	// 	api_request_params: null,
+	// 	api_request_JSON: apiInfo.value.api_request_JSON,
+	// 	api_responses: null,
+	// };
+	// const res = await updateApi(saveBody);
+	// if (res.status == 200) {
+	// 	console.log('保存成功');
+	// } else {
+	// 	return Promise.reject(res.msg);
+	// }
+};
+const deleteApiInfo = async () => {
+	const res = await deleteApi(apiInfo.value.api_id);
+	if (res.status == 200) {
+		console.log('删除成功');
+	} else {
+		return Promise.reject(res.msg);
+	}
+};
+
+const saveResponse = (para) => {
+	console.log('para', para);
+	let tmp = ref({ root: {} });
+	if (para.root) {
+		tmp.value.root = JSON.stringify(para.root);
+		let tmpp = JSON.stringify(tmp.value);
+		tmpp = JSON.stringify(tmpp);
+		// tmppResponse[resActiveName.value].response_body = tmpp;
+		console.log('tmpp', tmpp);
+		console.log('tmppResponse[resActiveName.value].value', tmppResponse[resActiveName.value]);
+		// tmppResponse[resActiveName.value].response_body = tmpp;
+		// apiInfo.value.api_responses[resActiveName].response_body = tmppResponse;
+		// console.log('apiInfo.value.api_responses[resActiveName].response_body', apiInfo.value.api_responses[resActiveName].response_body);
+	}
 };
 
 // let responseActiveName = apiInfo.value.api_response[0].id;
