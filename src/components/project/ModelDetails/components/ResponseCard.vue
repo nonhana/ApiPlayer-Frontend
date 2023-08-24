@@ -57,6 +57,7 @@ interface SchemaNode {
 	description?: string;
 	required?: string[];
 	properties?: { [key: string]: SchemaNode };
+	items?: SchemaNode;
 }
 
 // 从父组件拿到的数据
@@ -64,7 +65,7 @@ const props = defineProps<{
 	context: {
 		response_id: number;
 		http_status: number;
-		response_body: string;
+		response_body: any;
 	};
 }>();
 
@@ -75,6 +76,7 @@ const handleNodeClick = (data: TreeNode) => {
 };
 // 将后端传过来的JSON_Schema结构转换成前端需要的树形结构
 const convertSchemaToTree = (schema: SchemaNode, parentId: number, labelName: string): TreeNode => {
+	// 初始化树形结构
 	const treeNode: TreeNode = {
 		id: parentId,
 		label: labelName,
@@ -84,17 +86,27 @@ const convertSchemaToTree = (schema: SchemaNode, parentId: number, labelName: st
 		description: schema.description || '',
 		children: [],
 	};
-	if (schema.required) {
-		schema.required.forEach((prop) => {
-			const propertySchema = schema.properties?.[prop];
-			if (propertySchema) {
-				const childNode = convertSchemaToTree(propertySchema, parentId * 10 + 1, prop);
+
+	// 正确处理array类型和object类型，并根据required字段来判断是否必填
+	if (schema.type === 'array' && schema.items) {
+		const childNode = convertSchemaToTree(schema.items, parentId * 10 + 1, 'items');
+		treeNode.children!.push(childNode);
+		if (schema.required) {
+			treeNode.required = true;
+		}
+	} else if (schema.type === 'object' && schema.properties) {
+		Object.keys(schema.properties).forEach((key, index) => {
+			const childNode = convertSchemaToTree(schema.properties![key], parentId * 10 + index + 1, key);
+			treeNode.children!.push(childNode);
+			if (schema.required && schema.required.includes(key)) {
 				childNode.required = true;
-				treeNode.children!.push(childNode);
 			}
 		});
+	} else {
+		if (schema.required) {
+			treeNode.required = true;
+		}
 	}
-
 	return treeNode;
 };
 // 使用h函数来渲染el-tree内部内容
@@ -172,10 +184,11 @@ watch(
 	(newV, _) => {
 		// 拿到之后进行处理
 		let rootSchema: SchemaNode;
-		if (JSON.parse(newV.response_body).root) {
-			rootSchema = JSON.parse(newV.response_body).root;
+		console.log(newV.response_body);
+		if (newV.response_body.root) {
+			rootSchema = newV.response_body.root;
 		} else {
-			rootSchema = JSON.parse(newV.response_body);
+			rootSchema = newV.response_body;
 		}
 		treeData = [convertSchemaToTree(rootSchema, 1, 'root')];
 		console.log(treeData);

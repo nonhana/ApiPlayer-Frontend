@@ -18,7 +18,7 @@
 
 	<div class="project-wrap">
 		<div v-if="baseStore.teamDetailedInfo.project_list.length === 0" class="empty-alert">
-			<el-empty description="该团队目前还没有项目" :image-size="200" />
+			<el-empty description="该团队目前还没有项目哦~" :image-size="200" />
 		</div>
 		<div v-for="(project, index) in baseStore.teamDetailedInfo.project_list" :key="index" class="project" @click="goDetail(index)">
 			<div class="project-header">
@@ -137,8 +137,8 @@ onMounted(async () => {
 	display: flex;
 	flex-wrap: wrap;
 	.project {
-		margin-right: 20px;
-		width: 230px;
+		margin: 30px;
+		width: 250px;
 		display: flex;
 		flex-direction: column;
 		border: 1px solid #f2f4f7;
@@ -171,7 +171,7 @@ onMounted(async () => {
 		}
 	}
 	.project:hover {
-		box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
+		box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.16);
 	}
 	.empty-alert {
 		width: 100%;

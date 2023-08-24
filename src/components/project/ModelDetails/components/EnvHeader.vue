@@ -2,23 +2,20 @@
 	<div class="EnvHeader-wrap">
 		<div class="button-group">
 			<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
-
 			<el-dropdown @command="envChoosing">
-				<el-button-group>
-					<el-button class="main-button" color="#fff" type="primary">
-						<span>{{ currentEnvName }}</span>
-						<img src="@/static/svg/ProjectDetailsEnvHeaderOpenList.svg" />
-					</el-button>
-					<el-button class="edit-button" color="#fff" type="primary" @click="showDialogList[0] = !showDialogList[0]">
-						<img src="@/static/svg/ProjectDetailsEnvHeaderEdit.svg" />
-					</el-button>
-				</el-button-group>
+				<el-button class="main-button">
+					<span>{{ currentEnvName }}</span>
+					<img src="@/static/svg/ProjectDetailsEnvHeaderOpenList.svg" />
+				</el-button>
 				<template #dropdown>
 					<el-dropdown-menu>
 						<el-dropdown-item v-for="(envItem, index) in envList" :key="index" :command="envItem.env_type">{{ envItem.env_name }}</el-dropdown-item>
 					</el-dropdown-menu>
 				</template>
 			</el-dropdown>
+			<el-button class="edit-button" @click="showDialogList[0] = !showDialogList[0]">
+				<img src="@/static/svg/ProjectDetailsEnvHeaderEdit.svg" />
+			</el-button>
 		</div>
 
 		<el-dialog v-model="showDialogList[0]" title="编辑项目全局信息" width="1000px" :before-close="handleClose(0)">
@@ -353,6 +350,7 @@ const confirmEdit = async (type: number[]) => {
 				globalParams.value[index].params_list[paramsIndex] = editingParamsInfo.value;
 			} else {
 				// 新增
+				console.log('globalParams', globalParams.value);
 				const index = globalParams.value.findIndex((item) => item.type === Number(currentEditParamsClass.value) - 1);
 				globalParams.value[index].params_list.push(editingParamsInfo.value);
 			}
@@ -713,6 +711,14 @@ onMounted(async () => {
 			}),
 		};
 	});
+	for (let i = 0; i < 3; i++) {
+		if (!globalParams.value[i]) {
+			globalParams.value[i] = {
+				type: i,
+				params_list: [],
+			};
+		}
+	}
 	// 3. global_variables
 	globalVariables.value = globalInfo.global_variables.map((item: any) => {
 		let variableType = '';
@@ -746,13 +752,15 @@ onMounted(async () => {
 <style scoped lang="less">
 .EnvHeader-wrap {
 	position: relative;
-	width: 1000px;
-	height: 50px;
+	width: 1020px;
+	padding: 0 20px;
+	height: 60px;
 	background-color: #ffffff;
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
-	border: 1px solid #3d3d3d;
+	border: 1px solid #bdbdbd;
+	border-radius: 10px;
 	.button-group {
 		display: flex;
 		align-items: center;
@@ -765,7 +773,7 @@ onMounted(async () => {
 		.main-button {
 			span {
 				font-family: Microsoft YaHei;
-				font-size: 16px;
+				font-size: 14px;
 				font-weight: normal;
 				color: #3d3d3d;
 			}

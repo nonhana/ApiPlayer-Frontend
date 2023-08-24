@@ -1,18 +1,18 @@
 <template>
 	<div class="projectdetil"></div>
 	<el-row type="flex" justify="center">
-		<div><SideNav></SideNav></div>
+		<div><SideNav /></div>
 		<div>
 			<SideBar />
 		</div>
 		<div>
-			<el-row>
+			<el-row style="margin: 0">
 				<div>
 					<EnvHeader />
 				</div>
 			</el-row>
 			<el-row>
-				<div>
+				<div class="main">
 					<el-tabs v-model="activeName" class="demo-tabs" style="padding-left: 20px">
 						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
 						<!-- <el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane> -->
@@ -102,12 +102,16 @@ watch(route, (newValue, oldValue) => {
 			}
 		}
 	}
-
 	.demo-tabs > .el-tabs__content {
 		padding: 32px;
 		color: #6b778c;
 		font-size: 32px;
 		font-weight: 600;
 	}
+}
+.main {
+	border: 1px solid #bdbdbd;
+	border-radius: 10px;
+	overflow: hidden;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
 	<div class="CommonHeader-wrap">
-		<img src="../static/svg/HeaderLogo.svg" @click="userAction('3')" />
+		<img style="cursor: pointer" src="../static/svg/HeaderLogo.svg" @click="userAction('3')" />
 		<div class="user-info">
 			<img class="message" src="../static/svg/HeaderMessage.svg" />
 			<el-dropdown class="user-head" @command="userAction">
@@ -27,10 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import type { UserInfo } from '../utils/types';
 
 const router = useRouter();
+const route = useRoute();
 const userInfo: UserInfo = JSON.parse(localStorage.getItem('userInfo') as string);
 
 const userAction = (command: string) => {
@@ -47,9 +48,12 @@ const userAction = (command: string) => {
 			});
 			break;
 		case '3':
-			router.push({
-				path: '/main',
-			});
+			// 当前路由如果是team开头的，意味已经到首页了
+			if (route.fullPath.split('/')[1] != 'team' && route.fullPath.split('/')[1] != 'recentVisit') {
+				router.push({
+					path: '/',
+				});
+			}
 			break;
 	}
 };

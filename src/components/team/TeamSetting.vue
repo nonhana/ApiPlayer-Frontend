@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { updateTeam, deleteTeam, setMemberIdentity } from '@/api/teams';
 import { useBaseStore } from '@/store';
@@ -285,11 +285,15 @@ const confirmDelete = async () => {
 	}
 };
 
-onMounted(async () => {
-	teamName.value = baseStore.teamDetailedInfo.team_info.team_name;
-	teamDesc.value = baseStore.teamDetailedInfo.team_info.team_desc ?? '';
-	myName.value = baseStore.teamDetailedInfo.member_list.find((item) => item.user_id === baseStore.user_info.user_id)?.user_team_name ?? '';
-});
+watch(
+	() => baseStore.teamDetailedInfo,
+	() => {
+		teamName.value = baseStore.teamDetailedInfo.team_info.team_name;
+		teamDesc.value = baseStore.teamDetailedInfo.team_info.team_desc ?? '';
+		myName.value = baseStore.teamDetailedInfo.member_list.find((item) => item.user_id === baseStore.user_info.user_id)?.user_team_name ?? '';
+	},
+	{ immediate: true, deep: true }
+);
 </script>
 
 <style scoped lang="less">

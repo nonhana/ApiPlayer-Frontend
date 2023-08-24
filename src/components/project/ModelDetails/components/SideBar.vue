@@ -284,12 +284,15 @@ onBeforeMount(async () => {
 <style scoped lang="less">
 .SideBar-wrap {
 	width: 240px;
-	height: 1000px;
+	border: 1px solid #bdbdbd;
+	border-radius: 10px;
+	overflow: hidden;
 }
 
 /* el-tree样式 */
 :deep(.el-tree-node__content) {
 	height: 50px;
+	transition: all 0.3s;
 }
 :deep(.custom-tree-node) {
 	display: flex;

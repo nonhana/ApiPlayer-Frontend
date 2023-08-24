@@ -60,7 +60,7 @@
 		<el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
-					<el-tab-pane :label="item.response_name" :name="key">
+					<el-tab-pane :label="item.response_name" name="名称">
 						<ResponseCard :context="item" />
 					</el-tab-pane>
 				</div>

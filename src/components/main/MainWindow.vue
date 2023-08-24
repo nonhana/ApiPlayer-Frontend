@@ -53,21 +53,19 @@ watch(
 	height: 100vh;
 	background: linear-gradient(180deg, #59a8b9 0%, rgba(245, 245, 245, 0) 100%);
 }
-
 .header {
 	width: 100%;
 	height: 60px;
 }
-
 .aside {
 	width: 250px;
 	height: calc(100vh - 60px);
 	background-color: #fcfcfd;
 }
-
 .main {
 	width: 100%;
 	// width: calc(100% - 250px);
 	background-color: #fff;
+	border: 1px solid #bdbdbd;
 }
 </style>
