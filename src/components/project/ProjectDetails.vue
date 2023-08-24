@@ -15,8 +15,8 @@
 				<div class="main">
 					<el-tabs v-model="activeName" class="demo-tabs" style="padding-left: 20px">
 						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
-						<!-- <el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane> -->
-						<!-- <el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane> -->
+						<el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
+						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
 						<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
 					</el-tabs>
 				</div>

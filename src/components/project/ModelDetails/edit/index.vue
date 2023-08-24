@@ -73,11 +73,18 @@
 		</el-row>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
+			<el-icon @click="addResponse" style="margin-top: 5px">
+				<Plus />
+			</el-icon>
 		</el-row>
 		<el-row>
 			<el-tabs v-model="resActiveName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" :name="index">
+						<el-row>
+							<el-col :span="6">HTTP状态码：<el-input v-model="item.http_status" size="large" /></el-col>
+							<el-col :span="6" style="margin-left: 20px">响应组件名称<el-input v-model="item.response_name" size="large" /></el-col>
+						</el-row>
 						<JsonSchemaEditor :responseData="item.response_body" @sendResponse="saveResponse"></JsonSchemaEditor>
 					</el-tab-pane>
 				</div>
@@ -158,14 +165,12 @@ const options = [
 		label: 'delete',
 	},
 ];
-let tmppResponse;
 
 watch(
 	apiOperation.apiInfo,
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
 			apiInfo.value = newVal;
-			tmppResponse = newVal.api_responses;
 		}
 	},
 	{ immediate: true, deep: true }
@@ -217,20 +222,19 @@ const deleteApiInfo = async () => {
 	}
 };
 
+const addResponse = () => {
+	let obj = {
+		response_id: null,
+		http_status: null,
+		response_name: null,
+		response_body: null,
+	};
+	apiInfo.value.api_responses.push(obj);
+};
+
 const saveResponse = (para) => {
-	console.log('para', para);
-	let tmp = ref({ root: {} });
-	if (para.root) {
-		tmp.value.root = JSON.stringify(para.root);
-		let tmpp = JSON.stringify(tmp.value);
-		tmpp = JSON.stringify(tmpp);
-		// tmppResponse[resActiveName.value].response_body = tmpp;
-		console.log('tmpp', tmpp);
-		console.log('tmppResponse[resActiveName.value].value', tmppResponse[resActiveName.value]);
-		// tmppResponse[resActiveName.value].response_body = tmpp;
-		// apiInfo.value.api_responses[resActiveName].response_body = tmppResponse;
-		// console.log('apiInfo.value.api_responses[resActiveName].response_body', apiInfo.value.api_responses[resActiveName].response_body);
-	}
+	apiInfo.value.api_responses[resActiveName.value].response_body = para;
+	// console.log('apiInfo.value.api_responses[resActiveName.value].response_body', apiInfo.value.api_responses[resActiveName.value].response_body);
 };
 
 // let responseActiveName = apiInfo.value.api_response[0].id;

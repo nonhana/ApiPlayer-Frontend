@@ -15,9 +15,9 @@ let tree = ref({
 const emit = defineEmits(['sendResponse']);
 const props = defineProps({
 	responseData: {
-		type: String,
+		type: Object,
 		default() {
-			return '';
+			return {};
 		},
 	},
 });
@@ -28,10 +28,10 @@ watch(
 	(newVal, oldVal) => {
 		if (newVal != undefined && newVal != null) {
 			// tree.value = JSON.parse(JSON.parse(newVal));
-			if (JSON.parse(newVal).root) {
-				tree.value.root = JSON.parse(newVal).root;
+			if (newVal.root) {
+				tree.value.root = newVal.root;
 			} else {
-				tree.value.root = JSON.parse(newVal);
+				tree.value.root = newVal;
 			}
 			// console.log('rootSchema', rootSchema);
 			console.log('tree.value', tree.value);
