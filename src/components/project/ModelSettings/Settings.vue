@@ -1,6 +1,4 @@
 <template>
-	<!-- <div class="main_container"> -->
-	<!-- <CommonHeader></CommonHeader> -->
 	<el-dialog v-model="changeTeamNameDialog" title="修改项目名称" width="28%">
 		<template #header>
 			<div class="dialog-title">修改项目名称</div>
@@ -53,7 +51,8 @@
 			</span>
 		</template>
 	</el-dialog> -->
-	<el-dialog v-model="moveToOtherTeamDialog" title="移交团队" width="25%">
+	<!-- 移交团队 -->
+	<!-- <el-dialog v-model="moveToOtherTeamDialog" title="移交团队" width="25%">
 		<template #header>
 			<div class="dialog-title">移交团队</div>
 		</template>
@@ -67,10 +66,10 @@
 				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmMoveToOtherTeam">确 定</el-button>
 			</span>
 		</template>
-	</el-dialog>
-	<el-dialog v-model="deleteTeamDialog" title="解散团队?" width="33%">
+	</el-dialog> -->
+	<el-dialog v-model="deleteTeamDialog" title="删除项目?" width="33%">
 		<template #header>
-			<div class="dialog-title">修改名称</div>
+			<div class="dialog-title">删除项目</div>
 		</template>
 		<div class="alert">
 			删除后数据将不可恢复，本操作会删除项目<strong>{{ projectName }}</strong>
@@ -85,11 +84,12 @@
 			</span>
 		</template>
 	</el-dialog>
-	<el-dialog v-model="uploadIconDialog" title="上传图标" width="33%">
-		<div style="margin: auto; width: 100px; font-size: 16px; border-radius: 4px; border: 1px solid #b1afaf; text-align: center" @click="uploadFile">
-			选择图标
-		</div>
-		<input v-show="false" class="uploadBtn" ref="fileRef" placeholder="选择图标" autocomplete="off" type="file" @change="fileChange" />
+	<el-dialog v-model="uploadIconDialog" title="上传图标" width="33%" :before-close="handleClose">
+		<div class="uploadBtn" @click="uploadFile">选择图标</div>
+		<!-- <div style="">
+			预 览<img v-show="sourceFileURL !== ''" :src="sourceFileURL" alt="" style="width: 40px; height: 40px; border: 1px solid rgb(220, 217, 217)" />
+		</div> -->
+		<input v-show="false" ref="fileRef" placeholder="选择图标" autocomplete="off" type="file" @change="fileChange" />
 		<template #footer>
 			<span class="dialog-footer">
 				<el-button type="default" size="large" auto-insert-space @click="uploadIconDialog = false">取消</el-button>
@@ -130,7 +130,7 @@
 							<div class="label title">项目图标</div>
 							<div class="label description">
 								<img v-if="projectInfo?.project_img" :src="projectInfo.project_img" alt="" style="width: 50px; border-radius: 4px" />
-								<img v-if="!projectInfo?.project_img" style="width: 40px; border-radius: 6px" src="../../../static/projectIcons/12.jpg" />
+								<!-- <img v-if="!projectInfo?.project_img" style="width: 40px; border-radius: 6px" src="../../../static/projectIcons/12.jpg" /> -->
 							</div>
 						</div>
 					</div>
@@ -186,7 +186,7 @@
 				<el-icon size="15"><WarnTriangleFilled /></el-icon>危险区域
 			</div>
 			<div class="content warning-content">
-				<div class="list">
+				<!-- <div class="list">
 					<div class="left">
 						<div class="left-content">
 							<div class="label title">移动项目</div>
@@ -197,7 +197,7 @@
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="moveToOtherTeam">移动项目</el-button>
 					</div>
 				</div>
-				<el-divider />
+				<el-divider /> -->
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
@@ -216,14 +216,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onBeforeMount } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
 import { useBaseStore } from '../../../store/index';
-import { storeToRefs } from 'pinia';
 import { ElNotification } from 'element-plus';
-import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '../../../api/users.ts';
+import { useRouter } from 'vue-router';
 
 interface ProjectInfo {
 	project_current_type?: number;
@@ -235,6 +234,7 @@ interface ProjectInfo {
 }
 
 const baseStore = useBaseStore();
+const router = useRouter();
 
 const deleteTeamDialog = ref(false);
 const moveToOtherTeamDialog = ref(false);
@@ -253,6 +253,7 @@ const receivers = reactive([]);
 const fileRef = ref<HTMLInputElement>();
 const uploadIconFile = ref();
 let sourceFile: File | null | undefined = null;
+let sourceFileURL = ref('');
 
 interface RuleForm {
 	name: string;
@@ -314,29 +315,34 @@ const confirmChangeProjectDesc = async () => {
 	console.log('projectInfo', projectInfo);
 	projectDesc.value = projectInfo.project_desc!;
 };
-// const changeMyName = () => {
-// 	changeMyNameDialog.value = true;
-// };
-// const confirmChangeMyName = () => {
-// 	changeMyNameDialog.value = false;
-// };
+
 const moveToOtherTeam = () => {
 	moveToOtherTeamDialog.value = true;
 };
 const confirmMoveToOtherTeam = () => {
 	moveToOtherTeamDialog.value = false;
 };
+
 const handleDeleteTeam = () => {
 	deleteTeamDialog.value = true;
 };
-const confirmDelete = () => {
+const confirmDelete = async () => {
 	// console.log(baseStore.curProjectInfo.project_name);
 	if (printTeamName.value === baseStore.curProjectInfo.project_name) {
 		deleteTeamDialog.value = false;
-		deleteProject({ project_id: baseStore.curProjectInfo.project_id! });
+		await deleteProject({ project_id: baseStore.curProjectInfo.project_id! });
+		router.push('/main');
 	} else {
 		ElMessage.error('项目名输入错误');
 	}
+};
+
+// 直接点击el-dialog的叉叉关闭
+const handleClose = (done: () => void) => {
+	ElMessageBox.confirm('确定放弃修改吗？').then(() => {
+		sourceFile = null;
+		done();
+	});
 };
 
 // 上传项目图标
@@ -353,59 +359,40 @@ const uploadFile = () => {
 const fileChange = () => {
 	// windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
-
-	if (sourceFile != null) {
-		// sourceFileURL = URL.createObjectURL(sourceFile as Blob);
-	}
+	sourceFileURL.value = URL.createObjectURL(sourceFile as Blob);
 };
 const confirmUploadIcon = async () => {
 	uploadIconDialog.value = false;
-	console.log('icon', sourceFile);
-	// const res = await uploadAvatar({ avatar: sourceFile! });
+	sourceFileURL.value = '';
+	// console.log('icon', sourceFile);
 	if (sourceFile) {
 		const res = await uploadProjectIcon({ projectIcon: sourceFile });
-		console.log('res1:', res);
+		// console.log('res1:', res);
 		baseStore.setCurProjectInfo({
-			project_id: projectInfo.project_id ?? 4,
+			project_id: projectInfo.project_id ?? 5,
 			project_img: res.data.project_icon_path,
 			project_name: projectInfo.project_name!,
 		});
 		projectInfo.project_img = res.data.project_icon_path;
+
+		await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_img: res.data.project_icon_path });
 		sourceFile = null;
 	} else {
 		ElNotification({
 			title: '上传失败',
-			message: '文件格式错误',
+			message: '请选择图标',
 			type: 'warning',
 		});
 	}
 };
-// console.log('setup');
-// getProjectInfos();
 
 onMounted(async () => {
 	await getProjectInfos();
 	console.log(projectInfo);
-
-	// 	console.log(111);
-	// 	// if (baseStore.curProjectInfo.project_id !== undefined) {
-	// 	// const res = await getProjectInfo({
-	// 	// 	// project_id: baseStore.curProjectInfo.project_id ?? 4,
-	// 	// 	project_id: 3,
-	// 	// });
-	// 	// projectInfo = res.data.project_info;
-	// 	// console.log(res.data);
-	// 	// }
 });
 </script>
 
 <style scoped lang="less">
-// .main_container {
-// 	width: 100%;
-// 	height: 100%;
-// 	display: flex;
-// 	flex-direction: column;
-// }
 .setting-wrap {
 	width: 90%;
 	margin-left: 0px;
@@ -414,7 +401,6 @@ onMounted(async () => {
 		height: 80px;
 		font-size: 24px;
 		margin-top: 40px;
-		// border-bottom: 1px solid #eaecf0;
 	}
 
 	.container {
@@ -453,7 +439,8 @@ onMounted(async () => {
 							font-weight: 500;
 						}
 						.title {
-							flex: 0.5;
+							// flex: 0.5;
+							width: 300px;
 						}
 						.description {
 							flex: 1;
@@ -497,8 +484,16 @@ onMounted(async () => {
 :deep(.el-divider--horizontal) {
 	margin: 0;
 }
+.uploadBtn {
+	margin: auto;
+	width: 100px;
+	font-size: 16px;
+	border-radius: 4px;
+	border: 1px solid #cdcccc;
+	text-align: center;
+}
 .uploadBtn:hover {
-	border-color: #d9d0f4;
-	color: #d9d0f4;
+	border: 1px solid #ac97ec;
+	color: #d0c4f5;
 }
 </style>

@@ -266,7 +266,6 @@ const baseStore = useBaseStore();
 
 const cxt = getCurrentInstance();
 const bus = cxt?.appContext.config.globalProperties.$bus;
-// console.log(cxt);
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
