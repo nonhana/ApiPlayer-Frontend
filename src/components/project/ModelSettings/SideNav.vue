@@ -1,20 +1,24 @@
 <template>
 	<div class="nav_side">
-		<div class="item" @click="clickhandler(0)">
+		<!-- <div class="item" @click="clickhandler(0)">
+			<el-icon size="20px"><House /></el-icon>
+			<div>主页</div>
+		</div> -->
+		<div class="item" @click="clickhandler(1)">
 			<el-icon size="20px"><Box /></el-icon>
 			<div>接口管理</div>
 		</div>
 		<!-- <div><component :is="componentId"></component></div> -->
-		<div class="item" @click="clickhandler(1)">
+		<div class="item" @click="clickhandler(2)">
 			<el-icon size="20px"><Setting /></el-icon>
 			<div>项目设置</div>
 		</div>
-		<div class="item" @click="clickhandler(2)">
+		<!-- <div class="item" @click="clickhandler(3)">
 			<el-icon size="20px"><UserFilled /></el-icon>
 			<div>邀请成员</div>
-		</div>
+		</div> -->
 	</div>
-	<el-dialog v-model="inviteDialog" title="邀请成员" width="35%">
+	<!-- <el-dialog v-model="inviteDialog" title="邀请成员" width="35%">
 		<template #header>
 			<div class="dialog-title">邀请加入 {{ teamName }}</div>
 		</template>
@@ -47,7 +51,7 @@
 				</el-table>
 			</el-form-item>
 		</el-form>
-	</el-dialog>
+	</el-dialog> -->
 </template>
 
 <script lang="ts" setup>
@@ -68,17 +72,20 @@ const route = useRoute();
 const clickhandler = (type: number): void => {
 	switch (type) {
 		case 0:
+			router.push('');
+			break;
+		case 1:
 			if (route.path.indexOf('projectMain') === -1) {
 				router.push('/projectMain/1');
 			}
 			break;
-		case 1:
+		case 2:
 			router.push('/projectSettings');
 			if (route.path.indexOf('projectSettings') === -1) {
 				router.push('/projectSettings');
 			}
 			break;
-		case 2:
+		case 3:
 			inviteMember();
 			break;
 		default:
@@ -111,53 +118,53 @@ const inviteDialog = ref(false);
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
-let teamName = ref('ApiPlayer');
+// let teamName = ref('ApiPlayer');
 
 const inviteFormRef = ref<FormInstance>();
-const inviteForm = reactive<RuleForm>({
-	username: '',
-	searchUserData: [
-		{
-			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-			name: 'Tom',
-			email: '98839392@qq.com',
-		},
-		{
-			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-			name: 'Tom',
-			email: '98839392@qq.com',
-		},
-		{
-			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-			name: 'Tom',
-			email: '98839392@qq.com',
-		},
-	],
-});
-const inviteFormRules = reactive<FormRules<RuleForm>>({
-	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
-});
-const search = () => {
-	const res = searchUser({ username: inviteForm.username });
-};
+// const inviteForm = reactive<RuleForm>({
+// 	username: '',
+// 	searchUserData: [
+// 		{
+// 			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+// 			name: 'Tom',
+// 			email: '98839392@qq.com',
+// 		},
+// 		{
+// 			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+// 			name: 'Tom',
+// 			email: '98839392@qq.com',
+// 		},
+// 		{
+// 			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+// 			name: 'Tom',
+// 			email: '98839392@qq.com',
+// 		},
+// 	],
+// });
+// const inviteFormRules = reactive<FormRules<RuleForm>>({
+// 	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
+// });
+// const search = () => {
+// 	const res = searchUser({ username: inviteForm.username });
+// };
 onMounted(() => {
-	teamName.value = baseStore.curTeamInfo.team_name ?? 'ApiPlayer';
-	// console.log(111, teamName.value);
+	// teamName.value = baseStore.curTeamInfo.team_name ?? '';
 });
 </script>
 <style lang="less" scoped>
 .nav_side {
 	width: 70px;
 	// height: calc(100% - 60px);
-	height: 100%;
+	height: 1000px;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
 	background-color: #f9fafb;
 	font-size: 14px;
-	gap: 8px;
+	gap: 20px;
 	padding-top: 10px;
+	margin-left: 5px;
 	.item {
 		width: 60px;
 		height: 60px;

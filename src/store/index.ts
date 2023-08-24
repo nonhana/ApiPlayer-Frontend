@@ -68,7 +68,7 @@ export const useBaseStore = defineStore(Names.Base, {
 			teamDetailedInfo: <TeamDetailedInfo>{},
 			teamIdentity: <number>0,
 			curTeamInfo: <TeamInfo>{},
-			curProjectInfo: <ProjectInfo>{},
+			curProjectInfo: <ProjectList>{},
 		};
 	},
 	actions: {
@@ -87,7 +87,7 @@ export const useBaseStore = defineStore(Names.Base, {
 		setCurTeamInfo(info: TeamInfo) {
 			this.curTeamInfo = info;
 		},
-		setCurProjectInfo(info: ProjectInfo) {
+		setCurProjectInfo(info: ProjectList) {
 			this.curProjectInfo = info;
 		},
 		// 获取团队信息

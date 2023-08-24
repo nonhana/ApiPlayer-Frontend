@@ -75,7 +75,7 @@
 			</div>
 		</el-row>
 		<el-divider></el-divider>
-		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
+		<!-- <el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
 					<span>手机号</span>
@@ -88,7 +88,7 @@
 				<span>修改</span>
 			</div>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider></el-divider> -->
 		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -140,8 +140,8 @@
 		<el-dialog v-model="windowShowList[2]" title="修改密码" width="500px" :before-close="handleClose">
 			<div v-if="pwdChangeInfo.pwd_change_step === 0">
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%">
-					<span>手机号</span>
-					<el-input v-model="pwdChangeInfo.phone_number" placeholder="请输入手机号" style="width: 300px"></el-input>
+					<span>邮箱</span>
+					<el-input v-model="pwdChangeInfo.phone_number" :placeholder="userInfo.user_email" style="width: 300px" :readonly="true"></el-input>
 				</el-row>
 				<el-row type="flex" justify="space-between" style="margin-top: 20px; align-items: center; width: 100%">
 					<span>验证码</span>
@@ -253,13 +253,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch } from 'vue';
-import type { UserInfo } from '@/utils/types';
+import { ref, onBeforeMount, watch, getCurrentInstance } from 'vue';
+import type { UserInfo } from '../../utils/types';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
-import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '@/api/users.ts';
+import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha, changEmail, changPassword, sendCaptchaChangPassword } from '../../api/users.ts';
 import { Picture as IconPicture } from '@element-plus/icons-vue';
-import { validateEmail } from '@/utils/validate.ts';
+import { validateEmail } from '../../utils/validate.ts';
+import { useBaseStore } from '@/store';
+
+const baseStore = useBaseStore();
+
+const cxt = getCurrentInstance();
+const bus = cxt?.appContext.config.globalProperties.$bus;
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
@@ -339,8 +345,12 @@ const confirmCropper = async () => {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
 		const res = await uploadAvatar({ avatar: uploadFile });
 		userInfo.value!.user_img = res.data.result.avatar;
+
 		const info = JSON.parse(localStorage.getItem('userInfo') ?? '');
 		localStorage.setItem('userInfo', JSON.stringify({ ...info, user_img: res.data.result.avatar }));
+		baseStore.user_info.user_img = res.data.result.avatar;
+
+		bus.emit('updateAvatar');
 	}
 };
 
@@ -356,6 +366,7 @@ const changeAction = (type: number) => {
 			() => {
 				userInfo.value!.user_name = userName.value!;
 				localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+				baseStore.user_info.user_name = userName.value!;
 				ElMessage.success('修改成功');
 			},
 			() => {
@@ -368,6 +379,7 @@ const changeAction = (type: number) => {
 			() => {
 				userInfo.value!.user_sign = userSign.value!;
 				localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+				baseStore.user_info.user_sign = userSign.value!;
 				ElMessage.success('修改成功');
 			},
 			() => {
@@ -381,6 +393,8 @@ const changeAction = (type: number) => {
 const sendVerifyCode = (type: number) => {
 	if (type === 0) {
 		pwdChangeInfo.value.verify_code_status = true;
+		sendCaptchaChangPassword();
+		console.log(11111);
 		pwdChangeInfo.value.timer = setInterval(() => {
 			pwdChangeInfo.value.verify_code_timer--;
 			if (pwdChangeInfo.value.verify_code_timer === 0) {
@@ -421,24 +435,32 @@ const sendVerifyCode = (type: number) => {
 	}
 };
 // 确认修改密码
-const confirmPwdChange = () => {
+const confirmPwdChange = async () => {
 	if (pwdChangeInfo.value.new_pwd !== pwdChangeInfo.value.confirm_pwd) {
 		ElMessage.error('两次密码不一致');
 		return;
+	} else {
+		windowShowList.value[2] = false;
+		clearInterval(pwdChangeInfo.value.timer);
+		const res = await changPassword({ newPassword: pwdChangeInfo.value.new_pwd, captcha: pwdChangeInfo.value.verify_code });
+		console.log('修改成功', res);
+		if (res.data.result_code == 0) {
+			ElMessage.success('修改成功');
+		} else {
+			ElMessage.error('修改失败');
+		}
+
+		pwdChangeInfo.value = {
+			pwd_change_step: 0,
+			phone_number: '',
+			verify_code: '',
+			new_pwd: '',
+			confirm_pwd: '',
+			verify_code_status: false,
+			verify_code_timer: 60,
+			timer: 0,
+		};
 	}
-	ElMessage.success('修改成功');
-	windowShowList.value[2] = false;
-	clearInterval(pwdChangeInfo.value.timer);
-	pwdChangeInfo.value = {
-		pwd_change_step: 0,
-		phone_number: '',
-		verify_code: '',
-		new_pwd: '',
-		confirm_pwd: '',
-		verify_code_status: false,
-		verify_code_timer: 60,
-		timer: 0,
-	};
 };
 // 确认修改邮箱
 const confrimEmailChange = () => {
@@ -452,6 +474,7 @@ const confrimEmailChange = () => {
 				() => {
 					userInfo.value!.user_email = emailChangeInfo.value.email;
 					localStorage.setItem('userInfo', JSON.stringify(userInfo));
+					baseStore.user_info.user_email = emailChangeInfo.value.email;
 					ElMessage.success('修改成功');
 					clearInterval(emailChangeInfo.value.timer);
 					emailChangeInfo.value = {
