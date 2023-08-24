@@ -90,13 +90,38 @@
 			预 览<img v-show="sourceFileURL !== ''" :src="sourceFileURL" alt="" style="width: 40px; height: 40px; border: 1px solid rgb(220, 217, 217)" />
 		</div> -->
 		<input v-show="false" ref="fileRef" placeholder="选择图标" autocomplete="off" type="file" @change="fileChange" />
-		<template #footer>
+		<!-- <template #footer>
 			<span class="dialog-footer">
 				<el-button type="default" size="large" auto-insert-space @click="uploadIconDialog = false">取消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmUploadIcon">上 传</el-button>
+				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmUploadIcon()">上 传</el-button>
+			</span>
+		</template> -->
+	</el-dialog>
+
+	<el-dialog v-model="windowShowList[0]" title="图片裁剪" width="800px" :before-close="handleClose">
+		<vue-picture-cropper
+			:box-style="{
+				width: '100%',
+				maxHeight: '500px',
+				backgroundColor: '#f8f8f8',
+				margin: 'auto',
+			}"
+			:img="sourceFileURL"
+			:options="{
+				viewMode: 1,
+				dragMode: 'crop',
+				aspectRatio: 1 / 1,
+				outputType: 'jpeg',
+			}"
+		/>
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button @click="windowShowList[0] = false">取消</el-button>
+				<el-button color="#59A8B9" @click="confirmCropper()"><span style="color: #fff">确认</span></el-button>
 			</span>
 		</template>
 	</el-dialog>
+
 	<div class="setting-wrap">
 		<div class="header">基本设置</div>
 		<el-divider />
@@ -216,13 +241,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
 import { useBaseStore } from '../../../store/index';
 import { ElNotification } from 'element-plus';
 import { useRouter, useRoute } from 'vue-router';
+
+import VuePictureCropper, { cropper } from 'vue-picture-cropper';
+import { Picture as IconPicture } from '@element-plus/icons-vue';
 
 interface ProjectInfo {
 	project_current_type?: number;
@@ -254,7 +282,13 @@ const receivers = reactive([]);
 const fileRef = ref<HTMLInputElement>();
 const uploadIconFile = ref();
 let sourceFile: File | null | undefined = null;
-let sourceFileURL = ref('');
+// let sourceFileURL = ref('');
+let windowShowList = ref<boolean[]>([false]);
+
+let sourceFileURL: string = '';
+let croppedFile: File | null | undefined = null;
+let croppedFileURL = ref<string>('');
+let croppedFileType: string = ''; // 裁剪后的文件类型
 
 interface RuleForm {
 	name: string;
@@ -277,7 +311,7 @@ const userRules = reactive<FormRules<RuleForm>>({
 const getProjectInfos = async () => {
 	// projectInfo = storeToRefs(baseStore).curProjectInfo;
 	const res = await getProjectBasicInfo({
-		project_id: baseStore.curProjectInfo.project_id ?? 5,
+		project_id: baseStore.curProjectInfo.project_id!,
 	});
 	console.log('res282:', res);
 	// projectInfo = { ...res.data.project_info };
@@ -300,7 +334,7 @@ const changeTeamName = () => {
 // 确认修改项目名称
 const confirmChangeProjectName = async () => {
 	changeTeamNameDialog.value = false;
-	await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id ?? 4, project_name: projectName.value });
+	await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_name: projectName.value });
 	await getProjectInfos();
 	projectName.value = projectInfo!.project_name!;
 };
@@ -329,7 +363,7 @@ const handleDeleteTeam = () => {
 };
 const confirmDelete = async () => {
 	// console.log(baseStore.curProjectInfo.project_name);
-	if (printTeamName.value === baseStore.curProjectInfo.project_name) {
+	if (printTeamName.value === projectInfo.project_name) {
 		deleteTeamDialog.value = false;
 		await deleteProject({ project_id: baseStore.curProjectInfo.project_id! });
 		router.push('/main');
@@ -360,17 +394,30 @@ const uploadFile = () => {
 const fileChange = () => {
 	// windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
-	sourceFileURL.value = URL.createObjectURL(sourceFile as Blob);
+	croppedFileType = sourceFile?.type ?? '';
+	if (sourceFile != null) {
+		windowShowList.value[0] = true;
+		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
+	}
 };
-const confirmUploadIcon = async () => {
+// 确认裁剪
+const confirmCropper = async () => {
+	windowShowList.value[0] = false;
 	uploadIconDialog.value = false;
-	sourceFileURL.value = '';
-	// console.log('icon', sourceFile);
-	if (sourceFile) {
-		const res = await uploadProjectIcon({ projectIcon: sourceFile });
-		// console.log('res1:', res);
+	sourceFileURL = '';
+
+	croppedFile = await cropper?.getFile();
+
+	let Blob = (await cropper?.getBlob()) as Blob;
+
+	// 把blob转换成file，type为croppedFileType
+	const uploadFile = new File([Blob], croppedFile?.name + 'jpeg' ?? '1.jpeg', { type: croppedFileType, lastModified: croppedFile?.lastModified });
+
+	if (croppedFile) {
+		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
+		const res = await uploadProjectIcon({ projectIcon: uploadFile });
 		baseStore.setCurProjectInfo({
-			project_id: projectInfo.project_id ?? 5,
+			project_id: projectInfo.project_id,
 			project_img: res.data.project_icon_path,
 			project_name: projectInfo.project_name!,
 		});
@@ -378,14 +425,46 @@ const confirmUploadIcon = async () => {
 
 		await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_img: res.data.project_icon_path });
 		sourceFile = null;
-	} else {
-		ElNotification({
-			title: '上传失败',
-			message: '请选择图标',
-			type: 'warning',
-		});
 	}
 };
+
+// const confirmUploadIcon = async () => {
+// 	uploadIconDialog.value = false;
+// 	sourceFileURL = '';
+// 	// console.log('icon', sourceFile);
+// 	if (sourceFile) {
+// 		const res = await uploadProjectIcon({ projectIcon: sourceFile });
+// 		// console.log('res1:', res);
+// 		baseStore.setCurProjectInfo({
+// 			project_id: projectInfo.project_id,
+// 			project_img: res.data.project_icon_path,
+// 			project_name: projectInfo.project_name!,
+// 		});
+// 		projectInfo.project_img = res.data.project_icon_path;
+
+// 		await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_img: res.data.project_icon_path });
+// 		sourceFile = null;
+// 	} else {
+// 		ElNotification({
+// 			title: '上传失败',
+// 			message: '请选择图标',
+// 			type: 'warning',
+// 		});
+// 	}
+// };
+
+// 监听窗口关闭，清除图片裁剪的缓存
+watch(
+	() => windowShowList.value[0],
+	(newV, _) => {
+		if (!newV) {
+			sourceFile = null;
+			sourceFileURL = '';
+			croppedFile = null;
+			croppedFileURL.value = '';
+		}
+	}
+);
 
 onMounted(async () => {
 	baseStore.curProjectInfo.project_id = parseInt(route.params.project_id as string);
@@ -488,6 +567,7 @@ onMounted(async () => {
 }
 .uploadBtn {
 	margin: auto;
+	margin-bottom: 40px;
 	width: 100px;
 	font-size: 16px;
 	border-radius: 4px;
