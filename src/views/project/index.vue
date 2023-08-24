@@ -2,13 +2,12 @@
 	<div class="index">
 		<CommonHeader />
 		<div class="index-main">
-			<InterfaceDoc />
+			<router-view></router-view>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import InterfaceDoc from '@/components/project/ProjectDetails.vue';
 import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 

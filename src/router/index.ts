@@ -9,51 +9,51 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/login',
 		name: 'login',
-		component: () => import('../views/login/index.vue'),
+		component: () => import('@/views/login/index.vue'),
 	},
 	{
 		path: '/home',
 		name: 'home',
-		component: () => import('../views/home/index.vue'),
+		component: () => import('@/views/home/index.vue'),
 		children: [
 			{
 				path: '/home/mainWindow/:id?',
 				name: 'mainWindow',
-				component: () => import('../components/home/mainWindow/mainWindow.vue'),
+				component: () => import('@/components/home/mainWindow/mainWindow.vue'),
 			},
 			{
 				path: '/home/recentlyVisited',
 				name: 'recentlyVisited',
-				component: () => import('../components/home/RecentlyVisited/index.vue'),
+				component: () => import('@/components/home/RecentlyVisited/index.vue'),
 			},
 		],
 	},
 	{
 		path: '/main',
 		name: 'main',
-		component: () => import('../views/main/index.vue'),
-		// redirect: '/team/:team_id',
+		component: () => import('@/views/main/index.vue'),
 		children: [
 			{
 				path: '/team/:team_id',
 				name: 'team',
-				component: () => import('../views/team/index.vue'),
+				component: () => import('@/views/team/index.vue'),
 			},
 			{
 				path: '/recentVisit',
 				name: 'recentVisit',
-				component: () => import('../views/recentVisit/index.vue'),
+				component: () => import('@/views/recentVisit/index.vue'),
 			},
 		],
 	},
 	{
 		path: '/personalCenter/:user_id',
 		name: 'personalCenter',
-		component: () => import('../views/personalCenter/index.vue'),
+		component: () => import('@/views/personalCenter/index.vue'),
 	},
 	{
 		path: '/project/:project_id',
 		name: 'project',
+		component: () => import('@/views/project/index.vue'),
 		// 重定向，为了让路由匹配到projectMain
 		redirect(to) {
 			return {
@@ -67,18 +67,18 @@ const routes: Array<RouteRecordRaw> = [
 			{
 				path: '/projectMain/:project_id',
 				name: 'projectMain',
-				component: () => import('@/views/project/index.vue'),
+				component: () => import('@/components/project/ProjectDetails.vue'),
+			},
+			{
+				path: '/projectSettings/:project_id',
+				name: 'projectSettings',
+				component: () => import('@/components/project/ProjectSettings.vue'),
 			},
 		],
 	},
 	{
-		path: '/projectSettings',
-		name: 'projectSettings',
-		component: () => import('../components/project/ProjectSettings.vue'),
-	},
-	{
 		path: '/404',
-		component: () => import('../views/404/index.vue'),
+		component: () => import('@/views/404/index.vue'),
 	},
 	{
 		path: '/:pathMatch(.*)',
