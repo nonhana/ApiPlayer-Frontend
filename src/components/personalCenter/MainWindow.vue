@@ -254,12 +254,12 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount, watch } from 'vue';
-import type { UserInfo } from '../../utils/types';
+import type { UserInfo } from '@/utils/types';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
-import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '../../api/users.ts';
+import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha } from '@/api/users.ts';
 import { Picture as IconPicture } from '@element-plus/icons-vue';
-import { validateEmail } from '../../utils/validate.ts';
+import { validateEmail } from '@/utils/validate.ts';
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
@@ -520,7 +520,6 @@ onBeforeMount(() => {
 				userInfo.value!.user_name = res.data.result.userInfo.username;
 				userInfo.value!.user_sign = res.data.result.userInfo.introduce;
 				userInfo.value!.user_img = res.data.result.userInfo.avatar;
-				// console.log(res.data.result.userInfo);
 			},
 			() => {
 				userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');

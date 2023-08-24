@@ -57,7 +57,7 @@ export const addRecentProject = (paramsList: { user_id: number; project_id: numb
 };
 
 //新建项目
-export const addProject = (paramsList: { user_id: number; team_id: number; project_name: string; project_img: string; project_desc: string }) => {
+export const addProject = (paramsList: { user_id: number; team_id: number; project_name: string; project_img: string; project_desc?: string }) => {
 	return myAxios({
 		url: '/projects/addproject',
 		method: 'POST',
@@ -132,6 +132,29 @@ export const updateProjectBasicInfo = (paramsList: EditProjectInfo) => {
 export const updateProjectGlobalInfo = (paramsList: ProjectGlobalInfo) => {
 	return myAxios({
 		url: '/projects/updateglobalinfo',
+		method: 'POST',
+		data: paramsList,
+	});
+};
+
+// 上传项目图标图片
+export const uploadProjectIcon = (paramsList: { projectIcon: File }) => {
+	return myAxios({
+		url: '/projects/uploadprojecticon',
+		method: 'POST',
+		data: paramsList,
+		headers: {
+			Authorization: localStorage.getItem('token') ?? '',
+			// 由于上传文件，所以需要设置请求头的Content-Type为multipart/form-data
+			'Content-Type': 'multipart/form-data',
+		},
+	});
+};
+
+// 删除项目
+export const deleteProject = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/deleteproject',
 		method: 'POST',
 		data: paramsList,
 	});

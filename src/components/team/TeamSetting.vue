@@ -37,7 +37,7 @@
 		</template>
 		<el-form ref="userFormRef" :model="userForm" :rules="userRules" status-icon label-position="top" label-width="100px">
 			<el-form-item label="我的团队内昵称" prop="name">
-				<el-input v-model="myName" placeholder="" autocomplete="off" size="large" />
+				<el-input v-model="myName" autocomplete="off" size="large" />
 			</el-form-item>
 		</el-form>
 		<template #footer>
@@ -52,7 +52,7 @@
 			<div class="dialog-title">移交团队</div>
 		</template>
 		<div class="input-label">接收人</div>
-		<el-select v-model="receiver" placeholder="" class="select">
+		<el-select v-model="receiver" placeholder="请选择要移交的对象" class="select">
 			<el-option v-for="item in receivers" :key="item.value" :label="item.label" :value="item.value" />
 		</el-select>
 		<template #footer>
@@ -158,9 +158,10 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
-import { updateTeam, deleteTeam } from '@/api/teams';
+import { updateTeam, deleteTeam, setMemberIdentity } from '@/api/teams';
 import { useBaseStore } from '@/store';
 import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
 
 interface RuleForm {
 	name: string;
@@ -178,7 +179,7 @@ const teamDesc = ref<string>('');
 const myName = ref<string>('');
 const confrimTeamName = ref<string>('');
 const receiver = ref<string>('');
-const receivers = reactive<any[]>([]);
+const receivers = ref<any[]>([]);
 const teamFormRef = ref<FormInstance>();
 const teamForm = reactive<RuleForm>({
 	name: '',
@@ -222,11 +223,6 @@ const changeMyName = () => {
 	changeMyNameDialog.value = true;
 };
 const confirmChangeMyName = async () => {
-	console.log({
-		team_id: baseStore.teamDetailedInfo.team_info.team_id,
-		user_id: baseStore.user_info.user_id,
-		team_user_name: myName.value,
-	});
 	await updateTeam({
 		team_id: baseStore.teamDetailedInfo.team_info.team_id,
 		user_id: baseStore.user_info.user_id,
@@ -235,29 +231,64 @@ const confirmChangeMyName = async () => {
 	await baseStore.getTeamInfo(Number(route.params.team_id));
 	changeMyNameDialog.value = false;
 };
-const changeLeader = () => {
-	// 将自己的权限变为团队管理员，把团队所有者的权限交给他人
-
+const changeLeader = async () => {
+	// 获取到除自己之外的团队成员
+	receivers.value = baseStore.teamDetailedInfo.member_list
+		.filter((item) => item.user_id !== baseStore.user_info.user_id)
+		.map((item) => {
+			return {
+				label: item.user_name,
+				value: item.user_name,
+			};
+		});
 	changeTeamDialog.value = true;
 };
-const confirmChangeLeader = () => {
+const confirmChangeLeader = async () => {
+	// 获取到接收人的user_id
+	const receiverId = baseStore.teamDetailedInfo.member_list.find((item) => item.user_name === receiver.value)?.user_id;
+	// 把自己的身份变为团队管理员，把接收人的身份变为团队所有者
+	await setMemberIdentity({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: baseStore.user_info.user_id,
+		team_user_identity: 1,
+	});
+	await setMemberIdentity({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: receiverId as number,
+		team_user_identity: 0,
+	});
+	// 提交完成后，刷新数据
+	ElMessage.success('移交成功');
+	await baseStore.getTeamInfo(Number(route.params.team_id));
+	window.location.reload();
 	changeTeamDialog.value = false;
 };
 const handleDeleteTeam = () => {
 	deleteTeamDialog.value = true;
 };
 const confirmDelete = async () => {
-	await deleteTeam({
+	// 先验证输入的团队名是否正确
+	if (confrimTeamName.value !== baseStore.teamDetailedInfo.team_info.team_name) {
+		ElMessage.error('团队名不正确');
+		return;
+	}
+	// 确认解散团队
+	const res = await deleteTeam({
 		team_id: baseStore.teamDetailedInfo.team_info.team_id,
 	});
-	window.location.reload();
-	deleteTeamDialog.value = false;
+	if (res.data.result_code === 0) {
+		ElMessage.success('解散成功');
+		window.location.href = '/';
+		deleteTeamDialog.value = false;
+	} else {
+		ElMessage.error('解散失败');
+	}
 };
 
 onMounted(async () => {
 	teamName.value = baseStore.teamDetailedInfo.team_info.team_name;
 	teamDesc.value = baseStore.teamDetailedInfo.team_info.team_desc ?? '';
-	myName.value = baseStore.teamDetailedInfo.team_info.team_user_name ?? '';
+	myName.value = baseStore.teamDetailedInfo.member_list.find((item) => item.user_id === baseStore.user_info.user_id)?.user_team_name ?? '';
 });
 </script>
 

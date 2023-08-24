@@ -6,7 +6,7 @@
 		<div class="visit-container">
 			<div v-for="(item, index) in baseStore.lastVisitedList" :key="index" class="project" @click="goDetail(index)">
 				<div class="project-img">
-					<el-image shape="square" size="20" src="https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png">
+					<el-image shape="square" size="20" :src="item.project_img">
 						<template #error>
 							<div class="image-slot">
 								<el-icon><Picture /></el-icon>
@@ -53,6 +53,7 @@ const projectList: Project[] = [
 ];
 
 const timeAgo = (dateTime: string) => {
+	// dateTime格式：2023-08-23T19:03:47.000Z
 	const minute = 1000 * 60;
 	const hour = minute * 60;
 	const day = hour * 24;
@@ -60,7 +61,8 @@ const timeAgo = (dateTime: string) => {
 	const month = day * 30;
 	const now = new Date().getTime();
 
-	const dateTimeStampNumber = new Date(dateTime).getTime();
+	// 由于时差，需要加8小时
+	const dateTimeStampNumber = new Date(dateTime).getTime() + 8 * hour;
 	const diffValue = now - dateTimeStampNumber;
 
 	if (diffValue < 0) {
@@ -135,6 +137,7 @@ onMounted(() => {
 			padding: 16px 8px 16px 16px;
 			border-bottom: 1px solid #f2f4f7;
 			cursor: pointer;
+			transition: all 0.3s;
 			.project-img {
 				width: 40px;
 				height: 40px;
@@ -153,6 +156,10 @@ onMounted(() => {
 					font-size: 12px;
 				}
 			}
+		}
+		.project:hover {
+			// 弥散阴影
+			box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
 		}
 	}
 }

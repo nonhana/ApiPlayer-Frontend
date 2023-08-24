@@ -130,7 +130,6 @@
 		<div class="table">
 			<el-table
 				:data="baseStore.teamDetailedInfo.member_list"
-				height="250"
 				style="width: 100%"
 				:header-cell-style="{ fontWeight: '500', color: '#606266' }"
 				:row-style="{ height: '70px' }"
@@ -259,7 +258,7 @@ const teamIdentities = [
 const searchContent = ref<string>('');
 const filters = [
 	{ text: '团队所有者', value: '团队所有者' },
-	{ text: '团队管理员', value: '团队管理员' },
+	{ text: '团队管理者', value: '团队管理者' },
 	{ text: '团队成员', value: '团队成员' },
 	{ text: '游客', value: '游客' },
 ];
@@ -275,6 +274,16 @@ const countUsersByRole = (role: string): number => {
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
+const confirmInvite = async (user: any) => {
+	await inviteUser({
+		team_id: baseStore.teamDetailedInfo.team_info.team_id,
+		user_id: user.user_id,
+		team_user_name: user.user_name, // 默认是用户的用户名
+	});
+	await baseStore.getTeamInfo(Number(route.params.team_id));
+	inviteDialog.value = false;
+};
+// 搜索用户
 const search = () => {
 	searchUser({ username: inviteForm.username }).then(async (res) => {
 		if (res.data) {
@@ -283,14 +292,6 @@ const search = () => {
 			inviteForm.searchUserData = res.data.user_list.filter((item: any) => !teamUserIds.includes(item.user_id));
 		}
 	});
-};
-const confirmInvite = async (user: any) => {
-	await inviteUser({
-		team_id: baseStore.teamDetailedInfo.team_info.team_id,
-		user_id: user.user_id,
-	});
-	await baseStore.getTeamInfo(Number(route.params.team_id));
-	inviteDialog.value = false;
 };
 // 打开设置成员dialog并获取数据
 const openMemSetting = (row: any) => {
@@ -341,8 +342,8 @@ const confirmSetting = async () => {
 	await baseStore.getTeamInfo(Number(route.params.team_id));
 	settingDialog.value = false;
 };
-const filterTag = (value: string, row: User) => {
-	return row.tag === value;
+const filterTag = (value: string, row: any) => {
+	return row.user_identity === identityMapReverse.get(value);
 };
 const handleRemoveMember = () => {
 	ElMessageBox.confirm('确定移除成员：' + user.value.name + ' 吗？', '提醒', {

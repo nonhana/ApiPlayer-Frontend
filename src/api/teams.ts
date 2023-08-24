@@ -3,9 +3,9 @@ import myAxios from './axios';
 export interface TeamIdentity {
 	team_id: number;
 	user_id: number;
-	team_user_identity: number;
-	team_user_name: string;
-	team_project_indentity_list: {
+	team_user_identity?: number;
+	team_user_name?: string;
+	team_project_indentity_list?: {
 		project_id: number;
 		project_user_identity: number;
 	}[];
@@ -28,7 +28,7 @@ export const teamList = (paramsList: { user_id: number }) => {
 };
 
 //新建团队
-export const addTeam = (paramsList: { user_id: number; team_name: string; team_desc: string; team_user_name: string; project_img: string }) => {
+export const addTeam = (paramsList: { user_id: number; team_name: string; team_desc: string; team_user_name: string }) => {
 	return myAxios({
 		url: '/teams/addteam',
 		method: 'POST',

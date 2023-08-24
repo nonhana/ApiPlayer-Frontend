@@ -66,6 +66,7 @@ export const useBaseStore = defineStore(Names.Base, {
 			lastVisitedList: [] as RecentlyVisitedListItem[],
 			teamInfo: [] as TeamInfo[],
 			teamDetailedInfo: <TeamDetailedInfo>{},
+			teamIdentity: <number>0,
 			curTeamInfo: <TeamInfo>{},
 			curProjectInfo: <ProjectInfo>{},
 		};
@@ -90,7 +91,7 @@ export const useBaseStore = defineStore(Names.Base, {
 			this.curProjectInfo = info;
 		},
 		// 获取团队信息
-		async getTeamInfo(team_id: number): Promise<number> {
+		async getTeamInfo(team_id: number): Promise<void> {
 			const res = await teamInfo({ team_id });
 			const team_user_name = res.data.member_list.find((item: any) => item.user_id === this.user_info.user_id).user_team_name;
 			const userIdentity = res.data.member_list.find((item: any) => item.user_id === this.user_info.user_id).user_identity;
@@ -99,7 +100,7 @@ export const useBaseStore = defineStore(Names.Base, {
 				...res.data.team_info,
 				team_user_name,
 			});
-			return userIdentity;
+			this.teamIdentity = userIdentity;
 		},
 	},
 	persist: true,

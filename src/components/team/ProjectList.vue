@@ -1,5 +1,5 @@
 <template>
-	<el-dialog v-model="dialogVisible" title="修改名称" width="28%">
+	<el-dialog v-model="changeProjectDialog" title="修改名称" width="28%">
 		<template #header>
 			<div class="dialog-title">修改名称</div>
 		</template>
@@ -10,7 +10,7 @@
 		</el-form>
 		<template #footer>
 			<span class="dialog-footer">
-				<el-button type="default" size="large" auto-insert-space @click="dialogVisible = false">取消</el-button>
+				<el-button type="default" size="large" auto-insert-space @click="changeProjectDialog = false">取消</el-button>
 				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChange">保 存</el-button>
 			</span>
 		</template>
@@ -36,7 +36,7 @@
 						<el-icon><More /></el-icon>
 						<template #dropdown>
 							<el-dropdown-menu>
-								<el-dropdown-item @click="deleteProject(index)">删除项目</el-dropdown-item>
+								<el-dropdown-item @click="confirmDeleteProject(index)">删除项目</el-dropdown-item>
 								<el-dropdown-item @click="changeProject(index)">项目设置</el-dropdown-item>
 							</el-dropdown-menu>
 						</template>
@@ -52,17 +52,20 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { addRecentProject } from '@/api/projects';
+import { addRecentProject, deleteProject, updateProjectBasicInfo } from '@/api/projects';
 import { teamInfo } from '@/api/teams';
 import { useBaseStore } from '@/store';
 
 const router = useRouter();
+const route = useRoute();
 const baseStore = useBaseStore();
-const dialogVisible = ref<boolean>(false);
-let projectName = ref<string>('');
+const changeProjectDialog = ref<boolean>(false);
+const projectName = ref<string>('');
+
+let projectId: number = 0;
 
 interface RuleForm {
 	name: string;
@@ -75,21 +78,31 @@ const rules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
 });
 
-const goDetail = (index: number) => {
+const goDetail = async (index: number) => {
 	router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
-	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.teamDetailedInfo.project_list[index].project_id });
+	const res = await addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.teamDetailedInfo.project_list[index].project_id });
+	console.log(res.data);
 };
-const deleteProject = (index: number) => {
-	ElMessageBox.confirm('项目' + baseStore.teamDetailedInfo.project_list[index].project_name + '将被删除', '警告', {
+const confirmDeleteProject = (index: number) => {
+	ElMessageBox.confirm('项目 ' + baseStore.teamDetailedInfo.project_list[index].project_name + ' 将被删除', '警告', {
 		confirmButtonText: '确定',
 		cancelButtonText: '取消',
 		type: 'warning',
 	})
-		.then(() => {
-			ElMessage({
-				type: 'success',
-				message: '删除成功',
-			});
+		.then(async () => {
+			const res = await deleteProject({ project_id: baseStore.teamDetailedInfo.project_list[index].project_id });
+			if (res.data.result_code === 0) {
+				ElMessage({
+					type: 'success',
+					message: '删除成功',
+				});
+				await baseStore.getTeamInfo(Number(route.params.team_id));
+			} else {
+				ElMessage({
+					type: 'error',
+					message: '删除失败',
+				});
+			}
 		})
 		.catch(() => {
 			ElMessage({
@@ -100,10 +113,17 @@ const deleteProject = (index: number) => {
 };
 const changeProject = (index: number) => {
 	projectName.value = baseStore.teamDetailedInfo.project_list[index].project_name;
-	dialogVisible.value = true;
+	projectId = baseStore.teamDetailedInfo.project_list[index].project_id;
+	changeProjectDialog.value = true;
 };
-const confirmChange = () => {
-	dialogVisible.value = false;
+const confirmChange = async () => {
+	await updateProjectBasicInfo({
+		project_id: projectId,
+		project_name: projectName.value,
+	});
+	await baseStore.getTeamInfo(Number(route.params.team_id));
+	projectId = 0;
+	changeProjectDialog.value = false;
 };
 
 onMounted(async () => {
@@ -115,9 +135,10 @@ onMounted(async () => {
 .project-wrap {
 	width: 100%;
 	display: flex;
+	flex-wrap: wrap;
 	.project {
 		margin-right: 20px;
-		width: 20%;
+		width: 230px;
 		display: flex;
 		flex-direction: column;
 		border: 1px solid #f2f4f7;
@@ -150,8 +171,13 @@ onMounted(async () => {
 		}
 	}
 	.project:hover {
-		// 弥散阴影
 		box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
+	}
+	.empty-alert {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 }
 

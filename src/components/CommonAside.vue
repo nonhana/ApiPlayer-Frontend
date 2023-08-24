@@ -59,9 +59,8 @@ const confirmCreate = async () => {
 	const res = await addTeam({
 		user_id: baseStore.user_info.user_id,
 		team_name: teamName.value,
-		team_desc: '',
-		team_user_name: '',
-		project_img: '',
+		team_desc: '团队的简介很重要哦~',
+		team_user_name: baseStore.user_info.user_name, // 默认是自己的用户名
 	});
 
 	if (res.data.result_code === 0) {

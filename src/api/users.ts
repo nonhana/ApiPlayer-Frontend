@@ -55,7 +55,6 @@ export const uploadAvatar = (paramsList: { avatar: File }) => {
 		headers: {
 			Authorization: localStorage.getItem('token') ?? '',
 			'Content-Type': 'multipart/form-data',
-			// 'Content-Type': '	application/json; charset=utf-8',
 		},
 	});
 };
