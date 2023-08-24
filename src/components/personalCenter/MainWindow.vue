@@ -463,14 +463,15 @@ const confirmPwdChange = async () => {
 	}
 };
 // 确认修改邮箱
-const confrimEmailChange = () => {
+const confrimEmailChange = async () => {
 	// 邮箱格式校验
 	if (validateEmail(emailChangeInfo.value.email) == true) {
 		if (emailChangeInfo.value.verify_code == '') {
 			ElMessage.error('请填写验证码');
 		} else {
 			windowShowList.value[3] = false;
-			updateUserInfo({ email: emailChangeInfo.value.email }).then(
+			await changEmail({ newEmail: emailChangeInfo.value.email, captcha: emailChangeInfo.value.verify_code });
+			await updateUserInfo({ email: emailChangeInfo.value.email }).then(
 				() => {
 					userInfo.value!.user_email = emailChangeInfo.value.email;
 					localStorage.setItem('userInfo', JSON.stringify(userInfo));
