@@ -1,17 +1,15 @@
 <template>
 	<div class="main">
-		<!-- <CommonHeader></CommonHeader> -->
 		<div class="container">
 			<SideNav></SideNav>
-			<Settings></Settings>
+			<settings />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import SideNav from '../project/ModelSettings/SideNav.vue';
-import Settings from './ModelSettings/Settings.vue';
-import CommonHeader from '@/components/CommonHeader.vue';
+import settings from './ModelSettings/settings.vue';
 </script>
 
 <style scoped>

@@ -86,16 +86,7 @@
 	</el-dialog>
 	<el-dialog v-model="uploadIconDialog" title="上传图标" width="33%" :before-close="handleClose">
 		<div class="uploadBtn" @click="uploadFile">选择图标</div>
-		<!-- <div style="">
-			预 览<img v-show="sourceFileURL !== ''" :src="sourceFileURL" alt="" style="width: 40px; height: 40px; border: 1px solid rgb(220, 217, 217)" />
-		</div> -->
 		<input v-show="false" ref="fileRef" placeholder="选择图标" autocomplete="off" type="file" @change="fileChange" />
-		<!-- <template #footer>
-			<span class="dialog-footer">
-				<el-button type="default" size="large" auto-insert-space @click="uploadIconDialog = false">取消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmUploadIcon()">上 传</el-button>
-			</span>
-		</template> -->
 	</el-dialog>
 
 	<el-dialog v-model="windowShowList[0]" title="图片裁剪" width="800px" :before-close="handleClose">
@@ -175,35 +166,8 @@
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamDesc">编 辑</el-button>
 					</div>
 				</div>
-				<!-- <el-divider />
-				<div class="list">
-					<div class="left">
-						<div class="left-content">
-							<div class="label title">我的团队内昵称</div>
-							<div class="label description">G4S</div>
-						</div>
-					</div>
-					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeMyName">编 辑</el-button>
-					</div>
-				</div> -->
 			</div>
-			<!-- <div class="container">
-				<div class="container-header">项目操作</div>
-				<div class="content">
-					<div class="list">
-						<div class="left">
-							<div class="left-content">
-								<div class="label title">克隆项目</div>
-								<div class="label description">克隆项目到当前团队或其他团队</div>
-							</div>
-						</div>
-						<div>
-							<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeMyName">克隆项目</el-button>
-						</div>
-					</div>
-				</div>
-			</div> -->
+
 			<div></div>
 		</div>
 		<div class="container">
@@ -211,18 +175,6 @@
 				<el-icon size="15"><WarnTriangleFilled /></el-icon>危险区域
 			</div>
 			<div class="content warning-content">
-				<!-- <div class="list">
-					<div class="left">
-						<div class="left-content">
-							<div class="label title">移动项目</div>
-							<div class="label description">将项目移动到其他团队</div>
-						</div>
-					</div>
-					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="moveToOtherTeam">移动项目</el-button>
-					</div>
-				</div>
-				<el-divider /> -->
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
@@ -237,7 +189,6 @@
 			</div>
 		</div>
 	</div>
-	<!-- </div> -->
 </template>
 
 <script setup lang="ts">
@@ -246,11 +197,9 @@ import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
 import { useBaseStore } from '../../../store/index';
-import { ElNotification } from 'element-plus';
 import { useRouter, useRoute } from 'vue-router';
 
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
-import { Picture as IconPicture } from '@element-plus/icons-vue';
 
 interface ProjectInfo {
 	project_current_type?: number;
@@ -266,7 +215,6 @@ const router = useRouter();
 const route = useRoute();
 
 const deleteTeamDialog = ref(false);
-const moveToOtherTeamDialog = ref(false);
 const changeTeamNameDialog = ref(false);
 const changeTeamDescDialog = ref(false);
 const uploadIconDialog = ref(false);
@@ -276,11 +224,8 @@ let projectName = ref(projectInfo.project_name);
 let projectDesc = ref(projectInfo.project_desc);
 
 const printTeamName = ref('');
-const receiver = ref('');
-const receivers = reactive([]);
 
 const fileRef = ref<HTMLInputElement>();
-const uploadIconFile = ref();
 let sourceFile: File | null | undefined = null;
 // let sourceFileURL = ref('');
 let windowShowList = ref<boolean[]>([false]);
@@ -300,14 +245,6 @@ const teamForm = reactive<RuleForm>({
 const teamRules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入团队名称', trigger: 'blur' }],
 });
-const userFormRef = ref<FormInstance>();
-const userForm = reactive<RuleForm>({
-	name: '',
-});
-const userRules = reactive<FormRules<RuleForm>>({
-	name: [{ required: true, message: '请输入团队内名称', trigger: 'blur' }],
-});
-
 const getProjectInfos = async () => {
 	// projectInfo = storeToRefs(baseStore).curProjectInfo;
 	const res = await getProjectBasicInfo({
@@ -349,13 +286,6 @@ const confirmChangeProjectDesc = async () => {
 	await getProjectInfos();
 	console.log('projectInfo', projectInfo);
 	projectDesc.value = projectInfo.project_desc!;
-};
-
-const moveToOtherTeam = () => {
-	moveToOtherTeamDialog.value = true;
-};
-const confirmMoveToOtherTeam = () => {
-	moveToOtherTeamDialog.value = false;
 };
 
 const handleDeleteTeam = () => {
@@ -427,31 +357,6 @@ const confirmCropper = async () => {
 		sourceFile = null;
 	}
 };
-
-// const confirmUploadIcon = async () => {
-// 	uploadIconDialog.value = false;
-// 	sourceFileURL = '';
-// 	// console.log('icon', sourceFile);
-// 	if (sourceFile) {
-// 		const res = await uploadProjectIcon({ projectIcon: sourceFile });
-// 		// console.log('res1:', res);
-// 		baseStore.setCurProjectInfo({
-// 			project_id: projectInfo.project_id,
-// 			project_img: res.data.project_icon_path,
-// 			project_name: projectInfo.project_name!,
-// 		});
-// 		projectInfo.project_img = res.data.project_icon_path;
-
-// 		await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_img: res.data.project_icon_path });
-// 		sourceFile = null;
-// 	} else {
-// 		ElNotification({
-// 			title: '上传失败',
-// 			message: '请选择图标',
-// 			type: 'warning',
-// 		});
-// 	}
-// };
 
 // 监听窗口关闭，清除图片裁剪的缓存
 watch(
