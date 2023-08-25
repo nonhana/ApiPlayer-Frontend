@@ -31,7 +31,7 @@
 						</template>
 					</el-image>
 				</div>
-				<div>
+				<div v-if="canDeleteProject(project.project_id)">
 					<el-dropdown size="large">
 						<el-icon><More /></el-icon>
 						<template #dropdown>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -59,9 +59,14 @@ import { addRecentProject, deleteProject, updateProjectBasicInfo } from '@/api/p
 import { teamInfo } from '@/api/teams';
 import { useBaseStore } from '@/store';
 
+import { ProjectRole } from '@/utils/projectPermission';
+
+import { usePermisssiontStore } from '@/store/permissons';
+
 const router = useRouter();
 const route = useRoute();
 const baseStore = useBaseStore();
+const permissonStore = usePermisssiontStore();
 const changeProjectDialog = ref<boolean>(false);
 const projectName = ref<string>('');
 
@@ -126,9 +131,24 @@ const confirmChange = async () => {
 	changeProjectDialog.value = false;
 };
 
+// const canDeletePro = computed(() => {
+// 	console.log(baseStore.user_info.user_id);
+// 	return canDeleteProject(baseStore.user_info.user_id);
+// });
+// const canDeletePro = ref(false);
+
 onMounted(async () => {
 	await teamInfo({ team_id: baseStore.curTeamInfo.team_id });
 });
+
+const canDeleteProject = (id: number): boolean => {
+	const roleList: any = baseStore.projectRoleList;
+	console.log(baseStore.projectRoleList);
+
+	return roleList[id] === ProjectRole.ADMIN;
+	// return true;
+	// return baseStore.projectRoleList?.get(id) === ProjectRole.ADMIN;
+};
 </script>
 
 <style scoped lang="less">

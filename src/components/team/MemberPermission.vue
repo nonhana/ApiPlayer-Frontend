@@ -167,6 +167,7 @@ import type { TeamIdentity } from '@/api/teams';
 import { searchUser } from '@/api/users';
 import { useBaseStore } from '@/store';
 import { useRoute } from 'vue-router';
+import { ProjectRole } from '@/utils/projectPermission';
 
 interface User {
 	id: number;
@@ -188,6 +189,14 @@ interface RuleForm {
 
 const route = useRoute();
 const baseStore = useBaseStore();
+
+// const canModifyMemberPermission = computed(() => {
+// 	return (
+// 		baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.ADMIN ||
+// 		baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.EDITOR
+// 	);
+// });
+
 // 初始化user
 const user = ref<User>({
 	id: 0,

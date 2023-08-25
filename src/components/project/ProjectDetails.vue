@@ -15,8 +15,8 @@
 				<div class="main">
 					<el-tabs v-model="activeName" class="demo-tabs" style="padding-left: 20px">
 						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
-						<!-- <el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane> -->
-						<!-- <el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane> -->
+						<el-tab-pane v-if="canEditDoc" label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
+						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
 						<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
 					</el-tabs>
 				</div>
@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeMount, watch } from 'vue';
+import { ref, onBeforeMount, watch, computed } from 'vue';
 import Doc from './ModelDetails/doc/index.vue';
 import Edit from './ModelDetails/edit/index.vue';
 import Test from './ModelDetails/test/index.vue';
@@ -36,6 +36,9 @@ import SideBar from './ModelDetails/components/SideBar.vue';
 import EnvHeader from './ModelDetails/components/EnvHeader.vue';
 import SideNav from './ModelSettings/SideNav.vue';
 import { onBeforeRouteUpdate } from 'vue-router';
+import { useBaseStore } from '@/store/index';
+import { ProjectRole } from '@/utils/projectPermission';
+const baseStore = useBaseStore();
 
 const activeName = ref('first');
 
@@ -59,6 +62,10 @@ const getInfo = async (thisId: any) => {
 	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
 };
+
+const canEditDoc = computed(() => {
+	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.READ_ONLY;
+});
 
 onBeforeRouteUpdate((to) => {
 	console.log('to', to);

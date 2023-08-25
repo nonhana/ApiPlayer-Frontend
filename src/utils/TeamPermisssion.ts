@@ -1,10 +1,17 @@
 import { usePermisssiontStore } from '@/store/permissons';
 
+// export enum TeamRole {
+// 	OWNER = 'Owner',
+// 	ADMIN = 'Admin',
+// 	MEMBER = 'Member',
+// 	GUEST = 'Guest',
+// }
+
 export enum TeamRole {
-	OWNER = 'Owner',
-	ADMIN = 'Admin',
-	MEMBER = 'Member',
-	GUEST = 'Guest',
+	OWNER = 0,
+	ADMIN = 1,
+	MEMBER = 2,
+	GUEST = 3,
 }
 
 const baseStore = usePermisssiontStore();

@@ -1,47 +1,39 @@
 import { defineStore } from 'pinia';
-import { TeamRole } from '@/utils/TeamPermisssion';
-import { ProjectRole } from '@/utils/projectPermission';
+// import { TeamRole } from '@/utils/TeamPermisssion';
+// import { ProjectRole } from '@/utils/projectPermission';
+
+enum TeamRole {
+	OWNER = 0,
+	ADMIN = 1,
+	MEMBER = 2,
+	GUEST = 3,
+}
+
+enum ProjectRole {
+	ADMIN = 0,
+	EDITOR = 1,
+	READ_ONLY = 2,
+	NO_ACCESS = 3,
+}
 
 interface ProjectState {
 	teamRole: TeamRole;
-	projectRole: ProjectRole;
+	projectRoleList: Map<number, ProjectRole>;
 }
 
 export const usePermisssiontStore = defineStore({
 	id: 'permissions',
 	state: (): ProjectState => ({
 		teamRole: TeamRole.GUEST,
-		projectRole: ProjectRole.NO_ACCESS,
+		projectRoleList: new Map<number, ProjectRole>(),
 	}),
-	getters: {
-		canCreateProject(): boolean {
-			return this.projectRole === ProjectRole.ADMIN;
-		},
-		canDeleteProject(): boolean {
-			return this.projectRole === ProjectRole.ADMIN;
-		},
-		canModifyProjectInfo(): boolean {
-			return this.projectRole === ProjectRole.ADMIN;
-		},
-		canBrowseApiDocs(): boolean {
-			return this.projectRole === ProjectRole.ADMIN || this.projectRole === ProjectRole.EDITOR || this.projectRole === ProjectRole.READ_ONLY;
-		},
-		canModifyApi(): boolean {
-			return this.projectRole === ProjectRole.ADMIN || this.projectRole === ProjectRole.EDITOR;
-		},
-		canRunApi(): boolean {
-			return this.projectRole === ProjectRole.ADMIN || this.projectRole === ProjectRole.EDITOR;
-		},
-		canModifyGlobalSettings(): boolean {
-			return this.projectRole === ProjectRole.ADMIN;
-		},
-	},
+
 	actions: {
-		getProjectRole(): ProjectRole {
-			return this.projectRole;
+		getProjectRoleList(): Map<number, ProjectRole> {
+			return this.projectRoleList;
 		},
-		setProjectRole(projectRole: ProjectRole): void {
-			this.projectRole = projectRole;
+		setProjectRoleList(projectRoleList: Map<number, ProjectRole>): void {
+			this.projectRoleList = projectRoleList;
 		},
 		getTeamRole(): TeamRole {
 			return this.teamRole;
@@ -50,4 +42,5 @@ export const usePermisssiontStore = defineStore({
 			this.teamRole = role;
 		},
 	},
+	persist: true,
 });
