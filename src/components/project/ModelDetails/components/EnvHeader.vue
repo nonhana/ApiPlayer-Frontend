@@ -61,13 +61,13 @@
 										<el-table-column prop="variable_value" label="Value" width="140" />
 										<el-table-column prop="variable_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
-											<template #default="scope">
+											<template #default="scope" v-if="canModifyGlobalSettings">
 												<el-button type="primary" @click="paramAndVarAction(scope.$index, scope.row, 0, 0)">Edit</el-button>
 												<el-button type="danger" @click="paramAndVarAction(scope.$index, scope.row, 1, 0)">Delete</el-button>
 											</template>
 										</el-table-column>
 									</el-table>
-									<div style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
+									<div v-if="canModifyGlobalSettings" style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
 										<el-button @click="showDialogList[2] = !showDialogList[2]">Add New Variable</el-button>
 									</div>
 								</el-scrollbar>
@@ -85,20 +85,20 @@
 										<el-table-column prop="param_value" label="Value" width="140" />
 										<el-table-column prop="param_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
-											<template #default="scope">
+											<template #default="scope" v-if="canModifyGlobalSettings">
 												<el-button type="primary" @click="paramAndVarAction(scope.$index, scope.row, 0, 1)">Edit</el-button>
 												<el-button type="danger" @click="paramAndVarAction(scope.$index, scope.row, 1, 1)">Delete</el-button>
 											</template>
 										</el-table-column>
 									</el-table>
-									<div style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
+									<div v-if="canModifyGlobalSettings" style="width: 100%; display: flex; justify-content: center; padding: 20px 0">
 										<el-button @click="showDialogList[1] = !showDialogList[1]">Add New Parameter</el-button>
 									</div>
 								</el-scrollbar>
 							</div>
 							<div v-if="currentEditTable === '2-1'" class="envBox">
 								<span>baseUrl：</span>
-								<el-input v-model="envList[0].env_baseurl"></el-input>
+								<el-input :disabled="canEditBaseUrl" v-model="envList[0].env_baseurl"></el-input>
 							</div>
 							<div v-if="currentEditTable === '2-2'" class="envBox">
 								<span>baseUrl：</span>
@@ -185,11 +185,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo } from '@/api/projects';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { apiStore } from '@/store/apis.ts';
+import { useBaseStore } from '@/store/index';
+import { ProjectRole } from '@/utils/projectPermission';
 
 interface EnvItem {
 	env_type: number;
@@ -216,6 +218,15 @@ interface GlobalVariableItem {
 }
 
 const apiOperation = apiStore();
+const baseStore = useBaseStore();
+const canModifyGlobalSettings = computed(() => {
+	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
+});
+const canEditBaseUrl = computed(() => {
+	console.log(baseStore.projectRoleList[baseStore.curProjectInfo.project_id!], ProjectRole.READ_ONLY);
+	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.READ_ONLY;
+});
+
 const route = useRoute();
 const typeList = [
 	{

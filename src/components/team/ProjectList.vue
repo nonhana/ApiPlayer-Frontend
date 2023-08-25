@@ -31,7 +31,7 @@
 						</template>
 					</el-image>
 				</div>
-				<div>
+				<div v-if="canDeleteProject(project.project_id)">
 					<el-dropdown size="large">
 						<el-icon><More /></el-icon>
 						<template #dropdown>
@@ -51,17 +51,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
 import { addRecentProject, deleteProject, updateProjectBasicInfo } from '@/api/projects';
 import { teamInfo } from '@/api/teams';
 import { useBaseStore } from '@/store';
 
+import { ProjectRole } from '@/utils/projectPermission';
+
+import { usePermisssiontStore } from '@/store/permissons';
+
 const router = useRouter();
 const route = useRoute();
 const baseStore = useBaseStore();
+const permissonStore = usePermisssiontStore();
 const changeProjectDialog = ref<boolean>(false);
 const projectName = ref<string>('');
 
@@ -78,10 +83,25 @@ const rules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
 });
 
+const canVisitProject = (index: number) => {
+	return baseStore.projectRoleList[baseStore.teamDetailedInfo.project_list[index].project_id!] !== ProjectRole.NO_ACCESS;
+};
+
 const goDetail = async (index: number) => {
-	router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
-	const res = await addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.teamDetailedInfo.project_list[index].project_id });
-	console.log(res.data);
+	if (canVisitProject(index) == true) {
+		router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
+		const res = await addRecentProject({
+			user_id: baseStore.user_info.user_id,
+			project_id: baseStore.teamDetailedInfo.project_list[index].project_id,
+		});
+		// console.log(res.data);
+	} else {
+		ElNotification({
+			title: '权限不足',
+			message: '禁止访问',
+			type: 'warning',
+		});
+	}
 };
 const confirmDeleteProject = (index: number) => {
 	ElMessageBox.confirm('项目 ' + baseStore.teamDetailedInfo.project_list[index].project_name + ' 将被删除', '警告', {
@@ -126,9 +146,24 @@ const confirmChange = async () => {
 	changeProjectDialog.value = false;
 };
 
+// const canDeletePro = computed(() => {
+// 	console.log(baseStore.user_info.user_id);
+// 	return canDeleteProject(baseStore.user_info.user_id);
+// });
+// const canDeletePro = ref(false);
+
 onMounted(async () => {
 	await teamInfo({ team_id: baseStore.curTeamInfo.team_id });
 });
+
+const canDeleteProject = (id: number): boolean => {
+	const roleList: any = baseStore.projectRoleList;
+	console.log(baseStore.projectRoleList);
+
+	return roleList[id] === ProjectRole.ADMIN;
+	// return true;
+	// return baseStore.projectRoleList?.get(id) === ProjectRole.ADMIN;
+};
 </script>
 
 <style scoped lang="less">

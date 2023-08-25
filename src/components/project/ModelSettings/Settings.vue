@@ -126,7 +126,7 @@
 							<div class="label description">{{ projectInfo?.project_name }}</div>
 						</div>
 					</div>
-					<div>
+					<div v-if="canModifyProjectInfo">
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamName">编 辑</el-button>
 					</div>
 				</div>
@@ -150,7 +150,7 @@
 							</div>
 						</div>
 					</div>
-					<div>
+					<div v-if="canModifyProjectInfo">
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="uploadIcon">上传图标</el-button>
 					</div>
 				</div>
@@ -162,7 +162,7 @@
 							<div class="label description">{{ projectInfo?.project_desc ?? '' }}</div>
 						</div>
 					</div>
-					<div>
+					<div v-if="canModifyProjectInfo">
 						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamDesc">编 辑</el-button>
 					</div>
 				</div>
@@ -170,7 +170,7 @@
 
 			<div></div>
 		</div>
-		<div class="container">
+		<div v-if="canDeletePro" class="container">
 			<div class="container-header warning">
 				<el-icon size="15"><WarnTriangleFilled /></el-icon>危险区域
 			</div>
@@ -192,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
@@ -200,6 +200,8 @@ import { useBaseStore } from '../../../store/index';
 import { useRouter, useRoute } from 'vue-router';
 
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
+
+import { ProjectRole } from '@/utils/projectPermission';
 
 interface ProjectInfo {
 	project_current_type?: number;
@@ -238,6 +240,15 @@ let croppedFileType: string = ''; // 裁剪后的文件类型
 interface RuleForm {
 	name: string;
 }
+
+const canDeletePro = computed(() => {
+	// const roleList: any = baseStore.projectRoleList;
+	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.ADMIN;
+});
+const canModifyProjectInfo = computed(() => {
+	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
+});
+
 const teamFormRef = ref<FormInstance>();
 const teamForm = reactive<RuleForm>({
 	name: '',

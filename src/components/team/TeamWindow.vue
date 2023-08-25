@@ -11,7 +11,7 @@
 			<div class="tabs">
 				<el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
 					<el-tab-pane label="项目列表" name="first">
-						<ProjectList />
+						<ProjectList v-if="baseStore.projectRoleList" />
 					</el-tab-pane>
 					<template v-if="baseStore.teamSettingBtnVisible">
 						<el-tab-pane label="成员/权限" name="second">
@@ -111,7 +111,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onBeforeMount } from 'vue';
 import { ElMessage } from 'element-plus';
 import ProjectList from '@/components/team/ProjectList.vue';
 import MemberPermission from '@/components/team/MemberPermission.vue';
@@ -123,11 +123,15 @@ import type { TabsPaneContext } from 'element-plus';
 import { Search, Plus } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
+import { ProjectRole } from '@/utils/projectPermission';
+import { usePermisssiontStore } from '@/store/permissons';
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
 
 const baseStore = useBaseStore();
+const permissonStore = usePermisssiontStore();
+
 const route = useRoute();
 const colorMap = new Map().set(0, 'danger').set(1, 'warning').set(2, 'success').set(3, 'info');
 const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
@@ -222,11 +226,46 @@ const confirmCropper = async () => {
 	}
 };
 
+// onBeforeMount(async () => {
+// 	const id = route.params.team_id;
+// 	await baseStore.getTeamInfo(Number(id));
+// 	console.log('teaminfo', baseStore.teamDetailedInfo);
+
+// 	let projectRoleList: Map<number, ProjectRole> = new Map();
+// 	for (let item of baseStore.teamDetailedInfo.project_list) {
+// 		const identity: ProjectRole = item.project_member_list.filter((it) => {
+// 			return it.user_id === baseStore.user_info.user_id;
+// 		})[0].user_identity;
+
+// 		// console.log(identity);
+// 		projectRoleList.set(item.project_id, identity);
+// 	}
+// 	// console.log(projectRoleList);
+// 	permissonStore.setProjectRoleList(projectRoleList);
+// 	console.log(permissonStore.getProjectRoleList());
+// });
+
 watch(
 	() => route.params.team_id,
 	async (newV, _) => {
 		if (newV) {
 			await baseStore.getTeamInfo(Number(newV));
+
+			// console.log('teaminfo', baseStore.teamDetailedInfo);
+
+			let projectRoleList: any = {};
+			for (let item of baseStore.teamDetailedInfo.project_list) {
+				const identity: ProjectRole = item.project_member_list.filter((it) => {
+					return it.user_id === baseStore.user_info.user_id;
+				})[0].user_identity;
+
+				// projectRoleList.set(item.project_id, identity);
+				projectRoleList[item.project_id] = identity;
+			}
+			// console.log(projectRoleList);
+			baseStore.setProjectRoleList(projectRoleList);
+			// permissonStore.setProjectRoleList(projectRoleList);
+			console.log('proRole', baseStore.projectRoleList);
 		}
 	},
 	{ immediate: true, deep: true }

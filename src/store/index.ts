@@ -66,6 +66,13 @@ const teamConstance = {
 	GUEST: 3,
 };
 
+enum ProjectRole {
+	ADMIN = 0,
+	EDITOR = 1,
+	READ_ONLY = 2,
+	NO_ACCESS = 3,
+}
+
 export const useBaseStore = defineStore(Names.Base, {
 	state: () => {
 		return {
@@ -76,6 +83,8 @@ export const useBaseStore = defineStore(Names.Base, {
 			teamIdentity: <number>0,
 			curTeamInfo: <TeamInfo>{},
 			curProjectInfo: <ProjectInfo>{},
+			// projectRoleList: new Map(),
+			projectRoleList: <any>{},
 		};
 	},
 
@@ -123,6 +132,9 @@ export const useBaseStore = defineStore(Names.Base, {
 				team_user_name,
 			});
 			this.teamIdentity = userIdentity;
+		},
+		setProjectRoleList(projectRoleList: any): void {
+			this.projectRoleList = projectRoleList;
 		},
 	},
 	persist: true,
