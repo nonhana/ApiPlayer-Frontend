@@ -85,30 +85,32 @@
 		<div class="container">
 			<div class="container-header">基础信息</div>
 			<div class="content">
-				<div class="list">
-					<div class="left">
-						<div class="left-content">
-							<div class="label title">团队名称</div>
-							<div class="label description">{{ teamName }}</div>
+				<template v-if="baseStore.inviteMemberBtnVisible">
+					<div class="list">
+						<div class="left">
+							<div class="left-content">
+								<div class="label title">团队名称</div>
+								<div class="label description">{{ teamName }}</div>
+							</div>
+						</div>
+						<div>
+							<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamName">编 辑</el-button>
 						</div>
 					</div>
-					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamName">编 辑</el-button>
-					</div>
-				</div>
-				<el-divider />
-				<div class="list">
-					<div class="left">
-						<div class="left-content">
-							<div class="label title">团队描述</div>
-							<div class="label description">{{ teamDesc }}</div>
+					<el-divider />
+					<div class="list">
+						<div class="left">
+							<div class="left-content">
+								<div class="label title">团队描述</div>
+								<div class="label description">{{ teamDesc }}</div>
+							</div>
+						</div>
+						<div>
+							<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamDesc">编 辑</el-button>
 						</div>
 					</div>
-					<div>
-						<el-button color="rgba(16, 24, 40, 0.04)" size="large" plain class="button" @click="changeTeamDesc">编 辑</el-button>
-					</div>
-				</div>
-				<el-divider />
+					<el-divider />
+				</template>
 				<div class="list">
 					<div class="left">
 						<div class="left-content">
@@ -122,7 +124,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="container">
+		<div class="container" v-if="baseStore.disbandBtnVisible">
 			<div class="container-header warning">
 				<el-icon size="15"><WarnTriangleFilled /></el-icon>危险区域
 			</div>

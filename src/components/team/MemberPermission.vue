@@ -123,7 +123,7 @@
 			<div class="search">
 				<el-input v-model="searchContent" class="w-50 m-2" size="large" placeholder="搜索" :prefix-icon="Search" />
 			</div>
-			<div class="invite">
+			<div v-if="baseStore.inviteMemberBtnVisible" class="invite">
 				<el-button type="primary" :icon="CirclePlusFilled" color="#59A8B9" class="invite-btn" @click="inviteMember">邀请成员</el-button>
 			</div>
 		</div>
@@ -148,7 +148,7 @@
 						<el-tag :type="colorMap.get(identityMap.get(scope.row.user_identity))">{{ identityMap.get(scope.row.user_identity) }}</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column>
+				<el-table-column v-if="baseStore.inviteMemberBtnVisible">
 					<template #default="scope">
 						<el-icon class="pointer" @click="openMemSetting(scope.row)"><Setting /></el-icon>
 					</template>

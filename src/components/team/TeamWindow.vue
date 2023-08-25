@@ -13,12 +13,14 @@
 					<el-tab-pane label="项目列表" name="first">
 						<ProjectList />
 					</el-tab-pane>
-					<el-tab-pane label="成员/权限" name="second">
-						<MemberPermission />
-					</el-tab-pane>
-					<el-tab-pane label="团队设置" name="third">
-						<TeamSetting />
-					</el-tab-pane>
+					<template v-if="baseStore.teamSettingBtnVisible">
+						<el-tab-pane label="成员/权限" name="second">
+							<MemberPermission />
+						</el-tab-pane>
+						<el-tab-pane label="团队设置" name="third">
+							<TeamSetting />
+						</el-tab-pane>
+					</template>
 				</el-tabs>
 			</div>
 			<div v-if="isShowMiddleRight" class="middle-right">
@@ -26,7 +28,16 @@
 					<el-input v-model="searchContent" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" />
 				</div>
 				<div>
-					<el-button type="primary" color="#59A8B9" auto-insert-space :icon="Plus" class="create-btn" @click="createProject">新建项目</el-button>
+					<el-button
+						v-if="baseStore.inviteMemberBtnVisible"
+						type="primary"
+						color="#59A8B9"
+						auto-insert-space
+						:icon="Plus"
+						class="create-btn"
+						@click="createProject"
+						>新建项目</el-button
+					>
 				</div>
 			</div>
 		</div>
