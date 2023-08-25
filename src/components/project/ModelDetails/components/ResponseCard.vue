@@ -9,7 +9,7 @@
 		</el-col>
 	</el-row>
 	<el-row>
-		<el-col :span="13" class="cardA">
+		<el-col :span="15" class="cardA">
 			<el-card class="box-card" shadow="never">
 				<template #header>
 					<div class="card-header">
@@ -21,7 +21,7 @@
 				</div>
 			</el-card>
 		</el-col>
-		<el-col :span="11" class="cardB">
+		<!-- <el-col :span="11" class="cardB">
 			<el-card class="box-card" shadow="never">
 				<template #header>
 					<div class="card-header">
@@ -31,7 +31,7 @@
 				</template>
 				<div></div>
 			</el-card>
-		</el-col>
+		</el-col> -->
 	</el-row>
 </template>
 
