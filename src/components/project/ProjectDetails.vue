@@ -64,7 +64,7 @@ const getInfo = async (thisId: any) => {
 };
 
 const canEditDoc = computed(() => {
-	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.READ_ONLY;
+	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
 });
 
 onBeforeRouteUpdate((to) => {
