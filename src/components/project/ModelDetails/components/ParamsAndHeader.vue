@@ -1,8 +1,5 @@
 <template>
 	<div>
-		<!-- <el-icon @click="handleAddDetailsEnd">
-			<Plus />
-		</el-icon> -->
 		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
 			<el-table-column prop="param_name" label="name" width="180" align="center">
 				<template #default="scope">
@@ -36,37 +33,23 @@
 <script lang="ts" setup>
 import { ref, toRefs, watch } from 'vue';
 
-const props = defineProps({
-	requestData: {
-		type: Object,
-		default() {
-			return {};
-		},
-	},
-});
+const props = defineProps<{
+	requestData: any;
+}>();
 const { requestData } = toRefs(props);
 let tableData = ref(requestData.value.params_list);
 
 watch(
-	props.requestData,
-	(newVal, oldVal) => {
+	() => props.requestData,
+	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			tableData.value = newVal.params_list;
-			console.log('newVal', newVal);
 		}
 	},
 	{ immediate: true, deep: true }
 );
 
-//失焦事件，使用事件对象拿到dom元素并进行后续样式的修改
-// const iptBlur = (value: any, e: any) => {
-// 	// e.target.style.background = 'pink'
-// 	let arr = tableData.value;
-// 	arr = arr.filter((value) => Object.keys(value).length != 0);
-// 	console.log('value', value);
-// };
-
-const handleAddDetails = (index) => {
+const handleAddDetails = (index: number) => {
 	let obj = {
 		param_name: '',
 		param_type: '',
@@ -75,17 +58,8 @@ const handleAddDetails = (index) => {
 	tableData.value.splice(index + 1, 0, obj);
 };
 
-// const handleAddDetailsEnd = () => {
-// 	let obj = {
-// 		param_name: '',
-// 		param_type: '',
-// 		param_desc: '',
-// 	};
-// 	tableData.value.push(obj);
-// };
-
 // 删除单个行
-const handleDelete = (index) => {
+const handleDelete = (index: number) => {
 	tableData.value.splice(index, 1);
 };
 </script>

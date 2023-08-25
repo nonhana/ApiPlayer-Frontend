@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ChooseApi: typeof import('./components/project/ModelDetails/components/ChooseApi.vue')['default']
     CommonAside: typeof import('./components/CommonAside.vue')['default']
     CommonHeader: typeof import('./components/CommonHeader.vue')['default']
     Default: typeof import('./components/project/ModelDetails/components/Default.vue')['default']
@@ -76,5 +77,8 @@ declare module 'vue' {
     TmpTable: typeof import('./components/project/ModelDetails/tmp/tmp-table.vue')['default']
     TreeEdit: typeof import('./components/project/ModelDetails/tmp/tree-edit.vue')['default']
     VisitWindow: typeof import('./components/recentVisit/VisitWindow.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

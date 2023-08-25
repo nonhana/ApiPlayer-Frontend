@@ -18,7 +18,7 @@
 			</el-button>
 		</div>
 
-		<el-dialog v-model="showDialogList[0]" title="编辑项目全局信息" width="1000px" :before-close="handleClose(0)">
+		<el-dialog v-model="showDialogList[0]" title="编辑项目全局信息" width="1000px">
 			<div class="common-layout">
 				<el-container class="edit-dialog" style="height: 500px">
 					<el-aside width="200px">
@@ -124,12 +124,7 @@
 			</template>
 		</el-dialog>
 
-		<el-dialog
-			v-model="showDialogList[1]"
-			:title="editingParamsStatus ? '编辑参数信息' : '新增参数信息'"
-			width="600px"
-			:before-close="handleClose(1)"
-		>
+		<el-dialog v-model="showDialogList[1]" :title="editingParamsStatus ? '编辑参数信息' : '新增参数信息'" width="600px">
 			<div>
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
 					<span>参数名称：</span>
@@ -158,12 +153,7 @@
 			</template>
 		</el-dialog>
 
-		<el-dialog
-			v-model="showDialogList[2]"
-			:title="editingVariablesStatus ? '编辑变量信息' : '新增变量信息'"
-			width="600px"
-			:before-close="handleClose(2)"
-		>
+		<el-dialog v-model="showDialogList[2]" :title="editingVariablesStatus ? '编辑变量信息' : '新增变量信息'" width="600px">
 			<div>
 				<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; margin: 0 0 10px">
 					<span>变量名称：</span>
@@ -199,6 +189,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo } from '@/api/projects';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { apiStore } from '@/store/apis.ts';
 
 interface EnvItem {
 	env_type: number;
@@ -224,6 +215,7 @@ interface GlobalVariableItem {
 	variable_desc: string;
 }
 
+const apiOperation = apiStore();
 const route = useRoute();
 const typeList = [
 	{
@@ -274,30 +266,9 @@ const envChoosing = async (envType: number) => {
 		project_id: Number(route.params.project_id),
 		project_current_type: envType,
 	});
-};
-// 点击el-dialog的叉叉、点击dialog外部关闭
-const handleClose = (type: number) => {
-	let text: string = '';
-	switch (type) {
-		case 0:
-			text = '你的全局设置尚未保存，是否确认关闭？';
-			break;
-		case 1:
-			text = '你的参数设置尚未保存，是否确认关闭？';
-			break;
-		case 2:
-			text = '你的变量设置尚未保存，是否确认关闭？';
-			break;
-		default:
-			break;
-	}
-	return function (done: () => void) {
-		ElMessageBox.confirm(text)
-			.then(() => {
-				done();
-			})
-			.catch(() => {});
-	};
+	// 切换环境后，更新apiStore中的apiInfo
+	await apiOperation.getApiInfo(Number(route.query.api_id));
+	console.log('apiInfo', apiOperation.apiInfo);
 };
 // 是否确认变更
 const confirmEdit = async (type: number[]) => {
@@ -334,6 +305,8 @@ const confirmEdit = async (type: number[]) => {
 				project_id: Number(route.params.project_id),
 				env_list: envListSource,
 			});
+			// 重新获取apiOperation
+			await apiOperation.getApiInfo(Number(route.query.api_id));
 
 			showDialogList.value[0] = false;
 			ElMessage.success('保存成功');
@@ -407,6 +380,8 @@ const confirmEdit = async (type: number[]) => {
 				project_id: Number(route.params.project_id),
 				global_params: paramsList,
 			});
+			// 重新获取apiOperation
+			await apiOperation.getApiInfo(Number(route.query.api_id));
 
 			// 更新完成后，将editingParamsInfo置空
 			editingParamsInfo.value = {
@@ -480,6 +455,8 @@ const confirmEdit = async (type: number[]) => {
 				project_id: Number(route.params.project_id),
 				global_variables: variablesList,
 			});
+			// 重新获取apiOperation
+			await apiOperation.getApiInfo(Number(route.query.api_id));
 
 			// 更新完成后，将editingVariablesInfo置空
 			editingVariablesInfo.value = {
@@ -557,6 +534,8 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 							project_id: Number(route.params.project_id),
 							global_params: paramsList,
 						});
+						// 重新获取apiOperation
+						await apiOperation.getApiInfo(Number(route.query.api_id));
 
 						globalParams.value[Number(currentEditParamsClass.value) - 1].params_list.splice(index, 1);
 						ElMessage.success('已删除');
@@ -594,6 +573,8 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 							project_id: Number(route.params.project_id),
 							global_variables: variablesList,
 						});
+						// 重新获取apiOperation
+						await apiOperation.getApiInfo(Number(route.query.api_id));
 
 						globalVariables.value.splice(index, 1);
 						ElMessage.success('已删除');

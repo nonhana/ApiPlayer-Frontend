@@ -1,65 +1,67 @@
 <template>
-	{{ apiInfo.api_id }}
 	<div class="index">
-		<el-row class="roww">
-			<el-text class="mx-1" size="large">{{ apiInfo.api_name }}</el-text>
+		<el-row class="title">
+			<el-text class="mx-1" size="large">{{ apiOperation.apiInfo.api_name }}</el-text>
 		</el-row>
 		<el-row>
 			<el-col :span="24">
 				<el-tag type="" class="mx-1" effect="dark" round size="large">
-					{{ apiInfo.api_method }}
+					{{ apiOperation.apiInfo.api_method }}
 				</el-tag>
-				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiInfo.api_url }}</el-text>
-				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ statusMap.boolean[apiInfo.api_status] }}</el-text>
+				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiOperation.apiInfo.api_url }}</el-text>
+				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ statusMap.get(apiOperation.apiInfo.api_status) }}</el-text>
 			</el-col>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1">前置url：{{ apiInfo.api_env_url }} </el-text>
+			<el-text class="mx-1">前置url：{{ apiOperation.apiInfo.baseUrl }} </el-text>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1">创建时间 {{ timestampToTime(Date.parse(apiInfo.api_createdAt)) }}</el-text>
+			<el-text class="mx-1">创建时间 {{ timestampToTime(Date.parse(apiOperation.apiInfo.api_createdAt)) }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">修改时间 {{ timestampToTime(Date.parse(apiInfo.api_editedAt)) }}</el-text>
+			<el-text class="mx-1">修改时间 {{ timestampToTime(Date.parse(apiOperation.apiInfo.api_editedAt)) }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">修改者 {{ apiInfo.api_editor_id }}</el-text>
+			<el-text class="mx-1">修改者 {{ apiEditorName }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">创建者 {{ apiInfo.api_creator_id }}</el-text>
+			<el-text class="mx-1">创建者 {{ apiCreatorName }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">责任人 {{ apiInfo.api_principal_id }}</el-text>
+			<el-text class="mx-1">责任人 {{ apiPrincipalName }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">目录 {{ apiInfo.dictionary_id }}</el-text>
 		</el-row>
-		<el-row></el-row>
+		<el-divider></el-divider>
 		<el-row>
 			<el-text class="mx-1" size="large">接口说明</el-text>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1"> {{ apiInfo.api_desc }}</el-text>
+			<el-text class="mx-1"> {{ apiOperation.apiInfo.api_desc }}</el-text>
 		</el-row>
-		<el-row></el-row>
+		<el-divider></el-divider>
 		<el-row>
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
-		<div v-if="apiInfo">
-			<div v-for="(item, index) in apiInfo.api_request_params" :key="index">
-				<el-text class="mx-1" size="large">{{ map.boolean[item.type] }}</el-text>
+		<div v-if="apiOperation.apiInfo.api_request_params.length > 0">
+			<div v-for="(item, index) in apiOperation.apiInfo.api_request_params" :key="index">
+				<el-text class="mx-1" size="large">{{ map.get(item.type) }}</el-text>
 				<el-row>
 					<el-table :data="item.params_list" border style="width: 100%">
-						<el-table-column prop="name" label="name" />
-						<el-table-column prop="type" label="type" />
-						<el-table-column prop="desc" label="desc" />
+						<el-table-column prop="param_name" label="name" />
+						<el-table-column prop="param_type" label="type" />
+						<el-table-column prop="param_desc" label="desc" />
 					</el-table>
 				</el-row>
-				<el-row></el-row>
+				<el-divider></el-divider>
 			</div>
 		</div>
-		<el-row></el-row>
+		<div v-else class="params-empty">
+			<span>暂无请求参数，先添加一些请求参数吧！</span>
+		</div>
+
+		<el-divider></el-divider>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
 		<el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs">
-				<div v-for="(item, index) in apiInfo.api_responses" :key="index">
+				<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
 					<el-tab-pane :label="item.response_name" name="名称">
 						<ResponseCard :context="item" />
 					</el-tab-pane>
@@ -70,73 +72,28 @@
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import type { TabsPaneContext } from 'element-plus';
 import ResponseCard from '../components/ResponseCard.vue';
 import { apiStore } from '@/store/apis.ts';
-import { useRouter, useRoute } from 'vue-router';
-import { onBeforeRouteUpdate } from 'vue-router';
+import { useRoute } from 'vue-router';
+import { getUserInfo } from '@/api/users';
 
-interface Request {
-	api_desc: string;
-	api_editor_id: number;
-	api_env_url: number[];
-	api_id: number;
-	api_method: string;
-	api_name: string;
-	api_principal_id: number;
-	api_request: ApiRequest[];
-	api_response: ApiResponse;
-	api_status: number;
-	api_url: string;
-	dictionary_id: number;
-}
-
-interface ApiRequest {
-	params_list?: ParamsList[];
-	params_obj?: { [key: string]: any };
-	type: number;
-}
-
-interface ParamsList {
-	param_desc: string;
-	param_name: string;
-	param_type: number;
-}
-
-interface ApiResponse {
-	http_status: number;
-	response_body: string;
-	response_name: string;
-}
-const map = { boolean: { 0: 'Params', 1: 'Body(form-data)', 2: 'Body(x-www-form-unlencoded)', 3: 'Cookie', 4: 'Header' } };
-const statusMap = { boolean: { 0: '开发中', 1: '测试中', 2: '已发布', 3: '将废弃' } };
-
-// const activeName = ref();
+const route = useRoute();
+const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
+const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
 
 const apiOperation = apiStore();
-const apiInfo = ref<any>(apiOperation.apiInfo);
+const activeName = ref<string>(apiOperation.apiInfo.api_responses.length > 0 ? apiOperation.apiInfo.api_responses[0].response_name : '');
+const apiPrincipalName = ref<string>('');
+const apiCreatorName = ref<string>('');
+const apiEditorName = ref<string>('');
 
-watch(
-	apiOperation.apiInfo,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			apiInfo.value = newVal;
-		}
-	},
-	{ immediate: true, deep: true }
-);
-
-const getInfo = async (thisId: any) => {
+const getInfo = async (thisId: number) => {
 	await apiOperation.getApiInfo(thisId);
-	apiInfo.value = apiOperation.apiInfo;
 };
-onBeforeRouteUpdate((to) => {
-	getInfo(to.query.api_id);
-});
 
 const timestampToTime = (timestamp: number | null) => {
-	timestamp = timestamp ? timestamp : null;
-	let date = new Date(timestamp as number); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+	// 由于时差问题要加8小时 == 28800000毫秒
+	let date = timestamp ? new Date(timestamp + 28800000) : new Date();
 	let Y = date.getFullYear() + '-';
 	let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
 	let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
@@ -146,7 +103,33 @@ const timestampToTime = (timestamp: number | null) => {
 	return Y + M + D + h + m + s;
 };
 
-// const activeName = apiInfo.value.api_response[0].http_status;
+watch(
+	() => route.query.api_id,
+	async (newV, _) => {
+		if (newV) {
+			await getInfo(Number(newV));
+		}
+	},
+	{ immediate: true, deep: true }
+);
+
+onMounted(async () => {
+	apiPrincipalName.value = (
+		await getUserInfo({
+			user_id: apiOperation.apiInfo.api_principal_id,
+		})
+	).data.result.userInfo.username;
+	apiCreatorName.value = (
+		await getUserInfo({
+			user_id: apiOperation.apiInfo.api_creator_id,
+		})
+	).data.result.userInfo.username;
+	apiEditorName.value = (
+		await getUserInfo({
+			user_id: apiOperation.apiInfo.api_editor_id,
+		})
+	).data.result.userInfo.username;
+});
 </script>
 
 <style lang="less">
@@ -154,13 +137,26 @@ const timestampToTime = (timestamp: number | null) => {
 	width: 1000px;
 	background-color: #fff;
 
-	.roww {
+	.title {
 		width: 1000px;
 	}
 
 	.showparent {
 		display: flex;
 		align-items: center;
+	}
+
+	.params-empty {
+		width: 100%;
+		height: 100px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: #f5f7fa;
+		border-radius: 20px;
+		span {
+			color: #909399;
+		}
 	}
 
 	.el-row {

@@ -53,13 +53,11 @@ export interface ExecuteParamsList {
 }
 
 // 获取api数据
-export const getApiInfo = (apiid: number) => {
+export const getApiInfo = (paramsList: { api_id: number }) => {
 	return myAxios({
 		url: '/apis/apiinfo',
 		method: 'GET',
-		params: {
-			api_id: apiid,
-		},
+		params: paramsList,
 	});
 };
 

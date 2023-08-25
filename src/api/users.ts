@@ -29,12 +29,11 @@ export const sendCaptcha = (paramsList: { email: string }) => {
 	});
 };
 
-export const getUserInfo = () => {
+export const getUserInfo = (paramsList: { user_id?: number }) => {
 	return myAxios({
 		url: '/users/info',
 		method: 'GET',
-		params: {},
-		// params: paramsList,
+		params: paramsList,
 	});
 };
 

@@ -4,7 +4,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, toRefs, watch } from 'vue';
 let tree = ref({
 	root: {
@@ -39,7 +39,7 @@ watch(
 
 watch(
 	tree.value,
-	(newVal, oldVal) => {
+	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			emit('sendResponse', newVal);
 		}

@@ -12,30 +12,30 @@
 				</div>
 			</el-row>
 			<el-row>
-				<div class="main">
-					<el-tabs v-model="activeName" class="demo-tabs" style="padding-left: 20px">
+				<div v-if="thisId" class="main">
+					<el-tabs v-model="activeName" v-loading="loading" class="demo-tabs" style="padding-left: 20px">
 						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
 						<el-tab-pane label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
 						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
-						<!-- <el-tab-pane label="测试" name="fourth"> <Tmp /> </el-tab-pane> -->
 					</el-tabs>
 				</div>
+				<ChooseApi v-else />
 			</el-row>
 		</div>
 	</el-row>
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeMount, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import Doc from './ModelDetails/doc/index.vue';
 import Edit from './ModelDetails/edit/index.vue';
 import Test from './ModelDetails/test/index.vue';
 import { apiStore } from '../../store/apis';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
+import ChooseApi from './ModelDetails/components/ChooseApi.vue';
 import SideBar from './ModelDetails/components/SideBar.vue';
 import EnvHeader from './ModelDetails/components/EnvHeader.vue';
 import SideNav from './ModelSettings/SideNav.vue';
-import { onBeforeRouteUpdate } from 'vue-router';
 
 const activeName = ref('first');
 
@@ -44,45 +44,41 @@ const jumpRunApi = () => {
 	activeName.value = 'third';
 };
 
+const route = useRoute();
 const apiOperation = apiStore();
 const apiInfo = ref(apiOperation.apiInfo);
-const router = useRouter();
-const thisId = router.currentRoute.value.query.api_id;
-onBeforeMount(() => {
-	if (thisId) {
-		getInfo(thisId);
-	}
-	apiInfo.value = apiOperation.apiInfo;
-});
+const thisId = ref<number>(0);
+const loading = ref<boolean>(false);
 
-const getInfo = async (thisId: any) => {
+const getInfo = async (thisId: number) => {
+	loading.value = true;
 	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
+	await nextTick();
+	loading.value = false;
 };
-
-onBeforeRouteUpdate((to) => {
-	console.log('to', to);
-	if (thisId) {
-		getInfo(to.query.api_id);
-	}
-});
 
 watch(
 	apiOperation.apiInfo,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			apiInfo.value = newVal;
+	(newV, _) => {
+		if (newV != undefined && newV != null) {
+			apiInfo.value = newV;
 		}
 	},
 	{ immediate: true, deep: true }
 );
 
-const route = useRoute();
-watch(route, (newValue, oldValue) => {
-	console.log('projectwatch 已触发', newValue.query.api_id, oldValue);
-	getInfo(newValue.query.api_id);
-	apiInfo.value = apiOperation.apiInfo;
-});
+watch(
+	() => route.query.api_id,
+	(newV, _) => {
+		thisId.value = Number(newV);
+		if (thisId.value) {
+			getInfo(thisId.value);
+		}
+		apiInfo.value = apiOperation.apiInfo;
+	},
+	{ immediate: true, deep: true }
+);
 </script>
 
 <style scoped lang="less">
