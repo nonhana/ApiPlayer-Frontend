@@ -195,7 +195,6 @@ watch(
 );
 
 onMounted(async () => {
-	console.log('apiOperation.apiInfo', apiOperation.apiInfo);
 	// 1. 处理人员名称
 	apiPrincipalName.value = (
 		await getUserInfo({

@@ -70,9 +70,7 @@
 										color: var(--el-text-color-secondary);
 										font-size: 30px;
 									"
-								>
-									<el-icon><icon-picture /></el-icon>
-								</div>
+								></div>
 							</template>
 						</el-image>
 					</div>
@@ -239,7 +237,6 @@ watch(
 				projectRoleList[item.project_id] = identity;
 			}
 			baseStore.setProjectRoleList(projectRoleList);
-			console.log('proRole', baseStore.projectRoleList);
 		}
 	},
 	{ immediate: true, deep: true }

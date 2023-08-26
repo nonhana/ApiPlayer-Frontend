@@ -23,7 +23,6 @@ import CommonHeader from '../CommonHeader.vue';
 import CommonAside from '../CommonAside.vue';
 
 const route = useRoute();
-// const classList: string[] = ['app', 'login'];
 
 let classIndex = ref<number>(0);
 

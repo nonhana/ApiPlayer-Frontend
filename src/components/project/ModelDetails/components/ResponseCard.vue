@@ -117,7 +117,6 @@ watch(
 	(newV, _) => {
 		// 拿到之后进行处理
 		let rootSchema: SchemaNode;
-		console.log('newV.response_body', newV.response_body);
 		if (newV.response_body.root) {
 			rootSchema = newV.response_body.root;
 		} else {

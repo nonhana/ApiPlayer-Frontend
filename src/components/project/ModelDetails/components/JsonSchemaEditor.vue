@@ -5,13 +5,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRefs, watch } from 'vue';
-let tree = ref({
-	root: {
-		type: 'object',
-		properties: {},
-	},
-});
+import { ref, watch } from 'vue';
+let tree = ref<any>({});
 const emit = defineEmits(['sendResponse']);
 const props = defineProps({
 	responseData: {
@@ -21,11 +16,10 @@ const props = defineProps({
 		},
 	},
 });
-const { responseData } = toRefs(props);
 
 watch(
 	() => props.responseData,
-	(newVal, oldVal) => {
+	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			if (newVal.root) {
 				tree.value.root = newVal.root;
@@ -33,7 +27,6 @@ watch(
 				tree.value.root = newVal;
 			}
 		}
-		console.log('responseDatatree', tree.value);
 	},
 	{ immediate: true, deep: true }
 );

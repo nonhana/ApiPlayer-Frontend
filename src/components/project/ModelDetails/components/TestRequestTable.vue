@@ -26,24 +26,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRefs, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
 	requestData: any;
 }>();
-const { requestData } = toRefs(props);
-let tableData = ref(requestData.value.params_list);
 
-watch(
-	props.requestData,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			requestData.value = newVal;
-			console.log('newVal', newVal);
-		}
-	},
-	{ immediate: true, deep: true }
-);
+const requestData = ref(props.requestData);
+let tableData = ref(requestData.value.params_list);
 
 const handleAddDetails = (index: number) => {
 	let obj = {
@@ -52,11 +42,19 @@ const handleAddDetails = (index: number) => {
 	};
 	tableData.value.splice(index + 1, 0, obj);
 };
-
-// 删除单个行
 const handleDelete = (index: number) => {
 	tableData.value.splice(index, 1);
 };
+
+watch(
+	props.requestData,
+	(newVal, _) => {
+		if (newVal != undefined && newVal != null) {
+			requestData.value = newVal;
+		}
+	},
+	{ immediate: true, deep: true }
+);
 </script>
 
 <style lang="less">

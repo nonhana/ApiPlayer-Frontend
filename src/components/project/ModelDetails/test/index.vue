@@ -94,7 +94,6 @@ import { ElNotification } from 'element-plus';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 import { VAceEditor } from 'vue3-ace-editor';
-// import 'ace-builds/webpack-resolver';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-chrome';
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -217,7 +216,7 @@ const runApi = async () => {
 		// 去掉所有的\n和\t
 		api_request_JSON: requestJSON.value.replace(/\n/g, '').replace(/\t/g, ''),
 	};
-	console.log('requestBody', JSON.stringify(requestBody));
+	console.log('requestBody', requestBody, JSON.stringify(requestBody));
 	const res = await executeApi(requestBody);
 	if (res.data.result_code === 0) {
 		result.value.result_code = res.data.result_code;

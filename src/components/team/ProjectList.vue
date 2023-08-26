@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
@@ -61,12 +61,9 @@ import { useBaseStore } from '@/store';
 
 import { ProjectRole } from '@/utils/projectPermission';
 
-import { usePermisssiontStore } from '@/store/permissons';
-
 const router = useRouter();
 const route = useRoute();
 const baseStore = useBaseStore();
-const permissonStore = usePermisssiontStore();
 const changeProjectDialog = ref<boolean>(false);
 const projectName = ref<string>('');
 
@@ -90,11 +87,10 @@ const canVisitProject = (index: number) => {
 const goDetail = async (index: number) => {
 	if (canVisitProject(index) == true) {
 		router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
-		const res = await addRecentProject({
+		await addRecentProject({
 			user_id: baseStore.user_info.user_id,
 			project_id: baseStore.teamDetailedInfo.project_list[index].project_id,
 		});
-		// console.log(res.data);
 	} else {
 		ElNotification({
 			title: '权限不足',
@@ -146,23 +142,13 @@ const confirmChange = async () => {
 	changeProjectDialog.value = false;
 };
 
-// const canDeletePro = computed(() => {
-// 	console.log(baseStore.user_info.user_id);
-// 	return canDeleteProject(baseStore.user_info.user_id);
-// });
-// const canDeletePro = ref(false);
-
 onMounted(async () => {
 	await teamInfo({ team_id: baseStore.curTeamInfo.team_id });
 });
 
 const canDeleteProject = (id: number): boolean => {
 	const roleList: any = baseStore.projectRoleList;
-	console.log(baseStore.projectRoleList);
-
 	return roleList[id] === ProjectRole.ADMIN;
-	// return true;
-	// return baseStore.projectRoleList?.get(id) === ProjectRole.ADMIN;
 };
 </script>
 

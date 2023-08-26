@@ -13,7 +13,7 @@
 			</el-row>
 			<el-row>
 				<div v-if="thisId" class="main">
-					<el-tabs v-model="activeName" v-loading="loading" class="demo-tabs" style="padding-left: 20px">
+					<el-tabs v-model="activeName" v-loading="fetching" class="demo-tabs" style="padding-left: 20px">
 						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
 						<el-tab-pane v-if="canEditDoc" label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
 						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, computed, nextTick } from 'vue';
+import { ref, watch, computed } from 'vue';
 import Doc from './ModelDetails/doc/index.vue';
 import Edit from './ModelDetails/edit/index.vue';
 import Test from './ModelDetails/test/index.vue';
@@ -52,14 +52,13 @@ const route = useRoute();
 const apiOperation = apiStore();
 const apiInfo = ref(apiOperation.apiInfo);
 const thisId = ref<number>(0);
-const loading = ref<boolean>(false);
+const fetching = ref<boolean>(false);
 
 const getInfo = async (thisId: number) => {
-	loading.value = true;
+	fetching.value = true;
 	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
-	await nextTick();
-	loading.value = false;
+	fetching.value = false;
 };
 
 const canEditDoc = computed(() => {

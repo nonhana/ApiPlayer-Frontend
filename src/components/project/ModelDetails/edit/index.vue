@@ -62,11 +62,7 @@
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
 								<!-- <el-input v-model="JSON_body" :rows="4" type="textarea" /> -->
-								<!-- <RequestJsonSchemaEditor :requestData="apiInfo.api_request_JSON" @send-request="saverequest" /> -->
-								<!-- <RequestJsonSchemaEditor :response-data="apiInfo.api_request_JSON" @send-response="saveResponse" /> -->
-								<JsonSchemaEditor :response-data="requestJSON" @send-response="saveRequest" />
-								<!-- <JsonSchemaEditor :response-data="apiInfo.api_responses[0].response_body" @send-response="saveResponse" /> -->
-								<!-- <JsonSchemaEditor :response-data="apiInfo.api_responses[1].response_body" @send-response="saveResponse" /> -->
+								<JsonSchemaEditor :response-data="JSON_body" @send-response="saveRequest" />
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
@@ -95,7 +91,7 @@
 						<el-col :span="6">HTTP状态码：<el-input v-model="item.http_status" size="large" /></el-col>
 						<el-col :span="6" style="margin-left: 20px">响应组件名称<el-input v-model="item.response_name" size="large" /></el-col>
 					</el-row>
-					<!-- <JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" /> -->
+					<JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" />
 				</el-tab-pane>
 			</el-tabs>
 		</el-row>
@@ -108,7 +104,6 @@ import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
-// import RequestJsonSchemaEditor from '../components/RequestJsonSchemaEditor.vue';
 import { updateApi, deleteApi } from '@/api/apis.ts';
 import { useRoute } from 'vue-router';
 import { ElNotification } from 'element-plus';
@@ -121,7 +116,7 @@ const route = useRoute();
 const baseStore = useBaseStore();
 const apiOperation = apiStore();
 const apiInfo = ref<any>(apiOperation.apiInfo);
-const JSON_body = ref<string>('');
+const JSON_body = ref<any>({});
 const gettingInfo = ref<boolean>(false);
 interface RequestParams {
 	type: number;
@@ -228,13 +223,6 @@ const statusOptions = [
 	},
 ];
 
-const requestJSON = ref({
-	root: {
-		type: 'object',
-		properties: {},
-	},
-});
-
 watch(
 	apiOperation.apiInfo,
 	(newVal, _) => {
@@ -259,7 +247,13 @@ watch(
 			gettingInfo.value = true;
 			await apiOperation.getApiInfo(Number(newV));
 			apiInfo.value = apiOperation.apiInfo;
-			JSON_body.value = apiInfo.value.api_request_JSON ? apiInfo.value.api_request_JSON.JSON_body : '';
+			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : {};
+			if (!JSON_body.value.root) {
+				JSON_body.value = {
+					root: JSON_body.value,
+				};
+			}
+			console.log('JSON_body', JSON_body.value);
 			gettingInfo.value = false;
 		}
 	},
@@ -284,7 +278,7 @@ const saveApiInfo = async () => {
 		api_editor_id: apiInfo.value.api_editor_id,
 		api_desc: apiInfo.value.api_desc,
 		api_request_params: apiInfo.value.api_request_params,
-		api_request_JSON: JSON_body.value,
+		api_request_JSON: JSON.stringify(JSON_body.value),
 		api_responses: apiInfo.value.api_responses.map((item: any) => {
 			return {
 				http_status: Number(item.http_status),
