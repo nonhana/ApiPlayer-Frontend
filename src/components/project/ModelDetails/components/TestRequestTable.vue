@@ -62,7 +62,7 @@ watch(
 // 	console.log('value', value);
 // };
 
-const handleAddDetails = (index) => {
+const handleAddDetails = (index: number) => {
 	let obj = {
 		param_name: '',
 		param_value: '',
@@ -71,7 +71,7 @@ const handleAddDetails = (index) => {
 };
 
 // 删除单个行
-const handleDelete = (index) => {
+const handleDelete = (index: number) => {
 	tableData.value.splice(index, 1);
 };
 </script>

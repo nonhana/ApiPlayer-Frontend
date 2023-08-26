@@ -62,7 +62,7 @@
 		<el-row>
 			<el-tabs v-model="activeName" type="card" class="doc-tabs">
 				<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
-					<el-tab-pane :label="item.response_name" name="名称">
+					<el-tab-pane :label="item.response_name" :name="index">
 						<ResponseCard :context="item" />
 					</el-tab-pane>
 				</div>
@@ -82,7 +82,7 @@ const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-
 const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
 
 const apiOperation = apiStore();
-const activeName = ref<string>(apiOperation.apiInfo.api_responses.length > 0 ? apiOperation.apiInfo.api_responses[0].response_name : '');
+const activeName = ref<string>('0');
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');

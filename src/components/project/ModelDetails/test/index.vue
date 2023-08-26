@@ -134,8 +134,6 @@ const result = ref({
 	result_msg: '',
 	result: '',
 });
-let { api_method, api_id } = apiInfo.value;
-let api_url = ref(apiInfo.value.api_url);
 
 watch(
 	apiOperation.apiInfo,
@@ -146,7 +144,7 @@ watch(
 	},
 	{ immediate: true, deep: true }
 );
-const getInfo = async (thisId) => {
+const getInfo = async (thisId: any) => {
 	await apiOperation.getApiInfo(thisId);
 	apiInfo.value = apiOperation.apiInfo;
 };
