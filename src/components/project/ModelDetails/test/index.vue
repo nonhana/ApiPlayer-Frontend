@@ -84,8 +84,7 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_type: null,
-				param_desc: '',
+				param_value: '',
 			},
 		],
 	},
@@ -94,8 +93,7 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_type: null,
-				param_desc: '',
+				param_value: '',
 			},
 		],
 	},
@@ -104,8 +102,7 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_type: null,
-				param_desc: '',
+				param_value: '',
 			},
 		],
 	},
@@ -114,8 +111,7 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_type: null,
-				param_desc: '',
+				param_value: '',
 			},
 		],
 	},
@@ -124,8 +120,7 @@ const requestParams = ref([
 		params_list: [
 			{
 				param_name: '',
-				param_type: null,
-				param_desc: '',
+				param_value: '',
 			},
 		],
 	},

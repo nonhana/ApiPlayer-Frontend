@@ -64,9 +64,8 @@ watch(
 
 const handleAddDetails = (index) => {
 	let obj = {
-		name: '',
-		type: '',
-		desc: '',
+		param_name: '',
+		param_value: '',
 	};
 	tableData.value.splice(index + 1, 0, obj);
 };
