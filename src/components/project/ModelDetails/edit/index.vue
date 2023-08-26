@@ -61,11 +61,7 @@
 								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
-								<!-- <RequestJsonSchemaEditor :requestData="apiInfo.api_request_JSON" @send-request="saverequest" /> -->
-								<!-- <RequestJsonSchemaEditor :response-data="apiInfo.api_request_JSON" @send-response="saveResponse" /> -->
 								<JsonSchemaEditor :response-data="requestJSON" @send-response="saveRequest" />
-								<!-- <JsonSchemaEditor :response-data="apiInfo.api_responses[0].response_body" @send-response="saveResponse" /> -->
-								<!-- <JsonSchemaEditor :response-data="apiInfo.api_responses[1].response_body" @send-response="saveResponse" /> -->
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
@@ -107,7 +103,6 @@ import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
-// import RequestJsonSchemaEditor from '../components/RequestJsonSchemaEditor.vue';
 import { updateApi, deleteApi } from '@/api/apis.ts';
 import { useRoute } from 'vue-router';
 import { ElNotification } from 'element-plus';
@@ -338,7 +333,7 @@ const saveResponse = (para: any) => {
 };
 
 const saveRequest = (para: any) => {
-	apiInfo.value.api_request_JSON = para;
+	requestJSON.value = para;
 };
 
 onMounted(async () => {
