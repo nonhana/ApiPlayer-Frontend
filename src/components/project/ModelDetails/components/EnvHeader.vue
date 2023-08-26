@@ -1,9 +1,16 @@
 <template>
 	<div class="EnvHeader-wrap">
+		<div class="swagger">
+			<el-button>Swagger文档导入</el-button>
+			<input v-show="false" ref="fileRef" type="file" @change="fileChange" />
+		</div>
+
 		<div class="button-group">
-			<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
+			<el-tooltip class="box-item" effect="dark" content="当页面加载过慢时，可以尝试刷新" placement="left">
+				<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
+			</el-tooltip>
 			<el-dropdown @command="envChoosing">
-				<el-button class="main-button">
+				<el-button v-loading="changingEnv" class="main-button">
 					<span>{{ currentEnvName }}</span>
 					<img src="@/static/svg/ProjectDetailsEnvHeaderOpenList.svg" />
 				</el-button>
@@ -223,9 +230,9 @@ const canModifyGlobalSettings = computed(() => {
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
 });
 const canEditBaseUrl = computed(() => {
-	console.log(baseStore.projectRoleList[baseStore.curProjectInfo.project_id!], ProjectRole.READ_ONLY);
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.READ_ONLY;
 });
+const changingEnv = ref<boolean>(false);
 
 const route = useRoute();
 const typeList = [
@@ -271,6 +278,7 @@ let editingVariablesStatus = ref<boolean>(false); // false：正在新增变量�
 
 // 下拉框点击切换环境
 const envChoosing = async (envType: number) => {
+	changingEnv.value = true;
 	projectCurrentType.value = envType;
 	currentEnvName.value = envList.value.find((item) => item.env_type === envType)!.env_name;
 	await updateProjectBasicInfo({
@@ -279,7 +287,7 @@ const envChoosing = async (envType: number) => {
 	});
 	// 切换环境后，更新apiStore中的apiInfo
 	await apiOperation.getApiInfo(Number(route.query.api_id));
-	console.log('apiInfo', apiOperation.apiInfo);
+	changingEnv.value = false;
 };
 // 是否确认变更
 const confirmEdit = async (type: number[]) => {
@@ -292,16 +300,16 @@ const confirmEdit = async (type: number[]) => {
 				let envType: number = 0;
 				switch (item.env_name) {
 					case '开发环境':
-						envType = 1;
+						envType = 0;
 						break;
 					case '测试环境':
-						envType = 2;
+						envType = 1;
 						break;
 					case '正式环境':
-						envType = 3;
+						envType = 2;
 						break;
 					case 'mock.js环境':
-						envType = 4;
+						envType = 3;
 						break;
 					default:
 						break;
@@ -334,7 +342,6 @@ const confirmEdit = async (type: number[]) => {
 				globalParams.value[index].params_list[paramsIndex] = editingParamsInfo.value;
 			} else {
 				// 新增
-				console.log('globalParams', globalParams.value);
 				const index = globalParams.value.findIndex((item) => item.type === Number(currentEditParamsClass.value) - 1);
 				globalParams.value[index].params_list.push(editingParamsInfo.value);
 			}
@@ -601,6 +608,8 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 const reload = () => {
 	window.location.reload();
 };
+// 上传Swagger文档
+const fileChange = () => {};
 
 watch(
 	() => showDialogList.value[1],

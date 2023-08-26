@@ -18,9 +18,11 @@
 		"pinia-plugin-persistedstate": "^3.2.0",
 		"ry-edit-table": "^1.0.8",
 		"vue": "^3.3.4",
+		"vue-json-pretty": "^2.2.4",
 		"vue-picture-cropper": "^0.6.1",
 		"vue-router": "^4.2.4",
 		"vue-tree-list": "^1.5.0",
+		"vue3-ace-editor": "^2.2.3",
 		"vxe-table": "^4.4.7",
 		"xe-utils": "^3.5.11"
 	},

@@ -54,8 +54,16 @@
 		<div v-else class="params-empty">
 			<span>暂无请求参数，先添加一些请求参数吧！</span>
 		</div>
-
 		<el-divider></el-divider>
+		<el-row>
+			<el-text class="mx-1" size="large">请求体(Body-JSON)</el-text>
+		</el-row>
+		<div v-if="apiOperation.apiInfo.api_request_JSON">
+			<el-tree default-expand-all :data="treeData" :render-content="renderContent" />
+		</div>
+		<div v-else class="params-empty">
+			<span>暂无请求体信息，先添加一些请求参数吧！</span>
+		</div>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
@@ -76,6 +84,9 @@ import ResponseCard from '../components/ResponseCard.vue';
 import { apiStore } from '@/store/apis.ts';
 import { useRoute } from 'vue-router';
 import { getUserInfo } from '@/api/users';
+import type Node from 'element-plus/es/components/tree/src/model/node';
+import type { TreeNode } from '@/utils/convertSchemaToTree';
+import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
 
 const route = useRoute();
 const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
@@ -87,10 +98,80 @@ const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
 
+let treeData: TreeNode[] = [];
+
+// 使用h函数来渲染el-tree内部内容
+const renderContent = (
+	h: any,
+	{
+		node,
+		data,
+	}: {
+		node: Node;
+		data: TreeNode;
+	}
+) => {
+	return h(
+		'span',
+		{
+			class: 'custom-tree-node',
+		},
+		h(
+			'div',
+			{
+				style: 'display: flex; align-items: center;',
+			},
+			h(
+				'div',
+				{
+					style: 'background-color: #E4F4FC;padding: 3px 6px;border-radius: 5px;cursor: pointer;',
+				},
+				h(
+					'span',
+					{
+						style: 'color: #70BCFC',
+					},
+					node.label === 'root' ? '根节点' : node.label
+				)
+			),
+			h(
+				'span',
+				{},
+				h(
+					'span',
+					{
+						style: 'margin-left: 8px',
+					},
+					data.type
+				),
+				h(
+					'span',
+					{
+						style: 'margin-left: 8px; color: #999999;',
+					},
+					data.title
+				),
+				h(
+					'span',
+					{
+						style: 'margin-left: 8px; color :#FFB73A',
+					},
+					data.required ? '必填' : '选填'
+				)
+			)
+		),
+		h(
+			'span',
+			{
+				style: 'color: #999999; margin-left: 8px; font-size: 12px;',
+			},
+			data.description
+		)
+	);
+};
 const getInfo = async (thisId: number) => {
 	await apiOperation.getApiInfo(thisId);
 };
-
 const timestampToTime = (timestamp: number | null) => {
 	// 由于时差问题要加8小时 == 28800000毫秒
 	let date = timestamp ? new Date(timestamp + 28800000) : new Date();
@@ -114,6 +195,8 @@ watch(
 );
 
 onMounted(async () => {
+	console.log('apiOperation.apiInfo', apiOperation.apiInfo);
+	// 1. 处理人员名称
 	apiPrincipalName.value = (
 		await getUserInfo({
 			user_id: apiOperation.apiInfo.api_principal_id,
@@ -129,10 +212,20 @@ onMounted(async () => {
 			user_id: apiOperation.apiInfo.api_editor_id,
 		})
 	).data.result.userInfo.username;
+
+	// 2. 处理请求体：JSON_Schema To TreeNode
+	if (apiOperation.apiInfo.api_request_JSON) {
+		let rootSchema = JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body);
+		// 如果有root，将其取出先
+		if (rootSchema.root) {
+			rootSchema = rootSchema.root;
+		}
+		treeData = [convertSchemaToTree(rootSchema, 1, 'root')];
+	}
 });
 </script>
 
-<style lang="less">
+<style scoped lang="less">
 .index {
 	width: 1000px;
 	background-color: #fff;
@@ -155,7 +248,8 @@ onMounted(async () => {
 		background-color: #f5f7fa;
 		border-radius: 20px;
 		span {
-			color: #909399;
+			color: #999999;
+			font-size: 16px;
 		}
 	}
 
@@ -181,5 +275,15 @@ onMounted(async () => {
 		font-size: 32px;
 		font-weight: 600;
 	}
+}
+
+/* el-tree样式 */
+:deep(.el-tree-node__content) {
+	height: 50px;
+}
+:deep(.custom-tree-node) {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
 </style>

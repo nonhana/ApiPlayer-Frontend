@@ -91,7 +91,7 @@ export const deleteApi = (deleteInfo: DeleteInfo) => {
 // 运行api
 export const executeApi = (executeInfo: Execute) => {
 	return myAxios({
-		url: '/apis/executeapi',
+		url: '/apis/runapi',
 		method: 'POST',
 		data: executeInfo,
 	});

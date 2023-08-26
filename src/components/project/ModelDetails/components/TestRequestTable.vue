@@ -28,41 +28,24 @@
 <script lang="ts" setup>
 import { ref, toRefs, watch } from 'vue';
 
-const props = defineProps({
-	requestData: {
-		type: Object,
-		default() {
-			return {};
-		},
-	},
-});
+const props = defineProps<{
+	requestData: any;
+}>();
 const { requestData } = toRefs(props);
 let tableData = ref(requestData.value.params_list);
 
 watch(
 	props.requestData,
-	(newVal, oldVal) => {
+	(newVal, _) => {
 		if (newVal != undefined && newVal != null) {
 			requestData.value = newVal;
-			// if(JSON.stringify(requestData.value.params_list) == "{}"){
-			// 	requestData.value.params_list =
-
-			// }
 			console.log('newVal', newVal);
 		}
 	},
 	{ immediate: true, deep: true }
 );
 
-//失焦事件，使用事件对象拿到dom元素并进行后续样式的修改
-// const iptBlur = (value: any, e: any) => {
-// 	// e.target.style.background = 'pink'
-// 	let arr = tableData.value;
-// 	arr = arr.filter((value) => Object.keys(value).length != 0);
-// 	console.log('value', value);
-// };
-
-const handleAddDetails = (index) => {
+const handleAddDetails = (index: any) => {
 	let obj = {
 		name: '',
 		type: '',
@@ -72,13 +55,12 @@ const handleAddDetails = (index) => {
 };
 
 // 删除单个行
-const handleDelete = (index) => {
+const handleDelete = (index: any) => {
 	tableData.value.splice(index, 1);
 };
 </script>
 
 <style lang="less">
-// 设置表格中输入框为边框为0
 .ipt {
 	border: 0px;
 }

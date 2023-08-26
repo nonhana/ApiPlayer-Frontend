@@ -159,3 +159,12 @@ export const deleteProject = (paramsList: { project_id: number }) => {
 		data: paramsList,
 	});
 };
+
+// mock
+export const mock = (paramsList: JSON) => {
+	return myAxios({
+		url: '/projects/mock',
+		method: 'POST',
+		data: paramsList,
+	});
+};

@@ -47,7 +47,7 @@
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
 		<el-row>
-			<div v-if="apiInfo.api_request_params">
+			<div v-if="apiInfo.api_request_params" v-loading="gettingInfo">
 				<el-tabs v-model="activeName" class="edit-tabs">
 					<el-tab-pane label="Params" name="first">
 						<ParamsAndHeader :request-data="apiInfo.api_request_params[0]"></ParamsAndHeader>
@@ -61,7 +61,7 @@
 								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
-								<el-input v-model="apiInfo.api_request_JSON" :rows="4" type="textarea" />
+								<el-input v-model="JSON_body" :rows="4" type="textarea" />
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onBeforeMount } from 'vue';
 import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
@@ -115,6 +115,8 @@ const route = useRoute();
 const baseStore = useBaseStore();
 const apiOperation = apiStore();
 const apiInfo = ref<any>(apiOperation.apiInfo);
+const JSON_body = ref<string>('');
+const gettingInfo = ref<boolean>(false);
 interface RequestParams {
 	type: number;
 	params_list: Array<{
@@ -233,7 +235,6 @@ watch(
 				}
 			}
 			apiInfo.value.api_request_params = requestParams;
-			console.log('apiInfo', apiInfo.value.api_request_params);
 		}
 	},
 	{ immediate: true, deep: true }
@@ -242,8 +243,11 @@ watch(
 	() => route.query.api_id,
 	async (newV, _) => {
 		if (newV) {
+			gettingInfo.value = true;
 			await apiOperation.getApiInfo(Number(newV));
 			apiInfo.value = apiOperation.apiInfo;
+			JSON_body.value = apiInfo.value.api_request_JSON ? apiInfo.value.api_request_JSON.JSON_body : '';
+			gettingInfo.value = false;
 		}
 	},
 	{ immediate: true, deep: true }
@@ -267,7 +271,7 @@ const saveApiInfo = async () => {
 		api_editor_id: apiInfo.value.api_editor_id,
 		api_desc: apiInfo.value.api_desc,
 		api_request_params: apiInfo.value.api_request_params,
-		api_request_JSON: apiInfo.value.api_request_JSON,
+		api_request_JSON: JSON_body.value,
 		api_responses: apiInfo.value.api_responses.map((item: any) => {
 			return {
 				http_status: Number(item.http_status),
@@ -276,7 +280,7 @@ const saveApiInfo = async () => {
 			};
 		}),
 	};
-	console.log('saveBody', saveBody);
+	console.log('saveBody', saveBody, JSON.stringify(saveBody));
 	const res = await updateApi(saveBody);
 	console.log(res.data);
 	if (res.status == 200) {
@@ -323,7 +327,7 @@ const saveResponse = (para: any) => {
 	apiInfo.value.api_responses[resActiveName.value].response_body = para;
 };
 
-onMounted(async () => {
+onBeforeMount(async () => {
 	// 获取到当前项目的成员列表
 	candidateList.value = baseStore.teamDetailedInfo.project_list
 		.find((item) => item.project_id === Number(route.params.project_id))!
