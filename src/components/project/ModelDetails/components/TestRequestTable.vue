@@ -45,17 +45,16 @@ watch(
 	{ immediate: true, deep: true }
 );
 
-const handleAddDetails = (index: any) => {
+const handleAddDetails = (index: number) => {
 	let obj = {
-		name: '',
-		type: '',
-		desc: '',
+		param_name: '',
+		param_value: '',
 	};
 	tableData.value.splice(index + 1, 0, obj);
 };
 
 // 删除单个行
-const handleDelete = (index: any) => {
+const handleDelete = (index: number) => {
 	tableData.value.splice(index, 1);
 };
 </script>

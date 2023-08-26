@@ -61,7 +61,12 @@
 								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
-								<el-input v-model="JSON_body" :rows="4" type="textarea" />
+								<!-- <el-input v-model="JSON_body" :rows="4" type="textarea" /> -->
+								<!-- <RequestJsonSchemaEditor :requestData="apiInfo.api_request_JSON" @send-request="saverequest" /> -->
+								<!-- <RequestJsonSchemaEditor :response-data="apiInfo.api_request_JSON" @send-response="saveResponse" /> -->
+								<JsonSchemaEditor :response-data="requestJSON" @send-response="saveRequest" />
+								<!-- <JsonSchemaEditor :response-data="apiInfo.api_responses[0].response_body" @send-response="saveResponse" /> -->
+								<!-- <JsonSchemaEditor :response-data="apiInfo.api_responses[1].response_body" @send-response="saveResponse" /> -->
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
@@ -90,7 +95,7 @@
 						<el-col :span="6">HTTP状态码：<el-input v-model="item.http_status" size="large" /></el-col>
 						<el-col :span="6" style="margin-left: 20px">响应组件名称<el-input v-model="item.response_name" size="large" /></el-col>
 					</el-row>
-					<JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" />
+					<!-- <JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" /> -->
 				</el-tab-pane>
 			</el-tabs>
 		</el-row>
@@ -98,11 +103,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeMount } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
+// import RequestJsonSchemaEditor from '../components/RequestJsonSchemaEditor.vue';
 import { updateApi, deleteApi } from '@/api/apis.ts';
 import { useRoute } from 'vue-router';
 import { ElNotification } from 'element-plus';
@@ -222,6 +228,13 @@ const statusOptions = [
 	},
 ];
 
+const requestJSON = ref({
+	root: {
+		type: 'object',
+		properties: {},
+	},
+});
+
 watch(
 	apiOperation.apiInfo,
 	(newVal, _) => {
@@ -327,7 +340,11 @@ const saveResponse = (para: any) => {
 	apiInfo.value.api_responses[resActiveName.value].response_body = para;
 };
 
-onBeforeMount(async () => {
+const saveRequest = (para: any) => {
+	apiInfo.value.api_request_JSON = para;
+};
+
+onMounted(async () => {
 	// 获取到当前项目的成员列表
 	candidateList.value = baseStore.teamDetailedInfo.project_list
 		.find((item) => item.project_id === Number(route.params.project_id))!
