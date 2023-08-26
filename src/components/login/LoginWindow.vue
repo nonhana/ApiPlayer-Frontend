@@ -212,8 +212,7 @@ const myLogin = (type: number) => {
 				async (res) => {
 					if (res.data) {
 						localStorage.setItem('token', res.data.result.token);
-						const userInfoSource = (await getUserInfo()).data.result.userInfo;
-						// console.log('userInfoSource', userInfoSource);
+						const userInfoSource = (await getUserInfo({})).data.result.userInfo;
 						const userInfo = {
 							user_id: userInfoSource.user_id ?? 1,
 							user_name: userInfoSource.username,
@@ -221,12 +220,8 @@ const myLogin = (type: number) => {
 							user_email: userInfoSource.email,
 							user_sign: userInfoSource.introduce,
 						} as UserInfo;
-
 						localStorage.setItem('userInfo', JSON.stringify(userInfo));
-						// console.log('id:', userInfo.user_id);
 						store.setUserInfo(userInfo);
-						console.log(store.user_info);
-						// router.push({ name: 'home' });
 						router.push({ name: 'main' });
 						ElNotification({
 							title: '登录成功',

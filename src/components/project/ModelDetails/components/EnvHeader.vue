@@ -61,7 +61,7 @@
 										<el-table-column prop="variable_value" label="Value" width="140" />
 										<el-table-column prop="variable_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
-											<template #default="scope" v-if="canModifyGlobalSettings">
+											<template v-if="canModifyGlobalSettings" #default="scope">
 												<el-button type="primary" @click="paramAndVarAction(scope.$index, scope.row, 0, 0)">Edit</el-button>
 												<el-button type="danger" @click="paramAndVarAction(scope.$index, scope.row, 1, 0)">Delete</el-button>
 											</template>
@@ -85,7 +85,7 @@
 										<el-table-column prop="param_value" label="Value" width="140" />
 										<el-table-column prop="param_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
-											<template #default="scope" v-if="canModifyGlobalSettings">
+											<template v-if="canModifyGlobalSettings" #default="scope">
 												<el-button type="primary" @click="paramAndVarAction(scope.$index, scope.row, 0, 1)">Edit</el-button>
 												<el-button type="danger" @click="paramAndVarAction(scope.$index, scope.row, 1, 1)">Delete</el-button>
 											</template>
@@ -98,7 +98,7 @@
 							</div>
 							<div v-if="currentEditTable === '2-1'" class="envBox">
 								<span>baseUrl：</span>
-								<el-input :disabled="canEditBaseUrl" v-model="envList[0].env_baseurl"></el-input>
+								<el-input v-model="envList[0].env_baseurl" :disabled="canEditBaseUrl"></el-input>
 							</div>
 							<div v-if="currentEditTable === '2-2'" class="envBox">
 								<span>baseUrl：</span>

@@ -43,7 +43,6 @@
 				</el-aside>
 				<el-main>
 					<router-view />
-					<!-- <MainWindow></MainWindow> -->
 				</el-main>
 			</el-container>
 		</div>

@@ -2,7 +2,7 @@
 	<div class="index">
 		<div class="window">
 			<div class="img">
-				<img src="../../static/svg/LoginLogo.svg" />
+				<img src="@/static/svg/LoginLogo.svg" />
 			</div>
 			<LoginWindow />
 		</div>
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import LoginWindow from '../../components/login/LoginWindow.vue';
+import LoginWindow from '@/components/login/LoginWindow.vue';
 </script>
 
 <style scoped lang="less">

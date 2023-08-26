@@ -124,13 +124,11 @@ import { Search, Plus } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 import { ProjectRole } from '@/utils/projectPermission';
-import { usePermisssiontStore } from '@/store/permissons';
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
 
 const baseStore = useBaseStore();
-const permissonStore = usePermisssiontStore();
 
 const route = useRoute();
 const colorMap = new Map().set(0, 'danger').set(1, 'warning').set(2, 'success').set(3, 'info');
@@ -226,32 +224,11 @@ const confirmCropper = async () => {
 	}
 };
 
-// onBeforeMount(async () => {
-// 	const id = route.params.team_id;
-// 	await baseStore.getTeamInfo(Number(id));
-// 	console.log('teaminfo', baseStore.teamDetailedInfo);
-
-// 	let projectRoleList: Map<number, ProjectRole> = new Map();
-// 	for (let item of baseStore.teamDetailedInfo.project_list) {
-// 		const identity: ProjectRole = item.project_member_list.filter((it) => {
-// 			return it.user_id === baseStore.user_info.user_id;
-// 		})[0].user_identity;
-
-// 		// console.log(identity);
-// 		projectRoleList.set(item.project_id, identity);
-// 	}
-// 	// console.log(projectRoleList);
-// 	permissonStore.setProjectRoleList(projectRoleList);
-// 	console.log(permissonStore.getProjectRoleList());
-// });
-
 watch(
 	() => route.params.team_id,
 	async (newV, _) => {
 		if (newV) {
 			await baseStore.getTeamInfo(Number(newV));
-
-			// console.log('teaminfo', baseStore.teamDetailedInfo);
 
 			let projectRoleList: any = {};
 			for (let item of baseStore.teamDetailedInfo.project_list) {
@@ -259,17 +236,18 @@ watch(
 					return it.user_id === baseStore.user_info.user_id;
 				})[0].user_identity;
 
-				// projectRoleList.set(item.project_id, identity);
 				projectRoleList[item.project_id] = identity;
 			}
-			// console.log(projectRoleList);
 			baseStore.setProjectRoleList(projectRoleList);
-			// permissonStore.setProjectRoleList(projectRoleList);
 			console.log('proRole', baseStore.projectRoleList);
 		}
 	},
 	{ immediate: true, deep: true }
 );
+
+onBeforeMount(async () => {
+	await baseStore.getTeamInfo(Number(route.params.team_id));
+});
 </script>
 
 <style scoped lang="less">
@@ -295,7 +273,6 @@ watch(
 	.team-middle {
 		width: 100%;
 		display: flex;
-		// justify-content: space-between;
 
 		.tabs {
 			width: 100%;

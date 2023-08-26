@@ -124,7 +124,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="container" v-if="baseStore.disbandBtnVisible">
+		<div v-if="baseStore.disbandBtnVisible" class="container">
 			<div class="container-header warning">
 				<el-icon size="15"><WarnTriangleFilled /></el-icon>危险区域
 			</div>

@@ -66,12 +66,12 @@ const teamConstance = {
 	GUEST: 3,
 };
 
-enum ProjectRole {
-	ADMIN = 0,
-	EDITOR = 1,
-	READ_ONLY = 2,
-	NO_ACCESS = 3,
-}
+// enum ProjectRole {
+// 	ADMIN = 0,
+// 	EDITOR = 1,
+// 	READ_ONLY = 2,
+// 	NO_ACCESS = 3,
+// }
 
 export const useBaseStore = defineStore(Names.Base, {
 	state: () => {

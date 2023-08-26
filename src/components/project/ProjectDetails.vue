@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onBeforeMount, watch, computed, nextTick } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import Doc from './ModelDetails/doc/index.vue';
 import Edit from './ModelDetails/edit/index.vue';
 import Test from './ModelDetails/test/index.vue';
@@ -69,8 +69,8 @@ const canEditDoc = computed(() => {
 
 onBeforeRouteUpdate((to) => {
 	console.log('to', to);
-	if (thisId) {
-		getInfo(to.query.api_id);
+	if (thisId.value) {
+		getInfo(Number(to.query.api_id));
 	}
 });
 
