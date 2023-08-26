@@ -94,7 +94,7 @@
 						<el-col :span="6">HTTP状态码：<el-input v-model="item.http_status" size="large" /></el-col>
 						<el-col :span="6" style="margin-left: 20px">响应组件名称<el-input v-model="item.response_name" size="large" /></el-col>
 					</el-row>
-					<!-- <JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" /> -->
+					<JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" />
 				</el-tab-pane>
 			</el-tabs>
 		</el-row>
@@ -245,6 +245,9 @@ watch(
 				}
 			}
 			apiInfo.value.api_request_params = requestParams;
+			if (newVal.api_request_JSON && newVal.api_request_JSON.root) {
+				requestJSON.value.root = newVal.api_request_JSON.root;
+			}
 		}
 	},
 	{ immediate: true, deep: true }
@@ -278,7 +281,7 @@ const saveApiInfo = async () => {
 		api_editor_id: apiInfo.value.api_editor_id,
 		api_desc: apiInfo.value.api_desc,
 		api_request_params: apiInfo.value.api_request_params,
-		api_request_JSON: apiInfo.value.api_request_JSON,
+		api_request_JSON: requestJSON.value,
 		api_responses: apiInfo.value.api_responses.map((item: any) => {
 			return {
 				http_status: Number(item.http_status),

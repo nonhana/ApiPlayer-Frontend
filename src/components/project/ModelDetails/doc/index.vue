@@ -82,7 +82,7 @@ const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-
 const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
 
 const apiOperation = apiStore();
-const activeName = ref<string>('0');
+const activeName = ref<number>(0);
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
