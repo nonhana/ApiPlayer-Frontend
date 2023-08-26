@@ -42,9 +42,13 @@
 			<div v-for="(item, index) in apiOperation.apiInfo.api_request_params" :key="index">
 				<el-text class="mx-1" size="large">{{ map.get(item.type) }}</el-text>
 				<el-row>
-					<el-table :data="item.params_list" border style="width: 100%">
-						<el-table-column prop="param_name" label="name" />
-						<el-table-column prop="param_type" label="type" />
+					<el-table :data="item.params_list" border style="width: 95%">
+						<el-table-column prop="param_name" label="name" width="200" />
+						<el-table-column prop="param_type" label="type" width="200">
+							<template #default="scope">
+								{{ requestMap.get(scope.row.param_type) }}
+							</template>
+						</el-table-column>
 						<el-table-column prop="param_desc" label="desc" />
 					</el-table>
 				</el-row>
@@ -52,22 +56,28 @@
 			</div>
 		</div>
 		<div v-else class="params-empty">
-			<span>暂无请求参数，先添加一些请求参数吧！</span>
+			<span>{{ emptyRequestWarning }}</span>
 		</div>
 
 		<el-divider></el-divider>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
-		<el-row>
-			<el-tabs v-model="activeName" type="card" class="doc-tabs">
-				<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
-					<el-tab-pane :label="item.response_name" :name="index">
-						<ResponseCard :context="item" />
-					</el-tab-pane>
-				</div>
-			</el-tabs>
-		</el-row>
+		<div v-if="apiOperation.apiInfo.api_responses.length > 0">
+			<el-row>
+				<el-tabs v-model="activeName" type="card" class="doc-tabs">
+					<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
+						<el-tab-pane :label="item.response_name" :name="index">
+							<ResponseCard :context="item" />
+						</el-tab-pane>
+					</div>
+				</el-tabs>
+			</el-row>
+		</div>
+		<div v-else class="params-empty">
+			<span>{{ emptyResponseWarning }}</span>
+		</div>
+		<div style="height: 20px"></div>
 	</div>
 </template>
 <script setup lang="ts">
@@ -80,12 +90,15 @@ import { getUserInfo } from '@/api/users';
 const route = useRoute();
 const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
 const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
+const requestMap = new Map().set(0, 'number').set(1, 'integer').set(2, 'string').set(3, 'array');
 
 const apiOperation = apiStore();
 const activeName = ref<number>(0);
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
+const emptyRequestWarning: string = '暂无请求参数，先添加一些请求参数吧！';
+const emptyResponseWarning: string = '暂无返回响应，先添加一些请求参数吧！';
 
 const getInfo = async (thisId: number) => {
 	await apiOperation.getApiInfo(thisId);
@@ -147,7 +160,7 @@ onMounted(async () => {
 	}
 
 	.params-empty {
-		width: 100%;
+		width: 98%;
 		height: 100px;
 		display: flex;
 		justify-content: center;

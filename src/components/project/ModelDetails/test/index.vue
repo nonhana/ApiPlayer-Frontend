@@ -2,23 +2,17 @@
 	<div class="index">
 		<el-row>
 			<el-col :span="2">
-				<!-- <el-select v-model="api_method" class="m-2" placeholder="Select" size="large">
-					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-				</el-select> -->
-				<el-tag type="" class="mx-1" effect="dark" round size="large">
-					{{ apiInfo.api_method }}
-				</el-tag>
+				<el-button type="primary" round size="large">{{ apiInfo.api_method }}</el-button>
 			</el-col>
-			<el-col :span="18">
+			<el-col :span="17">
 				<el-input v-model="apiInfo.api_url" size="large" />
 			</el-col>
 			<el-col :span="4">
 				<el-button type="primary" round size="large" style="margin-left: 20px" @click="runApi">运行</el-button>
-				<!-- <el-button type="primary" round size="large" @click="saveApi">保存</el-button> -->
 			</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 5px">
-			<span>请求参数</span>
+			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
 		<el-row>
 			<div>
@@ -35,7 +29,7 @@
 								<TestRequestTable :requestData="requestParams[2]" />
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
-								<el-input v-model="requestJSON" :rows="4" type="textarea" />
+								<el-input style="width: 800px" v-model="requestJSON" :rows="4" type="textarea" />
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
@@ -49,7 +43,7 @@
 			</div>
 		</el-row>
 		<el-row>
-			<span>返回响应</span>
+			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
 		<el-row v-if="result.result_code">
 			<el-row>
@@ -61,6 +55,7 @@
 				</el-tabs>
 			</el-row>
 		</el-row>
+		<div style="height: 20px"></div>
 	</div>
 </template>
 
