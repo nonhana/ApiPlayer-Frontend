@@ -2,7 +2,7 @@
 	<div class="index">
 		<el-row>
 			<el-col :span="2">
-				<el-button type="primary" round size="large">{{ apiInfo.api_method }}</el-button>
+				<el-button type="primary" round size="large">{{ apiInfo.api_method.toUpperCase() }}</el-button>
 			</el-col>
 			<el-col :span="17">
 				<el-input v-model="apiInfo.api_url" size="large" />

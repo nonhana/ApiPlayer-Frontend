@@ -189,19 +189,19 @@ const candidateList = ref<
 const options = [
 	{
 		value: 'post',
-		label: 'post',
+		label: 'POST',
 	},
 	{
 		value: 'get',
-		label: 'get',
+		label: 'GET',
 	},
 	{
 		value: 'put',
-		label: 'put',
+		label: 'PUT',
 	},
 	{
 		value: 'delete',
-		label: 'delete',
+		label: 'DELETE',
 	},
 ];
 
