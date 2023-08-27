@@ -186,7 +186,7 @@ const requestParams = ref<RequestParams[]>([
 	},
 ]);
 
-const JSON_body = ref<object>({
+const JSON_body = ref<any>({
 	root: {
 		type: 'object',
 		properties: {},
@@ -199,13 +199,6 @@ const candidateList = ref<
 		value: number;
 	}[]
 >([]);
-
-const JSON_body = ref<object>({
-	root: {
-		type: 'object',
-		properties: {},
-	},
-});
 
 const options = [
 	{
