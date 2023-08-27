@@ -11,8 +11,7 @@
     "types": [
       "element-plus/global.d.ts"
     ],
-    
-    // "allowJs": true,
+    "allowJs": true,
     "skipLibCheck": true,
     /* Bundler mode */
     // "moduleResolution": "bundler",
