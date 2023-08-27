@@ -79,6 +79,8 @@ watch(
 
 <style scoped lang="less">
 .ProjectDetails-wrap {
+	background-color: #fff;
+
 	.el-tabs--border-card {
 		min-width: 1000px;
 

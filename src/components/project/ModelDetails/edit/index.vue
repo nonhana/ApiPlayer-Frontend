@@ -122,7 +122,6 @@ const route = useRoute();
 const baseStore = useBaseStore();
 const apiOperation = apiStore();
 const apiInfo = ref<any>({});
-const JSON_body = ref<any>({});
 const apiPrincipalName = ref<string>('');
 const gettingInfo = ref<boolean>(false);
 const fullscreenLoading = ref<boolean>(false);
@@ -186,6 +185,14 @@ const requestParams = ref<RequestParams[]>([
 		],
 	},
 ]);
+
+const JSON_body = ref<object>({
+	root: {
+		type: 'object',
+		properties: {},
+	},
+});
+
 const candidateList = ref<
 	{
 		label: string;
@@ -333,7 +340,7 @@ watch(
 					});
 				});
 			}
-			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : {};
+			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : JSON_body.value;
 			if (!JSON_body.value.root) {
 				JSON_body.value = {
 					root: JSON_body.value,
