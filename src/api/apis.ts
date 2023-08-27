@@ -49,7 +49,7 @@ export interface ApiRequestParam {
 }
 export interface ExecuteParamsList {
 	param_name: string;
-	param_value: string;
+	param_value: string | number;
 }
 
 // 获取api数据

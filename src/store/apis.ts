@@ -13,6 +13,7 @@ export const apiStore = defineStore('apiStore', {
 				api_id: apiId,
 			});
 			this.apiInfo = res.data.api_info;
+			console.log('apiOperation.apiInfo', this.apiInfo);
 		},
 	},
 	persist: true,

@@ -2,7 +2,7 @@
 	<div class="index">
 		<el-row>
 			<el-col :span="2">
-				<el-button type="primary" round size="large">{{ apiInfo.api_method.toUpperCase() }}</el-button>
+				<el-button type="primary" round size="large">{{ apiInfo.api_method }}</el-button>
 			</el-col>
 			<el-col :span="18">
 				<el-input v-model="apiInfo.api_url" disabled size="large" />
@@ -17,7 +17,7 @@
 		<el-row>
 			<div>
 				<el-tabs v-model="activeName" class="edit-tabs">
-					<el-tab-pane label="Parmas" name="first">
+					<el-tab-pane label="Params" name="first">
 						<TestRequestTable :request-data="requestParams[0]" />
 					</el-tab-pane>
 					<el-tab-pane label="Body" name="second">
@@ -83,7 +83,6 @@
 import { ref, reactive, watch } from 'vue';
 import { apiStore } from '@/store/apis.ts';
 import TestRequestTable from '../components/TestRequestTable.vue';
-import { onBeforeRouteUpdate } from 'vue-router';
 import { executeApi } from '@/api/apis.ts';
 import { mock } from '@/api/projects';
 import { ElNotification } from 'element-plus';
@@ -114,7 +113,14 @@ const responseActiveName = ref('first');
 
 const map = new Map().set(0, 'success').set(1, 'fail');
 
-const requestParams = ref([
+interface RequestParams {
+	type: number;
+	params_list: {
+		param_name: string;
+		param_value: string | number;
+	}[];
+}
+const requestParams = ref<RequestParams[]>([
 	{
 		type: 0,
 		params_list: [
@@ -171,31 +177,6 @@ const result = ref({
 	result: '',
 });
 
-watch(
-	apiOperation.apiInfo,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			apiInfo.value = newVal;
-			for (let i = 0; i < requestParams.value.length; i++) {
-				for (let j = 0; j < apiInfo.value.api_request_params.length; j++) {
-					if (requestParams.value[i].type == apiInfo.value.api_request_params[j].type) {
-						requestParams.value[i] = apiInfo.value.api_request_params[j];
-					}
-				}
-			}
-			apiInfo.value.api_request_params = requestParams;
-		}
-	},
-	{ immediate: true, deep: true }
-);
-const getInfo = async (thisId: number) => {
-	await apiOperation.getApiInfo(thisId);
-	apiInfo.value = apiOperation.apiInfo;
-};
-onBeforeRouteUpdate((to) => {
-	getInfo(Number(to.query.api_id));
-});
-
 // mock数据，仅限Body-JSON
 const executeMock = async () => {
 	const res = await mock(JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body));
@@ -205,7 +186,6 @@ const executeMock = async () => {
 	}
 	requestJSON.value = JSON.stringify(res.data, null, 2);
 };
-
 // 运行api
 const runApi = async () => {
 	let requestBody = {
@@ -237,6 +217,29 @@ const runApi = async () => {
 		});
 	}
 };
+
+watch(
+	() => apiOperation.apiInfo,
+	(newV, _) => {
+		if (newV) {
+			apiInfo.value = newV;
+			if (newV.api_request_params.length > 0) {
+				requestParams.value.forEach((item) => {
+					newV.api_request_params.forEach((item2: any) => {
+						if (item.type == item2.type) {
+							item2.params_list.forEach((item3: any, index: number) => {
+								item.params_list[index] = {
+									param_name: item3.param_name,
+									param_value: item3.param_type === 2 ? '' : 0,
+								};
+							});
+						}
+					});
+				});
+			}
+		}
+	}
+);
 </script>
 
 <style lang="less" scoped>

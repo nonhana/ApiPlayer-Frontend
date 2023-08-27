@@ -1,16 +1,35 @@
 <template>
 	<div class="index">
 		<div class="window">
-			<div class="img">
+			<div
+				:style="{
+					opacity: opacityList[0],
+				}"
+				class="img"
+			>
 				<img src="@/static/svg/LoginLogo.svg" />
 			</div>
-			<LoginWindow />
+			<div :style="{ opacity: opacityList[1] }" class="login-window">
+				<LoginWindow />
+			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import LoginWindow from '@/components/login/LoginWindow.vue';
+
+const opacityList = ref([0, 0]);
+
+onMounted(() => {
+	setTimeout(() => {
+		opacityList.value = [1, 0];
+		setTimeout(() => {
+			opacityList.value = [1, 1];
+		}, 500);
+	}, 100);
+});
 </script>
 
 <style scoped lang="less">
@@ -29,6 +48,10 @@ import LoginWindow from '@/components/login/LoginWindow.vue';
 			position: relative;
 			display: flex;
 			justify-content: center;
+			transition: all 0.5s;
+		}
+		.login-window {
+			transition: all 0.5s;
 		}
 	}
 }

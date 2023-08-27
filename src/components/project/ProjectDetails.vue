@@ -39,11 +39,10 @@ import ChooseApi from './ModelDetails/components/ChooseApi.vue';
 import SideBar from './ModelDetails/components/SideBar.vue';
 import EnvHeader from './ModelDetails/components/EnvHeader.vue';
 import SideNav from './ModelSettings/SideNav.vue';
-import { onBeforeRouteUpdate } from 'vue-router';
 import { useBaseStore } from '@/store/index';
 import { ProjectRole } from '@/utils/projectPermission';
-const baseStore = useBaseStore();
 
+const baseStore = useBaseStore();
 const activeName = ref('first');
 
 // 点击运行跳转
@@ -53,37 +52,18 @@ const jumpRunApi = () => {
 
 const route = useRoute();
 const apiOperation = apiStore();
-const apiInfo = ref(apiOperation.apiInfo);
 const thisId = ref<number>(0);
 const fetching = ref<boolean>(false);
 
 const getInfo = async (thisId: number) => {
 	fetching.value = true;
 	await apiOperation.getApiInfo(thisId);
-	apiInfo.value = apiOperation.apiInfo;
 	fetching.value = false;
 };
 
 const canEditDoc = computed(() => {
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
 });
-
-onBeforeRouteUpdate((to) => {
-	console.log('to', to);
-	if (thisId.value) {
-		getInfo(Number(to.query.api_id));
-	}
-});
-
-watch(
-	apiOperation.apiInfo,
-	(newV, _) => {
-		if (newV != undefined && newV != null) {
-			apiInfo.value = newV;
-		}
-	},
-	{ immediate: true, deep: true }
-);
 
 watch(
 	() => route.query.api_id,
@@ -92,7 +72,6 @@ watch(
 		if (thisId.value) {
 			getInfo(thisId.value);
 		}
-		apiInfo.value = apiOperation.apiInfo;
 	},
 	{ immediate: true, deep: true }
 );

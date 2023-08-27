@@ -16,48 +16,11 @@
 					</el-form-item>
 				</el-row>
 			</el-form>
-			<span class="tip">点击切换<span @click="loginType = 1">手机号登录</span></span>
 			<el-row type="flex" justify="center">
 				<div class="button" @click="loginType = 2">
 					<span>注册</span>
 				</div>
 				<div class="button" @click="myLogin(0)">
-					<span>登录</span>
-				</div>
-			</el-row>
-		</div>
-		<div v-if="loginType === 1" class="content">
-			<span class="title">登录</span>
-			<el-form :model="userLoginForm" :rules="loginRules">
-				<el-row type="flex" justify="space-between" class="form-box">
-					<span>手机号</span>
-					<el-form-item prop="phone_number">
-						<el-input v-model="userLoginForm.phone_number" placeholder="请输入手机号" style="width: 250px" />
-					</el-form-item>
-				</el-row>
-				<el-row type="flex" justify="space-between" class="form-box">
-					<span>验证码</span>
-					<div style="width: 250px; display: flex; justify-content: space-between">
-						<el-form-item prop="verify_code">
-							<el-input v-model="userLoginForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
-						</el-form-item>
-						<el-button style="height: 40px" color="#59A8B9" :disabled="verifyCodeStatus" @click="sendVerifyCode"
-							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
-							<span v-else class="button-text">
-								已发送
-								{{ verifyCodeTimer + 's' }}
-							</span></el-button
-						>
-					</div>
-				</el-row>
-			</el-form>
-
-			<span class="tip">点击切换<span @click="loginType = 0">邮箱登录</span></span>
-			<el-row type="flex" justify="center">
-				<div class="button">
-					<span @click="loginType = 2">注册</span>
-				</div>
-				<div class="button" @click="myLogin(1)">
 					<span>登录</span>
 				</div>
 			</el-row>

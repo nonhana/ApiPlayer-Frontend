@@ -52,7 +52,6 @@ export const convertSchemaToTreeAsync = async (schema: SchemaNode, parentId: num
 				});
 				promises.push(promise);
 			});
-
 			Promise.all(promises).then(() => {
 				resolve(treeNode);
 			});

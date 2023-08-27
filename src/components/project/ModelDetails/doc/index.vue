@@ -66,7 +66,7 @@
 			<el-tree default-expand-all :data="treeData" :render-content="renderContent" />
 		</div>
 		<div v-else class="params-empty">
-			<span>暂无请求体信息，先添加一些请求参数吧！</span>
+			<span>暂无请求体信息</span>
 		</div>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
@@ -91,16 +91,14 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import ResponseCard from '../components/ResponseCard.vue';
 import { apiStore } from '@/store/apis.ts';
-import { useRoute } from 'vue-router';
 import { getUserInfo } from '@/api/users';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { TreeNode } from '@/utils/convertSchemaToTree';
 import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
 
-const route = useRoute();
 const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
 const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
 const requestMap = new Map().set(0, 'number').set(1, 'integer').set(2, 'string').set(3, 'array');
@@ -112,8 +110,8 @@ const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
 const treeBuilding = ref<boolean>(false);
-const emptyRequestWarning: string = '暂无请求参数，先添加一些请求参数吧！';
-const emptyResponseWarning: string = '暂无返回响应，先添加一些请求参数吧！';
+const emptyRequestWarning: string = '暂无请求参数';
+const emptyResponseWarning: string = '暂无返回响应';
 
 let treeData: TreeNode[] = [];
 
@@ -186,9 +184,6 @@ const renderContent = (
 		)
 	);
 };
-const getInfo = async (thisId: number) => {
-	await apiOperation.getApiInfo(thisId);
-};
 const timestampToTime = (timestamp: number | null) => {
 	// 由于时差问题要加8小时 == 28800000毫秒
 	let date = timestamp ? new Date(timestamp + 28800000) : new Date();
@@ -202,31 +197,30 @@ const timestampToTime = (timestamp: number | null) => {
 };
 
 watch(
-	() => route.query.api_id,
+	() => apiOperation.apiInfo,
 	async (newV, _) => {
 		if (newV) {
-			await getInfo(Number(newV));
-			apiResponses.value = apiOperation.apiInfo.api_responses;
+			apiResponses.value = newV.api_responses;
 			// 1. 处理人员名称
 			apiPrincipalName.value = (
 				await getUserInfo({
-					user_id: apiOperation.apiInfo.api_principal_id,
+					user_id: newV.api_principal_id,
 				})
 			).data.result.userInfo.username;
 			apiCreatorName.value = (
 				await getUserInfo({
-					user_id: apiOperation.apiInfo.api_creator_id,
+					user_id: newV.api_creator_id,
 				})
 			).data.result.userInfo.username;
 			apiEditorName.value = (
 				await getUserInfo({
-					user_id: apiOperation.apiInfo.api_editor_id,
+					user_id: newV.api_editor_id,
 				})
 			).data.result.userInfo.username;
 			treeBuilding.value = true;
 			// 2. 处理请求体：JSON_Schema To TreeNode
-			if (apiOperation.apiInfo.api_request_JSON) {
-				let rootSchema = JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body);
+			if (newV.api_request_JSON) {
+				let rootSchema = JSON.parse(newV.api_request_JSON.JSON_body);
 				// 如果有root，将其取出先
 				if (rootSchema.root) {
 					rootSchema = rootSchema.root;
@@ -237,38 +231,6 @@ watch(
 		}
 	}
 );
-
-onMounted(async () => {
-	await getInfo(Number(route.query.api_id));
-	apiResponses.value = apiOperation.apiInfo.api_responses;
-	// 1. 处理人员名称
-	apiPrincipalName.value = (
-		await getUserInfo({
-			user_id: apiOperation.apiInfo.api_principal_id,
-		})
-	).data.result.userInfo.username;
-	apiCreatorName.value = (
-		await getUserInfo({
-			user_id: apiOperation.apiInfo.api_creator_id,
-		})
-	).data.result.userInfo.username;
-	apiEditorName.value = (
-		await getUserInfo({
-			user_id: apiOperation.apiInfo.api_editor_id,
-		})
-	).data.result.userInfo.username;
-	// 2. 处理请求体：JSON_Schema To TreeNode
-	if (apiOperation.apiInfo.api_request_JSON) {
-		treeBuilding.value = true;
-		let rootSchema = JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body);
-		// 如果有root，将其取出
-		if (rootSchema.root) {
-			rootSchema = rootSchema.root;
-		}
-		treeData = [convertSchemaToTree(rootSchema, 1, 'root')];
-		treeBuilding.value = false;
-	}
-});
 </script>
 
 <style scoped lang="less">

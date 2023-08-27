@@ -55,15 +55,15 @@
 			<div v-if="apiInfo.api_request_params" v-loading="gettingInfo">
 				<el-tabs v-model="activeName" class="edit-tabs">
 					<el-tab-pane label="Params" name="first">
-						<ParamsAndHeader :request-data="apiInfo.api_request_params[0]"></ParamsAndHeader>
+						<ParamsAndHeader :request-data="requestParams[0]"></ParamsAndHeader>
 					</el-tab-pane>
 					<el-tab-pane label="Body" name="second">
 						<el-tabs v-model="bodyActiveName" class="body-tabs">
 							<el-tab-pane label="form-data" name="bodyFirst">
-								<ParamsAndHeader :request-data="apiInfo.api_request_params[1]"></ParamsAndHeader>
+								<ParamsAndHeader :request-data="requestParams[1]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="x-www-form-unlencoded" name="bodySecond">
-								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
+								<ParamsAndHeader :request-data="requestParams[2]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
 								<JsonSchemaEditor style="width: 920px" :response-data="JSON_body" @send-response="saveRequest" />
@@ -71,10 +71,10 @@
 						</el-tabs>
 					</el-tab-pane>
 					<el-tab-pane label="Cookie" name="third">
-						<ParamsAndHeader :request-data="apiInfo.api_request_params[3]"></ParamsAndHeader>
+						<ParamsAndHeader :request-data="requestParams[3]"></ParamsAndHeader>
 					</el-tab-pane>
 					<el-tab-pane label="Header" name="fourth">
-						<ParamsAndHeader :request-data="apiInfo.api_request_params[4]"></ParamsAndHeader>
+						<ParamsAndHeader :request-data="requestParams[4]"></ParamsAndHeader>
 					</el-tab-pane>
 				</el-tabs>
 			</div>
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
@@ -231,42 +231,6 @@ const statusOptions = [
 	},
 ];
 
-watch(
-	apiOperation.apiInfo,
-	(newV, _) => {
-		if (newV != undefined && newV != null) {
-			apiInfo.value = newV;
-			requestParams.value.forEach((item, index) => {
-				apiInfo.value.api_request_params.forEach((item2: any) => {
-					if (item.type == item2.type) {
-						requestParams.value[index] = item2;
-					}
-				});
-			});
-			apiInfo.value.api_request_params = requestParams;
-		}
-	},
-	{ immediate: true, deep: true }
-);
-watch(
-	() => route.query.api_id,
-	async (newV, _) => {
-		if (newV) {
-			gettingInfo.value = true;
-			await apiOperation.getApiInfo(Number(newV));
-			apiInfo.value = apiOperation.apiInfo;
-			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : {};
-			if (!JSON_body.value.root) {
-				JSON_body.value = {
-					root: JSON_body.value,
-				};
-			}
-			gettingInfo.value = false;
-		}
-	},
-	{ immediate: true, deep: true }
-);
-
 const emit = defineEmits<{
 	(event: 'clickrun'): void;
 }>();
@@ -274,7 +238,6 @@ const emit = defineEmits<{
 const runApi = () => {
 	emit('clickrun');
 };
-
 const saveApiInfo = async () => {
 	fullscreenLoading.value = true;
 	const saveBody = {
@@ -286,7 +249,7 @@ const saveApiInfo = async () => {
 		api_editor_id: apiInfo.value.api_editor_id,
 		api_principal_id: apiInfo.value.api_principal_id,
 		api_desc: apiInfo.value.api_desc,
-		api_request_params: apiInfo.value.api_request_params,
+		api_request_params: requestParams.value,
 		api_request_JSON: JSON.stringify(JSON_body.value),
 		api_responses: apiInfo.value.api_responses.map((item: any) => {
 			return {
@@ -319,7 +282,6 @@ const deleteApiInfo = async () => {
 		return Promise.reject();
 	}
 };
-
 const addResponse = () => {
 	let obj = {
 		http_status: null,
@@ -334,37 +296,68 @@ const addResponse = () => {
 	// 切换到新增的响应
 	resActiveName.value = apiInfo.value.api_responses.length - 1;
 };
-
 const deleteResponse = () => {
 	apiInfo.value.api_responses.splice(resActiveName.value, 1);
 	resActiveName.value--;
 };
-
 const saveResponse = (para: any) => {
 	apiInfo.value.api_responses[resActiveName.value].response_body = para;
 };
-
 const saveRequest = (para: any) => {
 	JSON_body.value = para;
 };
 
-onMounted(async () => {
-	console.log(apiInfo.value);
-	// 获取到当前项目的成员列表
-	candidateList.value = baseStore.teamDetailedInfo.project_list
-		.find((item) => item.project_id === Number(route.params.project_id))!
-		.project_member_list.map((item) => {
-			return {
-				label: item.user_name,
-				value: item.user_id,
-			};
-		});
-	// 获取到当前责任人的名称
-	const res = await getUserInfo({
-		user_id: apiInfo.value.api_principal_id,
-	});
-	apiPrincipalName.value = res.data.result.userInfo.username;
-});
+watch(
+	() => apiOperation.apiInfo,
+	async (newV, _) => {
+		if (newV) {
+			gettingInfo.value = true;
+			apiInfo.value = newV;
+			// 先将requestParams中的数据清空
+			requestParams.value.forEach((item) => {
+				item.params_list = [
+					{
+						param_name: '',
+						param_type: 0,
+						param_desc: '',
+					},
+				];
+			});
+			// 如果有参数，则遍历，将requestParams中的数据替换
+			if (newV.api_request_params.length > 0) {
+				requestParams.value.forEach((item, index) => {
+					newV.api_request_params.forEach((item2: any) => {
+						if (item.type == item2.type) {
+							requestParams.value[index] = item2;
+						}
+					});
+				});
+			}
+			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : {};
+			if (!JSON_body.value.root) {
+				JSON_body.value = {
+					root: JSON_body.value,
+				};
+			}
+			// 获取到当前项目的成员列表
+			candidateList.value = baseStore.teamDetailedInfo.project_list
+				.find((item) => item.project_id === Number(route.params.project_id))!
+				.project_member_list.map((item) => {
+					return {
+						label: item.user_name,
+						value: item.user_id,
+					};
+				});
+			// 获取到当前责任人的名称
+			apiPrincipalName.value = (
+				await getUserInfo({
+					user_id: apiInfo.value.api_principal_id,
+				})
+			).data.result.userInfo.username;
+			gettingInfo.value = false;
+		}
+	}
+);
 </script>
 
 <style scoped lang="less">
