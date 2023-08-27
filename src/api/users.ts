@@ -46,7 +46,6 @@ export const updateUserInfo = (paramsList: { email?: string; introduce?: string;
 };
 
 export const uploadAvatar = (paramsList: { avatar: File }) => {
-	console.log(paramsList.avatar);
 	return myAxios({
 		url: '/users/upload-avatar',
 		method: 'POST',

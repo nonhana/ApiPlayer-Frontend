@@ -158,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import { updateTeam, deleteTeam, setMemberIdentity } from '@/api/teams';
 import { useBaseStore } from '@/store';

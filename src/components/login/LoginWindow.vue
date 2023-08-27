@@ -225,7 +225,6 @@ const myLogin = (type: number) => {
 			login({ email: userLoginForm.value.phone_number, password: userLoginForm.value.verify_code }).then(
 				(res) => {
 					if (res.data) {
-						console.log(res.data);
 						localStorage.setItem('token', res.data.result.token);
 						// router.push({ name: 'home' });
 						router.push({ name: 'main' });

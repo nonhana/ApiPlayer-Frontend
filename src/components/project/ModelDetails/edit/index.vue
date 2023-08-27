@@ -267,7 +267,6 @@ const saveApiInfo = async () => {
 		}),
 	};
 	const res = await updateApi(saveBody);
-	console.log(res.data);
 	if (res.status == 200) {
 		// 保存成功后，重新获取接口信息
 		await apiOperation.getApiInfo(apiInfo.value.api_id);
@@ -282,12 +281,7 @@ const saveApiInfo = async () => {
 	}
 };
 const deleteApiInfo = async () => {
-	const res = await deleteApi(apiInfo.value.api_id);
-	if (res.status == 200) {
-		console.log('删除成功');
-	} else {
-		return Promise.reject();
-	}
+	await deleteApi(apiInfo.value.api_id);
 };
 const addResponse = () => {
 	let obj = {

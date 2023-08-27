@@ -2,7 +2,7 @@
 	<el-dialog
 		v-model="dialogFormVisible"
 		:before-close="dialogBeforeCloseFn"
-		align-center="true"
+		:align-center="true"
 		style="position: relative; width: 640px; height: 500px; opacity: 1; background: #ffffff; border-radius: 10px"
 		:fullscreen="false"
 		size="1350px"
@@ -20,7 +20,6 @@
 			</span>
 		</template>
 	</el-dialog>
-	<!-- </div> -->
 </template>
 
 <script lang="ts" setup>

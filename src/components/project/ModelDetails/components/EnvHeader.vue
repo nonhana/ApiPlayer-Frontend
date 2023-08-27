@@ -621,18 +621,15 @@ const uploadFile = () => {
 const fileChange = async () => {
 	uploadingSwagger.value = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
-	console.log(sourceFile);
 	if (sourceFile !== null) {
 		// 将sourceFile转成Blob
 		const blob = new Blob([sourceFile], { type: 'application/x-yaml' });
 		// 把blob转换成file
 		const file = new File([blob], 'swagger.yaml', { type: 'application/x-yaml' });
-		console.log(file);
 		const res = await importSwagger({
 			project_id: Number(route.params.project_id),
 			yamlFile: file,
 		});
-		console.log(res.data);
 		if (res.status === 200) {
 			ElMessage.success('上传成功');
 			uploadingSwagger.value = false;

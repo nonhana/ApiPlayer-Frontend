@@ -31,26 +31,6 @@ import { useBaseStore } from '../../store/index';
 
 const router = useRouter();
 const baseStore = useBaseStore();
-interface Project {
-	id: number;
-	avatar: string;
-	name: string;
-	time: string;
-}
-const projectList: Project[] = [
-	{
-		id: 1,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-		time: '2023-08-11 15:34:12',
-	},
-	{
-		id: 2,
-		avatar: '../../static/svg/LoginLogo.svg',
-		name: 'test',
-		time: '2023-08-11 13:34:12',
-	},
-];
 
 const timeAgo = (dateTime: string) => {
 	// dateTime格式：2023-08-23T19:03:47.000Z

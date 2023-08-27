@@ -194,13 +194,11 @@ const runApi = async () => {
 		// 去掉所有的\n和\t
 		api_request_JSON: requestJSON.value.replace(/\n/g, '').replace(/\t/g, ''),
 	};
-	console.log('requestBody', requestBody, JSON.stringify(requestBody));
 	const res = await executeApi(requestBody);
 	if (res.data.result_code === 0) {
 		result.value.result_code = res.data.result_code;
 		result.value.result_msg = res.data.result_msg;
 		result.value.result = res.data.data;
-		console.log(result.value.result);
 		ElNotification({
 			title: '成功',
 			message: '接口运行成功',

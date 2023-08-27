@@ -394,7 +394,6 @@ const sendVerifyCode = (type: number) => {
 	if (type === 0) {
 		pwdChangeInfo.value.verify_code_status = true;
 		sendCaptchaChangPassword();
-		console.log(11111);
 		pwdChangeInfo.value.timer = setInterval(() => {
 			pwdChangeInfo.value.verify_code_timer--;
 			if (pwdChangeInfo.value.verify_code_timer === 0) {
@@ -443,7 +442,6 @@ const confirmPwdChange = async () => {
 		windowShowList.value[2] = false;
 		clearInterval(pwdChangeInfo.value.timer);
 		const res = await changPassword({ newPassword: pwdChangeInfo.value.new_pwd, captcha: pwdChangeInfo.value.verify_code });
-		console.log('修改成功', res);
 		if (res.data.result_code == 0) {
 			ElMessage.success('修改成功');
 		} else {

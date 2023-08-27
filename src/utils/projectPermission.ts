@@ -1,12 +1,5 @@
 import { usePermisssiontStore } from '@/store/permissons';
 
-// export enum ProjectRole {
-// 	ADMIN = 'Admin',
-// 	EDITOR = 'Editor',
-// 	READ_ONLY = 'ReadOnly',
-// 	NO_ACCESS = 'NoAccess',
-// }
-
 export enum ProjectRole {
 	ADMIN = 0,
 	EDITOR = 1,
@@ -20,11 +13,8 @@ const roleList: Map<number, ProjectRole> = baseStore.getProjectRoleList();
 export function canCreateProject(id: number): boolean {
 	return roleList.get(id) === ProjectRole.ADMIN;
 }
-export function canDeleteProject(id: number): boolean {
-	console.log(roleList);
-	// console.log(roleList.has(id) && roleList.get(id), '-----', ProjectRole.ADMIN);
+export function canDeleteProject(): boolean {
 	return true;
-	// return roleList.get(id) === ProjectRole.ADMIN;
 }
 export function canModifyProjectInfo(id: number): boolean {
 	return roleList.get(id) === ProjectRole.ADMIN;

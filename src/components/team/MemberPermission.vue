@@ -167,7 +167,6 @@ import type { TeamIdentity } from '@/api/teams';
 import { searchUser } from '@/api/users';
 import { useBaseStore } from '@/store';
 import { useRoute } from 'vue-router';
-import { ProjectRole } from '@/utils/projectPermission';
 
 interface User {
 	id: number;
