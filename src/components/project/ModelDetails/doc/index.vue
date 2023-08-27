@@ -6,7 +6,7 @@
 		<el-row>
 			<el-col :span="24">
 				<el-tag type="" class="mx-1" effect="dark" round size="large">
-					{{ apiOperation.apiInfo.api_method }}
+					{{ apiOperation.apiInfo.api_method.toUpperCase() }}
 				</el-tag>
 				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiOperation.apiInfo.api_url }}</el-text>
 				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ statusMap.get(apiOperation.apiInfo.api_status) }}</el-text>
@@ -38,13 +38,25 @@
 		<el-row>
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
-		<div v-if="apiOperation.apiInfo.api_request_params.length > 0">
-			<div v-for="(item, index) in apiOperation.apiInfo.api_request_params" :key="index">
-				<el-text class="mx-1" size="large">{{ map.get(item.type) }}</el-text>
+		<div v-if="apiOperation.apiInfo.api_request_params.length > 0 || apiOperation.apiInfo.api_request_JSON">
+			<!-- <div>
 				<el-row>
-					<el-table :data="item.params_list" border style="width: 100%">
-						<el-table-column prop="param_name" label="name" />
-						<el-table-column prop="param_type" label="type" />
+					<el-col :span="23">
+						<BodyCard :context="apiOperation.apiInfo.api_responses[0]" />
+					</el-col>
+				</el-row>
+			</div>
+			<el-row></el-row> -->
+			<div v-for="(item, index) in apiOperation.apiInfo.api_request_params" :key="index">
+				<el-text class="mx-1">{{ map.get(item.type) }}</el-text>
+				<el-row>
+					<el-table :data="item.params_list" border style="width: 95%">
+						<el-table-column prop="param_name" label="name" width="200" />
+						<el-table-column prop="param_type" label="type" width="200">
+							<template #default="scope">
+								{{ requestMap.get(scope.row.param_type) }}
+							</template>
+						</el-table-column>
 						<el-table-column prop="param_desc" label="desc" />
 					</el-table>
 				</el-row>
@@ -52,7 +64,7 @@
 			</div>
 		</div>
 		<div v-else class="params-empty">
-			<span>暂无请求参数，先添加一些请求参数吧！</span>
+			<span>{{ emptyRequestWarning }}</span>
 		</div>
 		<el-divider></el-divider>
 		<el-row>
@@ -67,20 +79,29 @@
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
-		<el-row>
-			<el-tabs v-model="activeName" type="card" class="doc-tabs">
-				<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
-					<el-tab-pane :label="item.response_name" :name="index">
-						<ResponseCard :context="item" />
-					</el-tab-pane>
-				</div>
-			</el-tabs>
-		</el-row>
+		<div v-if="apiOperation.apiInfo.api_responses.length > 0">
+			<el-row>
+				<el-col :span="23">
+					<el-tabs v-model="activeName" type="card" class="doc-tabs">
+						<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
+							<el-tab-pane :label="item.response_name" :name="index">
+								<ResponseCard :context="item" />
+							</el-tab-pane>
+						</div>
+					</el-tabs>
+				</el-col>
+			</el-row>
+		</div>
+		<div v-else class="params-empty">
+			<span>{{ emptyResponseWarning }}</span>
+		</div>
+		<div style="height: 20px"></div>
 	</div>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 import ResponseCard from '../components/ResponseCard.vue';
+import BodyCard from '../components/BodyCard.vue';
 import { apiStore } from '@/store/apis.ts';
 import { useRoute } from 'vue-router';
 import { getUserInfo } from '@/api/users';
@@ -91,12 +112,15 @@ import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
 const route = useRoute();
 const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
 const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
+const requestMap = new Map().set(0, 'number').set(1, 'integer').set(2, 'string').set(3, 'array');
 
 const apiOperation = apiStore();
-const activeName = ref<string>('0');
+const activeName = ref<number>(0);
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
+const emptyRequestWarning: string = '暂无请求参数，先添加一些请求参数吧！';
+const emptyResponseWarning: string = '暂无返回响应，先添加一些请求参数吧！';
 
 let treeData: TreeNode[] = [];
 
@@ -239,7 +263,7 @@ onMounted(async () => {
 	}
 
 	.params-empty {
-		width: 100%;
+		width: 98%;
 		height: 100px;
 		display: flex;
 		justify-content: center;

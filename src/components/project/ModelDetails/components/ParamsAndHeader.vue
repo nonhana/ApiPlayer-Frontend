@@ -4,19 +4,19 @@
 	</el-icon>
 	<div>
 		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
-			<el-table-column prop="param_name" label="name" width="180" align="center">
+			<el-table-column prop="param_name" label="name" width="200" align="center">
 				<template #default="scope">
 					<input v-model="scope.row.param_name" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
 			</el-table-column>
-			<el-table-column prop="param_type" label="type" width="180" align="center">
+			<el-table-column prop="param_type" label="type" width="150" align="center">
 				<template #default="scope">
 					<el-select v-model="scope.row.param_type" class="m-2" placeholder="Select" size="large">
 						<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
 					</el-select>
 				</template>
 			</el-table-column>
-			<el-table-column prop="param_desc" label="desc" width="180" align="center">
+			<el-table-column prop="param_desc" label="desc" width="470" align="center">
 				<template #default="scope">
 					<input v-model="scope.row.param_desc" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>

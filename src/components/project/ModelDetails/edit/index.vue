@@ -6,7 +6,7 @@
 					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
 				</el-select>
 			</el-col>
-			<el-col :span="14">
+			<el-col :span="13">
 				<el-input v-model="apiInfo.api_url" placeholder="Please input" size="large" />
 			</el-col>
 			<el-col :span="7">
@@ -16,8 +16,7 @@
 			</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 5px">
-			<el-col :span="6"><span style="margin-left: 5px">名称</span></el-col>
-
+			<el-col :span="7"><span style="margin-left: 5px">名称</span></el-col>
 			<el-col :span="6"><span style="margin-left: 5px">状态</span></el-col>
 			<el-col :span="6"><span style="margin-left: 5px">责任人</span></el-col>
 		</el-row>
@@ -25,8 +24,8 @@
 			<el-col :span="6">
 				<el-input v-model="apiInfo.api_name" size="large" />
 			</el-col>
-
-			<el-col :span="5">
+			<el-col :span="1"></el-col>
+			<el-col :span="6">
 				<el-select v-model="apiInfo.api_status" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
 				</el-select>
@@ -37,12 +36,16 @@
 				</el-select>
 			</el-col>
 		</el-row>
+		<el-row></el-row>
 		<el-row style="margin-bottom: 5px">
 			<el-text class="mx-1" size="large">接口说明</el-text>
 		</el-row>
 		<el-row>
-			<el-input v-model="apiInfo.api_desc" :rows="4" type="textarea" placeholder="Please input" />
+			<el-col :span="22">
+				<el-input v-model="apiInfo.api_desc" :rows="4" type="textarea" placeholder="请输入接口说明" />
+			</el-col>
 		</el-row>
+		<el-row></el-row>
 		<el-row style="margin-bottom: 5px">
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
@@ -61,8 +64,7 @@
 								<ParamsAndHeader :request-data="apiInfo.api_request_params[2]"></ParamsAndHeader>
 							</el-tab-pane>
 							<el-tab-pane label="json" name="bodyThird">
-								<!-- <el-input v-model="JSON_body" :rows="4" type="textarea" /> -->
-								<JsonSchemaEditor :response-data="JSON_body" @send-response="saveRequest" />
+								<JsonSchemaEditor style="width: 920px" :response-data="JSON_body" @send-response="saveRequest" />
 							</el-tab-pane>
 						</el-tabs>
 					</el-tab-pane>
@@ -75,6 +77,7 @@
 				</el-tabs>
 			</div>
 		</el-row>
+		<el-row></el-row>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 			<el-icon style="margin-left: 10px; cursor: pointer" @click="addResponse">
@@ -91,7 +94,7 @@
 						<el-col :span="6">HTTP状态码：<el-input v-model="item.http_status" size="large" /></el-col>
 						<el-col :span="6" style="margin-left: 20px">响应组件名称<el-input v-model="item.response_name" size="large" /></el-col>
 					</el-row>
-					<JsonSchemaEditor :response-data="item.response_body" @send-response="saveResponse" />
+					<JsonSchemaEditor style="width: 920px" :response-data="item.response_body" @send-response="saveResponse" />
 				</el-tab-pane>
 			</el-tabs>
 		</el-row>
@@ -188,19 +191,19 @@ const candidateList = ref<
 const options = [
 	{
 		value: 'post',
-		label: 'post',
+		label: 'POST',
 	},
 	{
 		value: 'get',
-		label: 'get',
+		label: 'GET',
 	},
 	{
 		value: 'put',
-		label: 'put',
+		label: 'PUT',
 	},
 	{
 		value: 'delete',
-		label: 'delete',
+		label: 'DELETE',
 	},
 ];
 
@@ -236,6 +239,9 @@ watch(
 				}
 			}
 			apiInfo.value.api_request_params = requestParams;
+			if (newVal.api_request_JSON && newVal.api_request_JSON.root) {
+				JSON_body.value.root = newVal.api_request_JSON.root;
+			}
 		}
 	},
 	{ immediate: true, deep: true }
@@ -335,7 +341,7 @@ const saveResponse = (para: any) => {
 };
 
 const saveRequest = (para: any) => {
-	apiInfo.value.api_request_JSON = para;
+	JSON_body.value = para;
 };
 
 onMounted(async () => {

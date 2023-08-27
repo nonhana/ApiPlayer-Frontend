@@ -1,12 +1,12 @@
 <template>
 	<div>
 		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
-			<el-table-column prop="name" label="name" width="180" align="center">
+			<el-table-column prop="name" label="name" width="200" align="center">
 				<template #default="scope">
 					<input v-model="scope.row.param_name" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>
 			</el-table-column>
-			<el-table-column prop="value" label="value" width="180" align="center">
+			<el-table-column prop="value" label="value" width="500" align="center">
 				<template #default="scope">
 					<input v-model="scope.row.param_value" type="text" class="ipt" style="width: 100px; text-align: center" />
 				</template>

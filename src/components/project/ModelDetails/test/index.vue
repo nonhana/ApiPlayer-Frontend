@@ -2,12 +2,7 @@
 	<div class="index">
 		<el-row>
 			<el-col :span="2">
-				<!-- <el-select v-model="api_method" class="m-2" placeholder="Select" size="large">
-					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-				</el-select> -->
-				<el-tag type="" class="mx-1" effect="dark" round size="large">
-					{{ apiInfo.api_method }}
-				</el-tag>
+				<el-button type="primary" round size="large">{{ apiInfo.api_method.toUpperCase() }}</el-button>
 			</el-col>
 			<el-col :span="18">
 				<el-input v-model="apiInfo.api_url" disabled size="large" />
@@ -17,7 +12,7 @@
 			</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 5px">
-			<span>请求参数</span>
+			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
 		<el-row>
 			<div>
@@ -61,7 +56,7 @@
 			</div>
 		</el-row>
 		<el-row>
-			<span>返回响应</span>
+			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
 		<el-row>
 			<el-row>
@@ -80,6 +75,7 @@
 				</el-tabs>
 			</el-row>
 		</el-row>
+		<div style="height: 20px"></div>
 	</div>
 </template>
 
