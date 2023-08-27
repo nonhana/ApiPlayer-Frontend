@@ -1,28 +1,31 @@
 <template>
-	<div class="projectdetil"></div>
-	<el-row type="flex" justify="center">
-		<div><SideNav /></div>
-		<div>
-			<SideBar />
-		</div>
-		<div>
-			<el-row style="margin: 0">
+	<div class="ProjectDetails-wrap">
+		<el-row type="flex" justify="space-between" style="width: 1300px">
+			<div><SideNav /></div>
+			<div style="display: flex">
 				<div>
-					<EnvHeader />
+					<SideBar />
 				</div>
-			</el-row>
-			<el-row>
-				<div v-if="thisId" class="main">
-					<el-tabs v-model="activeName" v-loading="fetching" class="demo-tabs" style="padding-left: 20px">
-						<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
-						<el-tab-pane v-if="canEditDoc" label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
-						<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
-					</el-tabs>
+				<div>
+					<el-row style="margin: 0">
+						<div>
+							<EnvHeader />
+						</div>
+					</el-row>
+					<el-row>
+						<div v-if="thisId" class="main">
+							<el-tabs v-model="activeName" v-loading="fetching" class="demo-tabs" style="padding-left: 20px">
+								<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
+								<el-tab-pane v-if="canEditDoc" label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
+								<el-tab-pane label="运行" name="third"> <Test /> </el-tab-pane>
+							</el-tabs>
+						</div>
+						<ChooseApi v-else />
+					</el-row>
 				</div>
-				<ChooseApi v-else />
-			</el-row>
-		</div>
-	</el-row>
+			</div>
+		</el-row>
+	</div>
 </template>
 
 <script lang="ts" setup>
@@ -96,9 +99,7 @@ watch(
 </script>
 
 <style scoped lang="less">
-.projectdetil {
-	background-color: #ffffff;
-	padding-left: 50px;
+.ProjectDetails-wrap {
 	.el-tabs--border-card {
 		min-width: 1000px;
 

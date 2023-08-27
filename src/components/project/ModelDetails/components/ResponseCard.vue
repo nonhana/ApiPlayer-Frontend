@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue';
+import { ref, watch } from 'vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { TreeNode, SchemaNode } from '@/utils/convertSchemaToTree';
 import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
@@ -40,7 +40,7 @@ const props = defineProps<{
 	};
 }>();
 
-let treeData: TreeNode[] = [];
+const treeData = ref<TreeNode[]>([]);
 
 // 使用h函数来渲染el-tree内部内容
 const renderContent = (
@@ -122,7 +122,7 @@ watch(
 		} else {
 			rootSchema = newV.response_body;
 		}
-		treeData = [convertSchemaToTree(rootSchema, 1, 'root')];
+		treeData.value = [convertSchemaToTree(rootSchema, 1, 'root')];
 	},
 	{ immediate: true, deep: true }
 );

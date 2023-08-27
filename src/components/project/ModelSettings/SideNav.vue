@@ -1,70 +1,19 @@
 <template>
 	<div class="nav_side">
-		<!-- <div class="item" @click="clickhandler(0)">
-			<el-icon size="20px"><House /></el-icon>
-			<div>主页</div>
-		</div> -->
 		<div class="item" @click="clickhandler(1)">
 			<el-icon size="20px"><Box /></el-icon>
 			<div>接口管理</div>
 		</div>
-		<!-- <div><component :is="componentId"></component></div> -->
 		<div class="item" @click="clickhandler(2)">
 			<el-icon size="20px"><Setting /></el-icon>
 			<div>项目设置</div>
 		</div>
-		<!-- <div class="item" @click="clickhandler(3)">
-			<el-icon size="20px"><UserFilled /></el-icon>
-			<div>邀请成员</div>
-		</div> -->
 	</div>
-	<!-- <el-dialog v-model="inviteDialog" title="邀请成员" width="35%">
-		<template #header>
-			<div class="dialog-title">邀请加入 {{ teamName }}</div>
-		</template>
-		<el-form ref="inviteFormRef" :model="inviteForm" :rules="inviteFormRules" status-icon label-position="left" label-width="120px">
-			<el-form-item label="搜索用户" label-width="80">
-				<el-input v-model="inviteForm.username" placeholder="用户名" class="input-with-select">
-					<template #append>
-						<el-button :icon="Search" @click="search" />
-					</template>
-				</el-input>
-			</el-form-item>
-			<el-form-item label="" label-width="0">
-				<el-table :data="inviteForm.searchUserData" height="300" style="width: 100%" border>
-					<el-table-column prop="avatar" label="昵称" width="200px">
-						<template #default="scope">
-							<div class="name-column">
-								<el-avatar :size="30" shape="square" :src="scope.row.avatar" />
-								<span class="row-name">{{ scope.row.name }}</span>
-							</div>
-						</template>
-					</el-table-column>
-					<el-table-column prop="email" label="邮箱" width="200px" />
-					<el-table-column width="98px" align="center">
-						<template #default="scope">
-							<el-button type="primary" size="default" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmInvite(scope.row)">
-								邀请
-							</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
-			</el-form-item>
-		</el-form>
-	</el-dialog> -->
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { Search, CirclePlusFilled, Refresh } from '@element-plus/icons-vue';
-import { FormInstance, FormRules, ElMessage } from 'element-plus';
-// import { inviteUser, setMemberIdentity, removeMember } from '@/api/teams';
-import { searchUser } from '@/api/users';
-
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
-import { useBaseStore } from '../../../store/index';
-const baseStore = useBaseStore();
 
 const router = useRouter();
 const route = useRoute();
@@ -93,68 +42,16 @@ const clickhandler = (type: number): void => {
 	}
 };
 
-interface User {
-	avatar: string;
-	email: string;
-	name: string;
-	tag?: string;
-	changeTime?: string;
-	projectAbility?: [
-		{
-			image: string;
-			title: string;
-			ability: string;
-		},
-	];
-}
-
-interface RuleForm {
-	username: string;
-	searchUserData: User[];
-}
-
 const inviteDialog = ref(false);
 
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
-// let teamName = ref('ApiPlayer');
-
-const inviteFormRef = ref<FormInstance>();
-// const inviteForm = reactive<RuleForm>({
-// 	username: '',
-// 	searchUserData: [
-// 		{
-// 			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-// 			name: 'Tom',
-// 			email: '98839392@qq.com',
-// 		},
-// 		{
-// 			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-// 			name: 'Tom',
-// 			email: '98839392@qq.com',
-// 		},
-// 		{
-// 			avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-// 			name: 'Tom',
-// 			email: '98839392@qq.com',
-// 		},
-// 	],
-// });
-// const inviteFormRules = reactive<FormRules<RuleForm>>({
-// 	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
-// });
-// const search = () => {
-// 	const res = searchUser({ username: inviteForm.username });
-// };
-onMounted(() => {
-	// teamName.value = baseStore.curTeamInfo.team_name ?? '';
-});
 </script>
+
 <style lang="less" scoped>
 .nav_side {
 	width: 70px;
-	// height: calc(100% - 60px);
 	height: 1000px;
 	display: flex;
 	flex-direction: column;
@@ -164,7 +61,6 @@ onMounted(() => {
 	font-size: 14px;
 	gap: 20px;
 	padding-top: 10px;
-	margin-left: 5px;
 	.item {
 		width: 60px;
 		height: 60px;
@@ -173,7 +69,7 @@ onMounted(() => {
 		align-items: center;
 		flex-direction: column;
 		gap: 6px;
-		// background-color: pink;
+		cursor: pointer;
 	}
 }
 </style>

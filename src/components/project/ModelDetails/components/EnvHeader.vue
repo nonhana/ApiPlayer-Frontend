@@ -1,8 +1,8 @@
 <template>
 	<div class="EnvHeader-wrap">
 		<div class="swagger">
-			<el-button>Swagger文档导入</el-button>
-			<input v-show="false" ref="fileRef" type="file" @change="fileChange" />
+			<el-button v-loading.fullscreen.lock="uploadingSwagger" @click="uploadFile">Swagger文档导入</el-button>
+			<input v-show="false" ref="fileRef" type="file" accept=".yaml, .yml" @change="fileChange" />
 		</div>
 
 		<div class="button-group">
@@ -194,7 +194,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo } from '@/api/projects';
+import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo, importSwagger } from '@/api/projects';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index';
@@ -224,6 +224,9 @@ interface GlobalVariableItem {
 	variable_desc: string;
 }
 
+// 获取到input[type=file]的dom
+const fileRef = ref<HTMLInputElement>();
+
 const apiOperation = apiStore();
 const baseStore = useBaseStore();
 const canModifyGlobalSettings = computed(() => {
@@ -233,6 +236,7 @@ const canEditBaseUrl = computed(() => {
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.READ_ONLY;
 });
 const changingEnv = ref<boolean>(false);
+const uploadingSwagger = ref<boolean>(false);
 
 const route = useRoute();
 const typeList = [
@@ -275,6 +279,7 @@ let editingVariablesInfo = ref<GlobalVariableItem>({
 });
 let editingParamsStatus = ref<boolean>(false); // false：正在新增参数，true：正在编辑参数
 let editingVariablesStatus = ref<boolean>(false); // false：正在新增变量，true：正在编辑变量
+let sourceFile: File | null | undefined = null;
 
 // 下拉框点击切换环境
 const envChoosing = async (envType: number) => {
@@ -608,8 +613,38 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 const reload = () => {
 	window.location.reload();
 };
+// 点击上传按钮，触发input[type=file]的点击事件
+const uploadFile = () => {
+	fileRef.value?.click();
+};
 // 上传Swagger文档
-const fileChange = () => {};
+const fileChange = async () => {
+	uploadingSwagger.value = true;
+	sourceFile = fileRef.value?.files?.[0] || null;
+	console.log(sourceFile);
+	if (sourceFile !== null) {
+		// 将sourceFile转成Blob
+		const blob = new Blob([sourceFile], { type: 'application/x-yaml' });
+		// 把blob转换成file
+		const file = new File([blob], 'swagger.yaml', { type: 'application/x-yaml' });
+		console.log(file);
+		const res = await importSwagger({
+			project_id: Number(route.params.project_id),
+			yamlFile: file,
+		});
+		console.log(res.data);
+		if (res.status === 200) {
+			ElMessage.success('上传成功');
+			uploadingSwagger.value = false;
+			reload();
+		} else {
+			ElMessage.error('上传失败');
+			uploadingSwagger.value = false;
+		}
+	} else {
+		ElMessage.error('上传失败');
+	}
+};
 
 watch(
 	() => showDialogList.value[1],
@@ -753,12 +788,12 @@ onMounted(async () => {
 <style scoped lang="less">
 .EnvHeader-wrap {
 	position: relative;
-	width: 1020px;
+	width: 1000px;
 	padding: 0 20px;
 	height: 60px;
 	background-color: #ffffff;
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 	align-items: center;
 	border: 1px solid #bdbdbd;
 	border-radius: 10px;

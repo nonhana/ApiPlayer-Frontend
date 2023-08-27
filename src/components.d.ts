@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    BodyCard: typeof import('./components/project/ModelDetails/components/BodyCard.vue')['default']
     ChooseApi: typeof import('./components/project/ModelDetails/components/ChooseApi.vue')['default']
     CommonAside: typeof import('./components/CommonAside.vue')['default']
     CommonHeader: typeof import('./components/CommonHeader.vue')['default']
@@ -67,6 +68,7 @@ declare module 'vue' {
     ResponseCard: typeof import('./components/project/ModelDetails/components/ResponseCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingMain: typeof import('./components/project/ModelSettings/SettingMain.vue')['default']
     Settings: typeof import('./components/project/ModelSettings/Settings.vue')['default']
     SideBar: typeof import('./components/project/ModelDetails/components/SideBar.vue')['default']
     SideNav: typeof import('./components/project/ModelSettings/SideNav.vue')['default']

@@ -39,14 +39,6 @@
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
 		<div v-if="apiOperation.apiInfo.api_request_params.length > 0 || apiOperation.apiInfo.api_request_JSON">
-			<!-- <div>
-				<el-row>
-					<el-col :span="23">
-						<BodyCard :context="apiOperation.apiInfo.api_responses[0]" />
-					</el-col>
-				</el-row>
-			</div>
-			<el-row></el-row> -->
 			<div v-for="(item, index) in apiOperation.apiInfo.api_request_params" :key="index">
 				<el-text class="mx-1">{{ map.get(item.type) }}</el-text>
 				<el-row>
@@ -70,7 +62,7 @@
 		<el-row>
 			<el-text class="mx-1" size="large">请求体(Body-JSON)</el-text>
 		</el-row>
-		<div v-if="apiOperation.apiInfo.api_request_JSON">
+		<div v-if="apiOperation.apiInfo.api_request_JSON" v-loading="treeBuilding">
 			<el-tree default-expand-all :data="treeData" :render-content="renderContent" />
 		</div>
 		<div v-else class="params-empty">
@@ -79,11 +71,11 @@
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
-		<div v-if="apiOperation.apiInfo.api_responses.length > 0">
+		<div v-if="apiResponses.length > 0">
 			<el-row>
 				<el-col :span="23">
 					<el-tabs v-model="activeName" type="card" class="doc-tabs">
-						<div v-for="(item, index) in apiOperation.apiInfo.api_responses" :key="index">
+						<div v-for="(item, index) in apiResponses" :key="index">
 							<el-tab-pane :label="item.response_name" :name="index">
 								<ResponseCard :context="item" />
 							</el-tab-pane>
@@ -101,7 +93,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 import ResponseCard from '../components/ResponseCard.vue';
-import BodyCard from '../components/BodyCard.vue';
 import { apiStore } from '@/store/apis.ts';
 import { useRoute } from 'vue-router';
 import { getUserInfo } from '@/api/users';
@@ -115,10 +106,12 @@ const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已�
 const requestMap = new Map().set(0, 'number').set(1, 'integer').set(2, 'string').set(3, 'array');
 
 const apiOperation = apiStore();
+const apiResponses = ref<any[]>([]);
 const activeName = ref<number>(0);
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
+const treeBuilding = ref<boolean>(false);
 const emptyRequestWarning: string = '暂无请求参数，先添加一些请求参数吧！';
 const emptyResponseWarning: string = '暂无返回响应，先添加一些请求参数吧！';
 
@@ -213,12 +206,41 @@ watch(
 	async (newV, _) => {
 		if (newV) {
 			await getInfo(Number(newV));
+			apiResponses.value = apiOperation.apiInfo.api_responses;
+			// 1. 处理人员名称
+			apiPrincipalName.value = (
+				await getUserInfo({
+					user_id: apiOperation.apiInfo.api_principal_id,
+				})
+			).data.result.userInfo.username;
+			apiCreatorName.value = (
+				await getUserInfo({
+					user_id: apiOperation.apiInfo.api_creator_id,
+				})
+			).data.result.userInfo.username;
+			apiEditorName.value = (
+				await getUserInfo({
+					user_id: apiOperation.apiInfo.api_editor_id,
+				})
+			).data.result.userInfo.username;
+			treeBuilding.value = true;
+			// 2. 处理请求体：JSON_Schema To TreeNode
+			if (apiOperation.apiInfo.api_request_JSON) {
+				let rootSchema = JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body);
+				// 如果有root，将其取出先
+				if (rootSchema.root) {
+					rootSchema = rootSchema.root;
+				}
+				treeData = [convertSchemaToTree(rootSchema, 1, 'root')];
+			}
+			treeBuilding.value = false;
 		}
-	},
-	{ immediate: true, deep: true }
+	}
 );
 
 onMounted(async () => {
+	await getInfo(Number(route.query.api_id));
+	apiResponses.value = apiOperation.apiInfo.api_responses;
 	// 1. 处理人员名称
 	apiPrincipalName.value = (
 		await getUserInfo({
@@ -235,26 +257,27 @@ onMounted(async () => {
 			user_id: apiOperation.apiInfo.api_editor_id,
 		})
 	).data.result.userInfo.username;
-
 	// 2. 处理请求体：JSON_Schema To TreeNode
 	if (apiOperation.apiInfo.api_request_JSON) {
+		treeBuilding.value = true;
 		let rootSchema = JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body);
-		// 如果有root，将其取出先
+		// 如果有root，将其取出
 		if (rootSchema.root) {
 			rootSchema = rootSchema.root;
 		}
 		treeData = [convertSchemaToTree(rootSchema, 1, 'root')];
+		treeBuilding.value = false;
 	}
 });
 </script>
 
 <style scoped lang="less">
 .index {
-	width: 1000px;
+	width: 980px;
 	background-color: #fff;
 
 	.title {
-		width: 1000px;
+		width: 980px;
 	}
 
 	.showparent {

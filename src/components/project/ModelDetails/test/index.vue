@@ -199,8 +199,10 @@ onBeforeRouteUpdate((to) => {
 // mock数据，仅限Body-JSON
 const executeMock = async () => {
 	const res = await mock(JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body));
-	console.log('res.data', res.data);
 	// 将mock好的数据放入requestJSON中
+	if (res.data.root) {
+		res.data = res.data.root;
+	}
 	requestJSON.value = JSON.stringify(res.data, null, 2);
 };
 
@@ -239,7 +241,7 @@ const runApi = async () => {
 
 <style lang="less" scoped>
 .index {
-	width: 1000px;
+	width: 980px;
 
 	.el-row {
 		margin-bottom: 20px;
@@ -280,7 +282,7 @@ const runApi = async () => {
 	}
 
 	.empty {
-		width: 1000px;
+		width: 980px;
 		height: 100px;
 		display: flex;
 		justify-content: center;

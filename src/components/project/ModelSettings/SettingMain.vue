@@ -257,12 +257,9 @@ const teamRules = reactive<FormRules<RuleForm>>({
 	name: [{ required: true, message: '请输入团队名称', trigger: 'blur' }],
 });
 const getProjectInfos = async () => {
-	// projectInfo = storeToRefs(baseStore).curProjectInfo;
 	const res = await getProjectBasicInfo({
 		project_id: baseStore.curProjectInfo.project_id!,
 	});
-	console.log('res282:', res);
-	// projectInfo = { ...res.data.project_info };
 	const resData = res.data.project_info;
 	projectInfo.project_current_type = resData.project_current_type;
 	projectInfo.project_desc = resData.project_desc;
@@ -270,7 +267,6 @@ const getProjectInfos = async () => {
 	projectInfo.project_img = resData.project_img;
 	projectInfo.project_name = resData.project_name;
 
-	console.log('projectInfo', projectInfo);
 	projectDesc.value = projectInfo?.project_desc ?? '';
 	projectName.value = projectInfo?.project_name ?? '';
 };
@@ -292,10 +288,8 @@ const changeTeamDesc = () => {
 };
 const confirmChangeProjectDesc = async () => {
 	changeTeamDescDialog.value = false;
-	console.log(projectDesc.value);
 	await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_desc: projectDesc.value });
 	await getProjectInfos();
-	console.log('projectInfo', projectInfo);
 	projectDesc.value = projectInfo.project_desc!;
 };
 
@@ -303,7 +297,6 @@ const handleDeleteTeam = () => {
 	deleteTeamDialog.value = true;
 };
 const confirmDelete = async () => {
-	// console.log(baseStore.curProjectInfo.project_name);
 	if (printTeamName.value === projectInfo.project_name) {
 		deleteTeamDialog.value = false;
 		await deleteProject({ project_id: baseStore.curProjectInfo.project_id! });
@@ -385,7 +378,6 @@ watch(
 onMounted(async () => {
 	baseStore.curProjectInfo.project_id = parseInt(route.params.project_id as string);
 	await getProjectInfos();
-	console.log(projectInfo);
 });
 </script>
 

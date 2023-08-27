@@ -10,7 +10,9 @@
 				<el-input v-model="apiInfo.api_url" placeholder="Please input" size="large" />
 			</el-col>
 			<el-col :span="7">
-				<el-button type="primary" round size="large" style="margin-left: 20px" @click="saveApiInfo">保存</el-button>
+				<el-button v-loading.fullscreen.lock="fullscreenLoading" type="primary" round size="large" style="margin-left: 20px" @click="saveApiInfo"
+					>保存</el-button
+				>
 				<el-button type="primary" round size="large" @click="runApi">运行</el-button>
 				<el-button type="primary" round size="large" @click="deleteApiInfo">删除</el-button>
 			</el-col>
@@ -108,6 +110,7 @@ import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
 import { updateApi, deleteApi } from '@/api/apis.ts';
+import { getUserInfo } from '@/api/users';
 import { useRoute } from 'vue-router';
 import { ElNotification } from 'element-plus';
 
@@ -118,9 +121,11 @@ let resActiveName = ref(0);
 const route = useRoute();
 const baseStore = useBaseStore();
 const apiOperation = apiStore();
-const apiInfo = ref<any>(apiOperation.apiInfo);
+const apiInfo = ref<any>({});
 const JSON_body = ref<any>({});
+const apiPrincipalName = ref<string>('');
 const gettingInfo = ref<boolean>(false);
+const fullscreenLoading = ref<boolean>(false);
 interface RequestParams {
 	type: number;
 	params_list: Array<{
@@ -190,19 +195,19 @@ const candidateList = ref<
 
 const options = [
 	{
-		value: 'post',
+		value: 'POST',
 		label: 'POST',
 	},
 	{
-		value: 'get',
+		value: 'GET',
 		label: 'GET',
 	},
 	{
-		value: 'put',
+		value: 'PUT',
 		label: 'PUT',
 	},
 	{
-		value: 'delete',
+		value: 'DELETE',
 		label: 'DELETE',
 	},
 ];
@@ -228,20 +233,17 @@ const statusOptions = [
 
 watch(
 	apiOperation.apiInfo,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			apiInfo.value = newVal;
-			for (let i = 0; i < requestParams.value.length; i++) {
-				for (let j = 0; j < apiInfo.value.api_request_params.length; j++) {
-					if (requestParams.value[i].type == apiInfo.value.api_request_params[j].type) {
-						requestParams.value[i] = apiInfo.value.api_request_params[j];
+	(newV, _) => {
+		if (newV != undefined && newV != null) {
+			apiInfo.value = newV;
+			requestParams.value.forEach((item, index) => {
+				apiInfo.value.api_request_params.forEach((item2: any) => {
+					if (item.type == item2.type) {
+						requestParams.value[index] = item2;
 					}
-				}
-			}
+				});
+			});
 			apiInfo.value.api_request_params = requestParams;
-			if (newVal.api_request_JSON && newVal.api_request_JSON.root) {
-				JSON_body.value.root = newVal.api_request_JSON.root;
-			}
 		}
 	},
 	{ immediate: true, deep: true }
@@ -259,7 +261,6 @@ watch(
 					root: JSON_body.value,
 				};
 			}
-			console.log('JSON_body', JSON_body.value);
 			gettingInfo.value = false;
 		}
 	},
@@ -275,6 +276,7 @@ const runApi = () => {
 };
 
 const saveApiInfo = async () => {
+	fullscreenLoading.value = true;
 	const saveBody = {
 		api_id: apiInfo.value.api_id,
 		api_name: apiInfo.value.api_name,
@@ -282,6 +284,7 @@ const saveApiInfo = async () => {
 		api_method: apiInfo.value.api_method,
 		api_status: apiInfo.value.api_status,
 		api_editor_id: apiInfo.value.api_editor_id,
+		api_principal_id: apiInfo.value.api_principal_id,
 		api_desc: apiInfo.value.api_desc,
 		api_request_params: apiInfo.value.api_request_params,
 		api_request_JSON: JSON.stringify(JSON_body.value),
@@ -293,17 +296,18 @@ const saveApiInfo = async () => {
 			};
 		}),
 	};
-	console.log('saveBody', saveBody, JSON.stringify(saveBody));
 	const res = await updateApi(saveBody);
 	console.log(res.data);
 	if (res.status == 200) {
 		// 保存成功后，重新获取接口信息
 		await apiOperation.getApiInfo(apiInfo.value.api_id);
+		fullscreenLoading.value = false;
 		ElNotification({
 			title: '保存成功',
 			type: 'success',
 		});
 	} else {
+		fullscreenLoading.value = false;
 		return Promise.reject();
 	}
 };
@@ -345,6 +349,7 @@ const saveRequest = (para: any) => {
 };
 
 onMounted(async () => {
+	console.log(apiInfo.value);
 	// 获取到当前项目的成员列表
 	candidateList.value = baseStore.teamDetailedInfo.project_list
 		.find((item) => item.project_id === Number(route.params.project_id))!
@@ -354,12 +359,17 @@ onMounted(async () => {
 				value: item.user_id,
 			};
 		});
+	// 获取到当前责任人的名称
+	const res = await getUserInfo({
+		user_id: apiInfo.value.api_principal_id,
+	});
+	apiPrincipalName.value = res.data.result.userInfo.username;
 });
 </script>
 
 <style scoped lang="less">
 .index {
-	width: 1000px;
+	width: 980px;
 
 	.el-row {
 		margin-bottom: 20px;

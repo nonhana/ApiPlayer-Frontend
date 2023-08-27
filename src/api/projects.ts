@@ -168,3 +168,17 @@ export const mock = (paramsList: JSON) => {
 		data: paramsList,
 	});
 };
+
+// 导入Swagger文档
+export const importSwagger = (paramsList: { yamlFile: File; project_id: number }) => {
+	return myAxios({
+		url: '/projects/importswagger',
+		method: 'POST',
+		data: paramsList,
+		headers: {
+			Authorization: localStorage.getItem('token') ?? '',
+			// 由于上传文件，所以需要设置请求头的Content-Type为multipart/form-data
+			'Content-Type': 'multipart/form-data',
+		},
+	});
+};

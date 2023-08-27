@@ -537,7 +537,7 @@ onBeforeMount(() => {
 		userSign.value = userInfo.value?.user_sign;
 		userName.value = userInfo.value?.user_name;
 	} else {
-		getUserInfo().then(
+		getUserInfo({}).then(
 			(res) => {
 				// userInfo.value = res.data.result.userInfo;
 				userInfo.value!.user_email = res.data.result.userInfo.email;

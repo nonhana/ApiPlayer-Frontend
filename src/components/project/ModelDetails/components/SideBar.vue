@@ -112,6 +112,11 @@ const remove = (node: Node, data: Tree, type: number) => {
 					children.splice(index, 1);
 					dataSource.value = [...dataSource.value];
 					showInputBox.value.splice(0, 1);
+
+					// 将当前页面切换到根目录
+					router.push({
+						path: `/project/${route.params.project_id}`,
+					});
 				}
 			})
 			.catch(() => {});
@@ -247,7 +252,6 @@ const findParentId = (tree: Tree, targetId: number, parentId?: number): number |
 // 切换到api详情页面
 const checkoutApi = (node: Tree) => {
 	if (node.type !== 'dictionary') {
-		// sessionStorage.removeItem('apiStore');
 		getInfo(node.id);
 		router.push({
 			path: `/project/${route.params.project_id}`,
@@ -283,7 +287,7 @@ onBeforeMount(async () => {
 
 <style scoped lang="less">
 .SideBar-wrap {
-	width: 240px;
+	width: 220px;
 	border: 1px solid #bdbdbd;
 	border-radius: 10px;
 	overflow: hidden;
