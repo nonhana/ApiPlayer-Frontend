@@ -200,6 +200,13 @@ const candidateList = ref<
 	}[]
 >([]);
 
+const JSON_body = ref<object>({
+	root: {
+		type: 'object',
+		properties: {},
+	},
+});
+
 const options = [
 	{
 		value: 'POST',
@@ -346,6 +353,15 @@ watch(
 					root: JSON_body.value,
 				};
 			}
+			if (!JSON_body.value.root.type) {
+				JSON_body.value = {
+					root: {
+						type: 'object',
+						properties: {},
+					},
+				};
+			}
+
 			// 获取到当前项目的成员列表
 			candidateList.value = baseStore.teamDetailedInfo.project_list
 				.find((item) => item.project_id === Number(route.params.project_id))!

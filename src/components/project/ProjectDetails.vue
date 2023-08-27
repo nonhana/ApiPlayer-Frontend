@@ -72,6 +72,7 @@ watch(
 		if (thisId.value) {
 			getInfo(thisId.value);
 		}
+		activeName.value = 'first';
 	},
 	{ immediate: true, deep: true }
 );
