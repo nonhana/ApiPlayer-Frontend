@@ -1,5 +1,5 @@
 <template>
-	<el-icon @click="handleAddDetails(tableData.length)" v-if="tableData.length == 0">
+	<el-icon v-if="tableData.length === 0" @click="handleAddDetails(tableData.length)">
 		<Plus />
 	</el-icon>
 	<div>
