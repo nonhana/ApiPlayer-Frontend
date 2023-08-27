@@ -122,7 +122,6 @@ const route = useRoute();
 const baseStore = useBaseStore();
 const apiOperation = apiStore();
 const apiInfo = ref<any>({});
-const JSON_body = ref<any>({});
 const apiPrincipalName = ref<string>('');
 const gettingInfo = ref<boolean>(false);
 const fullscreenLoading = ref<boolean>(false);
@@ -192,6 +191,13 @@ const candidateList = ref<
 		value: number;
 	}[]
 >([]);
+
+const JSON_body = ref<object>({
+	root: {
+		type: 'object',
+		properties: {},
+	},
+});
 
 const options = [
 	{
@@ -333,12 +339,21 @@ watch(
 					});
 				});
 			}
-			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : {};
+			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : JSON_body.value;
 			if (!JSON_body.value.root) {
 				JSON_body.value = {
 					root: JSON_body.value,
 				};
 			}
+			if (!JSON_body.value.root.type) {
+				JSON_body.value = {
+					root: {
+						type: 'object',
+						properties: {},
+					},
+				};
+			}
+
 			// 获取到当前项目的成员列表
 			candidateList.value = baseStore.teamDetailedInfo.project_list
 				.find((item) => item.project_id === Number(route.params.project_id))!
