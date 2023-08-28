@@ -30,3 +30,134 @@
 2. 比如我在views里面新建了两个页面：home和login，那么在components里面需要新建`ModelHome`和`ModelLogin`目录，然后再在里面新建需要的组件。
 3. little目录里面的组件不需要按照views的页面来划分，直接一个目录即可。里面组件的命名也是采用驼峰命名法。
 4. 具体的代码风格我已经在`ESLint`和`Prettier`上面配置完成，直接拉下来`npm install`就可以了。
+
+```
+ApiPlayer-Frontend
+├─ .eslintrc.cjs
+├─ .gitignore
+├─ .prettierrc.cjs
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ public
+│  └─ favicon.ico
+├─ README.md
+├─ src
+│  ├─ api
+│  │  ├─ apis.ts
+│  │  ├─ axios.ts
+│  │  ├─ projects.ts
+│  │  ├─ teams.ts
+│  │  └─ users.ts
+│  ├─ App.vue
+│  ├─ auto-imports.d.ts
+│  ├─ components
+│  │  ├─ CommonAside.vue
+│  │  ├─ CommonHeader.vue
+│  │  ├─ login
+│  │  │  └─ LoginWindow.vue
+│  │  ├─ main
+│  │  │  └─ MainWindow.vue
+│  │  ├─ personalCenter
+│  │  │  └─ MainWindow.vue
+│  │  ├─ project
+│  │  │  ├─ ModelDetails
+│  │  │  │  ├─ components
+│  │  │  │  │  ├─ ChooseApi.vue
+│  │  │  │  │  ├─ Default.vue
+│  │  │  │  │  ├─ EnvHeader.vue
+│  │  │  │  │  ├─ JsonSchemaEditor.vue
+│  │  │  │  │  ├─ ParamsAndHeader.vue
+│  │  │  │  │  ├─ ResponseCard.vue
+│  │  │  │  │  ├─ SideBar.vue
+│  │  │  │  │  └─ TestRequestTable.vue
+│  │  │  │  ├─ doc
+│  │  │  │  │  └─ index.vue
+│  │  │  │  ├─ edit
+│  │  │  │  │  └─ index.vue
+│  │  │  │  └─ test
+│  │  │  │     └─ index.vue
+│  │  │  ├─ ModelSettings
+│  │  │  │  ├─ SettingMain.vue
+│  │  │  │  └─ SideNav.vue
+│  │  │  ├─ ProjectDetails.vue
+│  │  │  └─ ProjectSettings.vue
+│  │  ├─ recentVisit
+│  │  │  └─ VisitWindow.vue
+│  │  └─ team
+│  │     ├─ MemberPermission.vue
+│  │     ├─ ProjectList.vue
+│  │     ├─ TeamSetting.vue
+│  │     └─ TeamWindow.vue
+│  ├─ components.d.ts
+│  ├─ little
+│  │  └─ dialog.vue
+│  ├─ main.ts
+│  ├─ router
+│  │  └─ index.ts
+│  ├─ static
+│  │  ├─ gif
+│  │  │  └─ 404.gif
+│  │  ├─ img
+│  │  │  └─ emptyLogo.png
+│  │  ├─ projectIcons
+│  │  │  └─ 12.jpg
+│  │  └─ svg
+│  │     ├─ Clock.svg
+│  │     ├─ Delete.svg
+│  │     ├─ FIle.svg
+│  │     ├─ HeaderExit.svg
+│  │     ├─ HeaderLogo.svg
+│  │     ├─ HeaderMessage.svg
+│  │     ├─ HeaderPersonalCenter.svg
+│  │     ├─ Import.svg
+│  │     ├─ LoginLogo.svg
+│  │     ├─ Modify.svg
+│  │     ├─ ProjectDetailsEnvHeaderDialogEnv.svg
+│  │     ├─ ProjectDetailsEnvHeaderDialogParams.svg
+│  │     ├─ ProjectDetailsEnvHeaderEdit.svg
+│  │     ├─ ProjectDetailsEnvHeaderOpenList.svg
+│  │     ├─ ProjectDetailsEnvHeaderReload.svg
+│  │     ├─ ProjectDetailsSideBarDelete.svg
+│  │     ├─ ProjectDetailsSideBarDictClosed.svg
+│  │     ├─ ProjectDetailsSideBarDictOpened.svg
+│  │     ├─ ProjectDetailsSideBarNewApi.svg
+│  │     └─ ProjectDetailsSideBarNewDict.svg
+│  ├─ store
+│  │  ├─ apis.ts
+│  │  ├─ index.ts
+│  │  ├─ permissons.ts
+│  │  └─ store-name.ts
+│  ├─ type
+│  │  ├─ JsonSchemaEditor
+│  │  │  └─ declaration.d.ts
+│  │  └─ zhCn
+│  │     └─ declaration.d.ts
+│  ├─ utils
+│  │  ├─ convertSchemaToTree.ts
+│  │  ├─ projectPermission.ts
+│  │  ├─ TeamPermisssion.ts
+│  │  ├─ types.ts
+│  │  └─ validate.ts
+│  ├─ views
+│  │  ├─ 404
+│  │  │  └─ index.vue
+│  │  ├─ login
+│  │  │  └─ index.vue
+│  │  ├─ main
+│  │  │  └─ index.vue
+│  │  ├─ personalCenter
+│  │  │  └─ index.vue
+│  │  ├─ project
+│  │  │  └─ index.vue
+│  │  ├─ recentVisit
+│  │  │  └─ index.vue
+│  │  └─ team
+│  │     └─ index.vue
+│  └─ vite-env.d.ts
+├─ tsconfig.json
+├─ tsconfig.node.json
+├─ vite.config.ts
+└─ yarn.lock
+
+```
