@@ -8,7 +8,7 @@
 				<el-input v-model="apiInfo.api_url" disabled size="large" />
 			</el-col>
 			<el-col :span="4">
-				<el-button type="primary" round size="large" style="margin-left: 20px" @click="runApi">运行</el-button>
+				<el-button v-loading.fullscreen.lock="runningApi" type="primary" round size="large" style="margin-left: 20px" @click="runApi">运行</el-button>
 			</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 5px">
@@ -110,6 +110,7 @@ const aceConfig = reactive({
 const activeName = ref('first');
 const bodyActiveName = ref('bodyFirst');
 const responseActiveName = ref('first');
+const runningApi = ref<boolean>(false);
 
 const map = new Map().set(0, 'success').set(1, 'fail');
 
@@ -188,6 +189,7 @@ const executeMock = async () => {
 };
 // 运行api
 const runApi = async () => {
+	runningApi.value = true;
 	let requestBody = {
 		api_id: apiInfo.value.api_id,
 		api_request_params: requestParams.value,
@@ -199,6 +201,7 @@ const runApi = async () => {
 		result.value.result_code = res.data.result_code;
 		result.value.result_msg = res.data.result_msg;
 		result.value.result = res.data.data;
+		runningApi.value = false;
 		ElNotification({
 			title: '成功',
 			message: '接口运行成功',
@@ -208,6 +211,7 @@ const runApi = async () => {
 		result.value.result_code = res.data.result_code;
 		result.value.result_msg = res.data.result_msg;
 		result.value.result = res.data.data;
+		runningApi.value = false;
 		ElNotification({
 			title: '失败',
 			message: '接口运行失败',

@@ -117,7 +117,7 @@
 							</div>
 							<div v-if="currentEditTable === '2-4'" class="envBox">
 								<span>baseUrl：</span>
-								<el-input v-model="envList[3].env_baseurl"></el-input>
+								<el-input v-model="envList[3].env_baseurl" disabled></el-input>
 							</div>
 						</el-main>
 					</el-container>
