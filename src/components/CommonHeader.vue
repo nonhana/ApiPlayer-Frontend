@@ -8,7 +8,7 @@
 				<template #dropdown>
 					<el-dropdown-menu>
 						<el-dropdown-item command="1">
-							<div class="choice">
+							<div id="EnterPersonalCenter" class="choice">
 								<img src="../static/svg/HeaderPersonalCenter.svg" />
 								<span>个人中心</span>
 							</div>
@@ -62,6 +62,7 @@ const userAction = (command: string) => {
 			break;
 	}
 };
+
 onMounted(() => {
 	bus.on('updateAvatar', () => {
 		userImg.value = JSON.parse(localStorage.getItem('userInfo')!).user_img;
