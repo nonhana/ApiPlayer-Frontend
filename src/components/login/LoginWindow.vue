@@ -83,7 +83,6 @@ import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
 import { login, register, sendCaptcha, getUserInfo } from '@/api/users.ts';
 import { validateEmail } from '@/utils/validate.ts';
-import { resExecutor } from '@/utils/resExecutor';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
