@@ -787,7 +787,7 @@ onMounted(async () => {
 	position: relative;
 	width: 1000px;
 	padding: 0 20px;
-	height: 60px;
+	height: 50px;
 	background-color: #ffffff;
 	display: flex;
 	justify-content: space-between;

@@ -13,7 +13,7 @@
 						</div>
 					</el-row>
 					<el-row>
-						<div v-if="thisId" class="main">
+						<div v-if="route.query.api_id" class="main">
 							<el-tabs v-model="activeName" v-loading="fetching" class="demo-tabs" style="padding-left: 20px">
 								<el-tab-pane label="文档" name="first"> <Doc /> </el-tab-pane>
 								<el-tab-pane v-if="canEditDoc" label="修改文档" name="second"> <Edit @clickrun="jumpRunApi" /> </el-tab-pane>
@@ -42,35 +42,29 @@ import SideNav from './ModelSettings/SideNav.vue';
 import { useBaseStore } from '@/store/index';
 import { ProjectRole } from '@/utils/projectPermission';
 
+const route = useRoute();
+const apiOperation = apiStore();
 const baseStore = useBaseStore();
 const activeName = ref('first');
+const fetching = ref<boolean>(false);
 
 // 点击运行跳转
 const jumpRunApi = () => {
 	activeName.value = 'third';
 };
 
-const route = useRoute();
-const apiOperation = apiStore();
-const thisId = ref<number>(0);
-const fetching = ref<boolean>(false);
-
-const getInfo = async (thisId: number) => {
-	fetching.value = true;
-	await apiOperation.getApiInfo(thisId);
-	fetching.value = false;
-};
-
+// 是否有编辑文档权限
 const canEditDoc = computed(() => {
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
 });
 
 watch(
 	() => route.query.api_id,
-	(newV, _) => {
-		thisId.value = Number(newV);
-		if (thisId.value) {
-			getInfo(thisId.value);
+	async (newV, _) => {
+		if (newV) {
+			fetching.value = true;
+			await apiOperation.getApiInfo(Number(newV));
+			fetching.value = false;
 		}
 		activeName.value = 'first';
 	},

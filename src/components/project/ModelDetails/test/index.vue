@@ -180,12 +180,20 @@ const result = ref({
 
 // mock数据，仅限Body-JSON
 const executeMock = async () => {
-	const res = await mock(JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body));
-	// 将mock好的数据放入requestJSON中
-	if (res.data.root) {
-		res.data = res.data.root;
+	if (apiOperation.apiInfo.api_request_JSON) {
+		const res = await mock(JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body));
+		// 将mock好的数据放入requestJSON中
+		if (res.data.root) {
+			res.data = res.data.root;
+		}
+		requestJSON.value = JSON.stringify(res.data, null, 2);
+	} else {
+		ElNotification({
+			title: 'Mock失败',
+			message: '请先填写Body-JSON',
+			type: 'error',
+		});
 	}
-	requestJSON.value = JSON.stringify(res.data, null, 2);
 };
 // 运行api
 const runApi = async () => {

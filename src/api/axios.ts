@@ -31,7 +31,7 @@ const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 					message: res.result_msg,
 					type: 'error',
 				});
-				return Promise.reject(new Error(res.result_msg || 'Error'));
+				return Promise.reject(res.result_msg || 'Error');
 			} else {
 				return response;
 			}
@@ -54,10 +54,9 @@ const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 					location.href = '/login';
 				}, 2000);
 			}
-			return Promise.reject(new Error(data.result_msg || 'Error'));
+			return Promise.reject(data.result_msg || 'Error');
 		}
 	);
-
 	return service(axiosConfig);
 };
 
