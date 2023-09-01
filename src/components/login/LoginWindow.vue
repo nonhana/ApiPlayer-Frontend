@@ -20,7 +20,7 @@
 				<div class="button" @click="loginType = 2">
 					<span>注册</span>
 				</div>
-				<div class="button" @click="myLogin(0)">
+				<div class="button" @click="myLogin">
 					<span>登录</span>
 				</div>
 			</el-row>
@@ -81,9 +81,9 @@ import { useBaseStore } from '@/store/index';
 import type { UserInfo } from '@/utils/types';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
-
 import { login, register, sendCaptcha, getUserInfo } from '@/api/users.ts';
 import { validateEmail } from '@/utils/validate.ts';
+import { resExecutor } from '@/utils/resExecutor';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
@@ -162,96 +162,33 @@ const mySendCaptcha = () => {
 		() => {}
 	);
 };
-const myLogin = (type: number) => {
-	if (type === 0) {
-		if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
-			ElNotification({
-				title: '登录失败',
-				message: '邮箱或密码不正确',
-				type: 'error',
-			});
-		} else {
-			login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(
-				async (res) => {
-					if (res.data) {
-						localStorage.setItem('token', res.data.result.token);
-						const userInfoSource = (await getUserInfo({})).data.result.userInfo;
-						const userInfo = {
-							user_id: userInfoSource.user_id ?? 1,
-							user_name: userInfoSource.username,
-							user_img: userInfoSource.avatar,
-							user_email: userInfoSource.email,
-							user_sign: userInfoSource.introduce,
-						} as UserInfo;
-						localStorage.setItem('userInfo', JSON.stringify(userInfo));
-						store.setUserInfo(userInfo);
-						router.push({ name: 'main' });
-						ElNotification({
-							title: '登录成功',
-							message: '欢迎回来！',
-							type: 'success',
-						});
-					}
-				},
-				() => {
-					ElNotification({
-						title: '登录失败',
-						message: '请求服务器失败1',
-						type: 'error',
-					});
-				}
-			);
-		}
+const myLogin = () => {
+	if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
+		ElNotification({
+			title: '登录失败',
+			message: '邮箱或密码不正确',
+			type: 'error',
+		});
 	} else {
-		if (userLoginForm.value.phone_number === '' || userLoginForm.value.verify_code === '') {
-			ElNotification({
-				title: '登录失败',
-				message: '电话号码或验证码不完整',
-				type: 'error',
-			});
-		} else {
-			const userInfo: UserInfo = {
-				user_id: 0,
-				user_name: '',
-				user_img: 'https://dummyimage.com/400X400',
-				user_email: '',
-				user_phone: userLoginForm.value.phone_number,
-				user_sign: 'A passionate developer and lifelong learner.',
-			};
+		login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(async (res) => {
+			localStorage.setItem('token', res.data.result.token);
+			const userInfoSource = (await getUserInfo({})).data.result.userInfo;
+			const userInfo = {
+				user_id: userInfoSource.user_id ?? 1,
+				user_name: userInfoSource.username,
+				user_img: userInfoSource.avatar,
+				user_email: userInfoSource.email,
+				user_sign: userInfoSource.introduce,
+			} as UserInfo;
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
-
 			store.setUserInfo(userInfo);
-
-			login({ email: userLoginForm.value.phone_number, password: userLoginForm.value.verify_code }).then(
-				(res) => {
-					if (res.data) {
-						localStorage.setItem('token', res.data.result.token);
-						// router.push({ name: 'home' });
-						router.push({ name: 'main' });
-						ElNotification({
-							title: '登录成功',
-							message: '欢迎回来！',
-							type: 'success',
-						});
-					}
-				},
-				() => {
-					ElNotification({
-						title: '登录失败',
-						message: '请求服务器失败',
-						type: 'error',
-					});
-				}
-			);
-
-			// // router.push({ name: 'home' });
-			// router.push({ name: 'main' });
-			// ElNotification({
-			// 	title: '登录成功',
-			// 	message: '欢迎回来！',
-			// 	type: 'success',
-			// });
-		}
+			router.push({ name: 'main' });
+			ElNotification({
+				title: '登录成功',
+				message: '欢迎回来！',
+				type: 'success',
+			});
+		});
 	}
 };
 

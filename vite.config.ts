@@ -53,7 +53,7 @@ export default defineConfig({
 		// 	'/apis': {
 		// 		target: 'http://13.115.119.139:3000', // 实际请求地址
 		// 		changeOrigin: true,
-		// 		// rewrite: (path) => path.replace(/^\/api/, ''),
+		// 		rewrite: (path) => path.replace(/^\/apis/, ''),
 		// 	},
 		// },
 	},

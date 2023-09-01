@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ElNotification } from 'element-plus';
 
 const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 	const service = axios.create({
@@ -11,6 +12,52 @@ const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 			Authorization: localStorage.getItem('token') ?? '',
 		},
 	});
+	// 请求拦截器
+	service.interceptors.request.use(
+		(config) => {
+			return config;
+		},
+		(error) => {
+			return Promise.reject(error);
+		}
+	);
+	// 响应拦截器
+	service.interceptors.response.use(
+		(response) => {
+			const res = response.data;
+			if (res.result_code === 1) {
+				ElNotification({
+					title: '错误',
+					message: res.result_msg,
+					type: 'error',
+				});
+				return Promise.reject(new Error(res.result_msg || 'Error'));
+			} else {
+				return response;
+			}
+		},
+		(error) => {
+			const { status, data } = error.response;
+			if (status === 500) {
+				ElNotification({
+					title: '服务器错误',
+					message: data.result_msg || '未知错误',
+					type: 'error',
+				});
+			} else if (status === 401) {
+				ElNotification({
+					title: '登录过期',
+					message: data.result_msg || '未知错误',
+					type: 'error',
+				});
+				setTimeout(() => {
+					location.href = '/login';
+				}, 2000);
+			}
+			return Promise.reject(new Error(data.result_msg || 'Error'));
+		}
+	);
+
 	return service(axiosConfig);
 };
 
