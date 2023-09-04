@@ -58,7 +58,6 @@ import { ElMessage, ElMessageBox, ElNotification } from 'element-plus';
 import { addRecentProject, deleteProject, updateProjectBasicInfo } from '@/api/projects';
 import { teamInfo } from '@/api/teams';
 import { useBaseStore } from '@/store';
-
 import { ProjectRole } from '@/utils/projectPermission';
 
 const router = useRouter();
@@ -86,11 +85,11 @@ const canVisitProject = (index: number) => {
 
 const goDetail = async (index: number) => {
 	if (canVisitProject(index) == true) {
-		router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
 		await addRecentProject({
 			user_id: baseStore.user_info.user_id,
 			project_id: baseStore.teamDetailedInfo.project_list[index].project_id,
 		});
+		router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });
 	} else {
 		ElNotification({
 			title: '权限不足',

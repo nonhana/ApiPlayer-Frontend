@@ -1,5 +1,5 @@
 <template>
-	<div class="LoginWindow-wrap">
+	<div v-loading="logining" class="LoginWindow-wrap">
 		<div v-if="loginType === 0" class="content">
 			<span class="title">登录</span>
 			<el-form :model="userLoginForm" :rules="loginRules">
@@ -12,7 +12,7 @@
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>密码</span>
 					<el-form-item prop="password">
-						<el-input v-model="userLoginForm.password" placeholder="请输入密码" type="password" style="width: 250px" />
+						<el-input v-model="userLoginForm.password" placeholder="请输入密码" type="password" style="width: 250px" @keydown="keyEnterLogin" />
 					</el-form-item>
 				</el-row>
 			</el-form>
@@ -99,6 +99,8 @@ interface RegisterRuleForm {
 }
 
 const store = useBaseStore();
+const router = useRouter();
+const logining = ref<boolean>(false);
 // el-form自定义表单验证规则：确认密码是否一致
 const checkPassword = (_: any, value: any, callback: any) => {
 	if (value.trim().length == 0) {
@@ -123,7 +125,6 @@ const registerRules = reactive<FormRules<RegisterRuleForm>>({
 	password: [{ required: true, message: '请设置密码', trigger: 'blur' }],
 	password_again: [{ validator: checkPassword, trigger: 'blur' }],
 });
-const router = useRouter();
 
 // 登录表单
 let userLoginForm = ref({
@@ -161,7 +162,7 @@ const mySendCaptcha = () => {
 		() => {}
 	);
 };
-const myLogin = () => {
+const myLogin = async () => {
 	if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
 		ElNotification({
 			title: '登录失败',
@@ -169,7 +170,9 @@ const myLogin = () => {
 			type: 'error',
 		});
 	} else {
-		login({ email: userLoginForm.value.email, password: userLoginForm.value.password }).then(async (res) => {
+		logining.value = true;
+		const res = await login({ email: userLoginForm.value.email, password: userLoginForm.value.password });
+		if (res.data.result_code === 0) {
 			localStorage.setItem('token', res.data.result.token);
 			const userInfoSource = (await getUserInfo({})).data.result.userInfo;
 			const userInfo = {
@@ -187,10 +190,10 @@ const myLogin = () => {
 				message: '欢迎回来！',
 				type: 'success',
 			});
-		});
+		}
+		logining.value = false;
 	}
 };
-
 const myRegister = () => {
 	if (
 		userRegisterForm.value.phone_number === '' ||
@@ -245,6 +248,12 @@ const myRegister = () => {
 		);
 	}
 };
+// 当按下回车键时，触发登录
+const keyEnterLogin = (key: KeyboardEvent | Event) => {
+	if (key instanceof KeyboardEvent && key.key === 'Enter') {
+		myLogin();
+	}
+};
 
 watch(loginType, (newV, _) => {
 	// 恢复计时器
@@ -284,6 +293,7 @@ watch(loginType, (newV, _) => {
 	padding: 40px 0 100px;
 	border-radius: 50px;
 	background: #ffffff;
+	overflow: hidden;
 	.content {
 		display: flex;
 		flex-direction: column;

@@ -68,6 +68,7 @@
 		<div v-else class="params-empty">
 			<span>暂无请求体信息</span>
 		</div>
+		<el-divider></el-divider>
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
@@ -235,11 +236,11 @@ watch(
 
 <style scoped lang="less">
 .index {
-	width: 980px;
+	width: 978px;
 	background-color: #fff;
 
 	.title {
-		width: 980px;
+		width: 978px;
 	}
 
 	.showparent {

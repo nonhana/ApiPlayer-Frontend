@@ -7,7 +7,7 @@
 			</div>
 		</div>
 
-		<div class="team-middle">
+		<div v-loading="gettingProject" class="team-middle">
 			<div class="tabs">
 				<el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
 					<el-tab-pane label="项目列表" name="first">
@@ -109,7 +109,7 @@
 	</div>
 </template>
 <script setup lang="ts">
-import { ref, watch, onBeforeMount } from 'vue';
+import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import ProjectList from '@/components/team/ProjectList.vue';
 import MemberPermission from '@/components/team/MemberPermission.vue';
@@ -125,9 +125,7 @@ import { ProjectRole } from '@/utils/projectPermission';
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
-
 const baseStore = useBaseStore();
-
 const route = useRoute();
 const colorMap = new Map().set(0, 'danger').set(1, 'warning').set(2, 'success').set(3, 'info');
 const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
@@ -137,6 +135,7 @@ const addProjectDialog = ref<boolean>(false);
 const isShowMiddleRight = ref<boolean>(true);
 const cutImgDialog = ref<boolean>(false);
 const showTemplate = ref<boolean>(false);
+const gettingProject = ref<boolean>(false);
 interface AddProjectForm {
 	user_id: number;
 	team_id: number;
@@ -226,8 +225,8 @@ watch(
 	() => route.params.team_id,
 	async (newV, _) => {
 		if (newV) {
+			gettingProject.value = true;
 			await baseStore.getTeamInfo(Number(newV));
-
 			let projectRoleList: any = {};
 			for (let item of baseStore.teamDetailedInfo.project_list) {
 				const identity: ProjectRole = item.project_member_list.filter((it) => {
@@ -237,14 +236,11 @@ watch(
 				projectRoleList[item.project_id] = identity;
 			}
 			baseStore.setProjectRoleList(projectRoleList);
+			gettingProject.value = false;
 		}
 	},
 	{ immediate: true, deep: true }
 );
-
-onBeforeMount(async () => {
-	await baseStore.getTeamInfo(Number(route.params.team_id));
-});
 </script>
 
 <style scoped lang="less">

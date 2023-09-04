@@ -56,6 +56,7 @@ declare module 'vue' {
     MemberPermission: typeof import('./components/team/MemberPermission.vue')['default']
     ParamsAndHeader: typeof import('./components/project/ModelDetails/components/ParamsAndHeader.vue')['default']
     ProjectDetails: typeof import('./components/project/ProjectDetails.vue')['default']
+    ProjectItem: typeof import('./components/team/components/ProjectItem.vue')['default']
     ProjectList: typeof import('./components/team/ProjectList.vue')['default']
     ProjectSettings: typeof import('./components/project/ProjectSettings.vue')['default']
     ResponseCard: typeof import('./components/project/ModelDetails/components/ResponseCard.vue')['default']

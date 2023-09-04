@@ -146,7 +146,13 @@ const renderContent = (
 			h(
 				'span',
 				{
-					style: `display: ${showInputBox.value[node.id] ? 'none' : 'inline-block'}`,
+					style: `
+					  display: ${showInputBox.value[node.id] ? 'none' : 'inline-block'};
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						max-width: 100px;
+					`,
 					onDblclick: () => {
 						if (data.label === '根目录') {
 							ElMessage.error('根目录不可修改');
@@ -204,7 +210,13 @@ const renderContent = (
 			h(
 				'span',
 				{
-					style: `display: ${showInputBox.value[node.id] ? 'none' : 'inline-block'}`,
+					style: `
+					  display: ${showInputBox.value[node.id] ? 'none' : 'inline-block'};
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						max-width: 100px;
+					`,
 					onDblclick: () => {
 						showInputBox.value[node.id] = true;
 					},
@@ -287,7 +299,7 @@ onBeforeMount(async () => {
 
 <style scoped lang="less">
 .SideBar-wrap {
-	width: 220px;
+	width: 230px;
 	border: 1px solid #bdbdbd;
 	border-radius: 10px;
 	overflow: hidden;

@@ -1,7 +1,7 @@
 <template>
 	<div class="EnvHeader-wrap">
 		<div class="swagger">
-			<el-button v-loading.fullscreen.lock="uploadingSwagger" @click="uploadFile">Swagger文档导入</el-button>
+			<el-button v-loading.fullscreen.lock="uploadingSwagger" @click="uploadFile">Swagger文档导入(目前仅支持2.0)</el-button>
 			<input v-show="false" ref="fileRef" type="file" accept=".yaml, .yml" @change="fileChange" />
 		</div>
 

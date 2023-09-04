@@ -254,7 +254,7 @@ watch(
 
 <style lang="less" scoped>
 .index {
-	width: 980px;
+	width: 978px;
 
 	.el-row {
 		margin-bottom: 20px;
@@ -295,7 +295,7 @@ watch(
 	}
 
 	.empty {
-		width: 980px;
+		width: 978px;
 		height: 100px;
 		display: flex;
 		justify-content: center;

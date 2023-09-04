@@ -372,7 +372,7 @@ watch(
 
 <style scoped lang="less">
 .index {
-	width: 980px;
+	width: 978px;
 
 	.el-row {
 		margin-bottom: 20px;
