@@ -24,7 +24,7 @@
 			<el-col :span="1"></el-col>
 			<el-text class="mx-1">创建者 {{ apiCreatorName }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">责任人 {{ apiPrincipalName }}</el-text>
+			<el-text class="mx-1">责任人 {{ apiPrincipalName === '' ? '未指定' : apiPrincipalName }}</el-text>
 			<el-col :span="1"></el-col>
 		</el-row>
 		<el-divider></el-divider>
@@ -186,8 +186,7 @@ const renderContent = (
 	);
 };
 const timestampToTime = (timestamp: number | null) => {
-	// 由于时差问题要加8小时 == 28800000毫秒
-	let date = timestamp ? new Date(timestamp + 28800000) : new Date();
+	let date = timestamp ? new Date(timestamp) : new Date();
 	let Y = date.getFullYear() + '-';
 	let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
 	let D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
@@ -203,11 +202,13 @@ watch(
 		if (newV) {
 			apiResponses.value = newV.api_responses;
 			// 1. 处理人员名称
-			apiPrincipalName.value = (
-				await getUserInfo({
-					user_id: newV.api_principal_id,
-				})
-			).data.result.userInfo.username;
+			if (newV.api_principal_id) {
+				apiPrincipalName.value = (
+					await getUserInfo({
+						user_id: newV.api_principal_id,
+					})
+				).data.result.userInfo.username;
+			}
 			apiCreatorName.value = (
 				await getUserInfo({
 					user_id: newV.api_creator_id,

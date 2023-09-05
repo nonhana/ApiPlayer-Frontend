@@ -6,7 +6,7 @@
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>邮箱</span>
 					<el-form-item prop="email">
-						<el-input v-model="userLoginForm.email" placeholder="请输入邮箱" style="width: 250px" />
+						<el-input v-model="userLoginForm.email" placeholder="请输入邮箱" style="width: 250px" @keydown="keyEnterLogin" />
 					</el-form-item>
 				</el-row>
 				<el-row type="flex" justify="space-between" class="form-box">
@@ -17,7 +17,7 @@
 				</el-row>
 			</el-form>
 			<el-row type="flex" justify="center">
-				<div class="button" @click="loginType = 2">
+				<div class="button" @click="loginType = 1">
 					<span>注册</span>
 				</div>
 				<div class="button" @click="myLogin">
@@ -25,13 +25,13 @@
 				</div>
 			</el-row>
 		</div>
-		<div v-if="loginType === 2" class="content">
+		<div v-if="loginType === 1" class="content">
 			<span class="title">注册</span>
 			<el-form :model="userRegisterForm" :rules="registerRules">
 				<el-row type="flex" justify="space-between" class="form-box">
 					<span>邮箱</span>
-					<el-form-item prop="phone_number">
-						<el-input v-model="userRegisterForm.phone_number" placeholder="请输入邮箱" style="width: 250px" />
+					<el-form-item prop="email">
+						<el-input v-model="userRegisterForm.email" placeholder="请输入邮箱" style="width: 250px" />
 					</el-form-item>
 				</el-row>
 				<el-row type="flex" justify="space-between" class="form-box">
@@ -41,7 +41,7 @@
 							<el-input v-model="userRegisterForm.verify_code" placeholder="请输入验证码" style="width: 140px" />
 						</el-form-item>
 						<el-button color="#59A8B9" style="height: 40px" :disabled="verifyCodeStatus" @click="sendVerifyCode"
-							><span v-if="!verifyCodeStatus" class="button-text" @click="mySendCaptcha">发送验证码</span>
+							><span v-if="!verifyCodeStatus" class="button-text">发送验证码</span>
 							<span v-else class="button-text">
 								已发送
 								{{ verifyCodeTimer + 's' }}
@@ -88,14 +88,14 @@ import { validateEmail } from '@/utils/validate.ts';
 interface LoginRuleForm {
 	email?: string;
 	password?: string;
-	phone_number?: string;
 	verify_code?: string;
 }
+// 使用邮箱进行注册
 interface RegisterRuleForm {
+	email: string;
+	verify_code: string;
 	password: string;
 	password_again: string;
-	phone_number: string;
-	verify_code: string;
 }
 
 const store = useBaseStore();
@@ -115,12 +115,11 @@ const checkPassword = (_: any, value: any, callback: any) => {
 const loginRules = reactive<FormRules<LoginRuleForm>>({
 	email: [{ required: true, message: '使用邮箱登录时，请输入完整的邮箱', trigger: 'blur' }],
 	password: [{ required: true, message: '使用邮箱登录时，请输入密码', trigger: 'blur' }],
-	phone_number: [{ required: true, message: '使用手机号登录时，请输入完整的手机号', trigger: 'blur' }],
 	verify_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
 });
 // el-form表单验证规则：注册
 const registerRules = reactive<FormRules<RegisterRuleForm>>({
-	phone_number: [{ required: true, message: '请填写完整的手机号', trigger: 'blur' }],
+	email: [{ required: true, message: '请填写正确的邮箱地址', trigger: 'blur' }],
 	verify_code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
 	password: [{ required: true, message: '请设置密码', trigger: 'blur' }],
 	password_again: [{ validator: checkPassword, trigger: 'blur' }],
@@ -130,22 +129,22 @@ const registerRules = reactive<FormRules<RegisterRuleForm>>({
 let userLoginForm = ref({
 	email: '',
 	password: '',
-	phone_number: '',
 	verify_code: '',
 });
 // 注册表单
 let userRegisterForm = ref({
+	email: '',
+	verify_code: '',
 	password: '',
 	password_again: '',
-	phone_number: '',
-	verify_code: '',
 });
 let loginType = ref<number>(0);
 let verifyCodeStatus = ref<boolean>(false);
 let verifyCodeTimer = ref<number>(60);
 let timer: any = null;
 
-const sendVerifyCode = () => {
+const sendVerifyCode = async () => {
+	await sendCaptcha({ email: userRegisterForm.value.email });
 	verifyCodeStatus.value = true;
 	timer = setInterval(() => {
 		verifyCodeTimer.value--;
@@ -155,12 +154,6 @@ const sendVerifyCode = () => {
 			verifyCodeTimer.value = 60;
 		}
 	}, 1000);
-};
-const mySendCaptcha = () => {
-	sendCaptcha({ email: userRegisterForm.value.phone_number }).then(
-		() => {},
-		() => {}
-	);
 };
 const myLogin = async () => {
 	if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
@@ -196,7 +189,7 @@ const myLogin = async () => {
 };
 const myRegister = () => {
 	if (
-		userRegisterForm.value.phone_number === '' ||
+		userRegisterForm.value.email === '' ||
 		userRegisterForm.value.password === '' ||
 		userRegisterForm.value.password !== userRegisterForm.value.password_again
 	) {
@@ -217,14 +210,14 @@ const myRegister = () => {
 			user_name: '',
 			user_img: 'https://dummyimage.com/400X400',
 			user_email: '',
-			user_phone: userRegisterForm.value.phone_number,
+			user_phone: userRegisterForm.value.email,
 			user_sign: 'A passionate developer and lifelong learner.',
 		};
 		localStorage.setItem('userInfo', JSON.stringify(userInfo));
 		store.setUserInfo(userInfo);
 
 		register({
-			email: userRegisterForm.value.phone_number,
+			email: userRegisterForm.value.email,
 			captcha: userRegisterForm.value.verify_code,
 			password: userRegisterForm.value.password,
 		}).then(
@@ -265,22 +258,14 @@ watch(loginType, (newV, _) => {
 		userLoginForm.value = {
 			email: '',
 			password: '',
-			phone_number: '',
-			verify_code: '',
-		};
-	} else if (newV === 1) {
-		userLoginForm.value = {
-			email: '',
-			password: '',
-			phone_number: '',
 			verify_code: '',
 		};
 	} else {
 		userRegisterForm.value = {
+			email: '',
+			verify_code: '',
 			password: '',
 			password_again: '',
-			phone_number: '',
-			verify_code: '',
 		};
 	}
 });

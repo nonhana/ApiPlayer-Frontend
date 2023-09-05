@@ -6,15 +6,13 @@ const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 		// baseURL: 'http://127.0.0.1:3000', // 本地服务器环境(ApiPlayer-Backend)
 		baseURL: 'http://13.115.119.139:3000', // 正式环境(AWS-EC2-Server)
 		// baseURL: 'https://mock.apifox.cn/m1/3099285-0-default', // apifox云端mock环境
-		timeout: 100000, // 10秒内无响应则报错
-		// 配置请求头token
-		headers: {
-			Authorization: localStorage.getItem('token') ?? '',
-		},
+		timeout: 10000, // 10秒内无响应则报错
 	});
 	// 请求拦截器
 	service.interceptors.request.use(
 		(config) => {
+			// 配置请求头token
+			config.headers.Authorization = localStorage.getItem('token') ?? '';
 			return config;
 		},
 		(error) => {
@@ -53,6 +51,12 @@ const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 				setTimeout(() => {
 					location.href = '/login';
 				}, 2000);
+			} else if (status === 400) {
+				ElNotification({
+					title: '参数错误',
+					message: data.result_msg || '未知错误',
+					type: 'error',
+				});
 			}
 			return Promise.reject(data.result_msg || 'Error');
 		}
