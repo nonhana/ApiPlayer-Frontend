@@ -247,7 +247,9 @@ const runApi = () => {
 };
 const saveApiInfo = async () => {
 	fullscreenLoading.value = true;
-	const saveBody = {
+	const saveBody: {
+		[key: string]: any;
+	} = {
 		api_id: apiInfo.value.api_id,
 		api_name: apiInfo.value.api_name,
 		api_url: apiInfo.value.api_url,
@@ -257,7 +259,6 @@ const saveApiInfo = async () => {
 		api_principal_id: apiInfo.value.api_principal_id,
 		api_desc: apiInfo.value.api_desc,
 		api_request_params: requestParams.value,
-		api_request_JSON: JSON.stringify(JSON_body.value),
 		api_responses: apiInfo.value.api_responses.map((item: any) => {
 			return {
 				http_status: Number(item.http_status),
@@ -266,6 +267,10 @@ const saveApiInfo = async () => {
 			};
 		}),
 	};
+	// 如果JSON_body的root属性下面有其他的属性，就添加api_request_JSON；否则不添加
+	if (Object.keys(JSON_body.value.root.properties).length > 0) {
+		saveBody.api_request_JSON = JSON_body.value;
+	}
 	const res = await updateApi(saveBody);
 	if (res.status == 200) {
 		// 保存成功后，重新获取接口信息

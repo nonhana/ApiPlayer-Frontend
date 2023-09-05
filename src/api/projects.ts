@@ -84,7 +84,7 @@ export const addDictionary = (paramsList: { project_id: number; father_id: numbe
 };
 
 // 更新目录
-export const updateDictionary = (paramsList: { dictionary_id: number; dictionary_name: string; father_id: number | null }) => {
+export const updateDictionary = (paramsList: { dictionary_id: number; dictionary_name?: string; father_id: number | null }) => {
 	return myAxios({
 		url: '/projects/updatedictionary',
 		method: 'POST',

@@ -3,11 +3,14 @@
 		<el-scrollbar>
 			<el-tree
 				:data="dataSource"
-				node-key="id"
+				draggable
 				default-expand-all
+				node-key="id"
 				:expand-on-click-node="false"
 				:render-content="renderContent"
 				@node-click="checkoutApi"
+				@node-drag-start="handleDragStart"
+				@node-drop="handleDrop"
 			/>
 		</el-scrollbar>
 	</div>
@@ -19,9 +22,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '@/api/projects';
 import { addApi, updateApi, deleteApi } from '@/api/apis';
 import type { ApiAddInfo } from '@/api/apis';
-import type Node from 'element-plus/es/components/tree/src/model/node';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { apiStore } from '@/store/apis.ts';
+import type Node from 'element-plus/es/components/tree/src/model/node';
+import type { NodeDropType } from 'element-plus/es/components/tree/src/tree.type';
 
 interface Tree {
 	id: number;
@@ -36,9 +40,104 @@ const apiOperation = apiStore();
 
 let newChild = ref<Tree>({ id: 0, label: '', type: '', children: [] });
 let dataSource = ref<Tree[]>([]);
+let copyDataSource = ref<Tree[]>([]);
 let windowShowList = ref<boolean[]>([false]);
 let showInputBox = ref<boolean[]>([]);
 
+// 节点拖曳相关函数
+const handleDragStart = () => {
+	// 开始拖曳时，克隆一份数据
+	copyDataSource.value = JSON.parse(JSON.stringify(dataSource.value));
+};
+const handleDrop = (draggingNode: Node, dropNode: Node, dropType: NodeDropType) => {
+	// 拖拽到目录下
+	if (dropType === 'inner') {
+		if (dropNode.data.type === 'dictionary') {
+			if (draggingNode.data.type === 'dictionary') {
+				ElMessageBox.confirm('确定要移动该目录吗？')
+					.then(async (action: string) => {
+						if (action === 'confirm') {
+							// 调用接口，更新目录的father_id
+							const res = await updateDictionary({
+								father_id: dropNode.data.id,
+								dictionary_id: draggingNode.data.id,
+							});
+							if (res.data.result_code === 0) {
+								ElMessage.success('移动成功');
+							}
+						}
+					})
+					.catch(() => {
+						// 如果点击取消，将拖拽的节点移回原来的位置
+						draggingNode.remove();
+						dataSource.value = copyDataSource.value;
+						ElMessage.info('取消移动');
+					});
+			} else {
+				ElMessageBox.confirm('确定要移动该接口吗？')
+					.then(async (action: string) => {
+						if (action === 'confirm') {
+							// 调用接口，更新接口的dictionary_id
+							const res = await updateApi({
+								api_id: draggingNode.data.id,
+								dictionary_id: dropNode.data.id,
+							});
+							if (res.data.result_code === 0) {
+								ElMessage.success('移动成功');
+							}
+						}
+					})
+					.catch(() => {
+						// 如果点击取消，将拖拽的节点移回原来的位置
+						draggingNode.remove();
+						dataSource.value = copyDataSource.value;
+					});
+			}
+		} else {
+			ElMessage.error('请拖放到目录下~!');
+			dataSource.value = copyDataSource.value;
+		}
+	} else if (dropType === 'before' || dropType === 'after') {
+		if (draggingNode.data.type === 'dictionary') {
+			ElMessageBox.confirm('确定要移动该目录吗？')
+				.then(async (action: string) => {
+					if (action === 'confirm') {
+						const res = await updateDictionary({
+							father_id: findParentId(dataSource.value[0], dropNode.data.id),
+							dictionary_id: draggingNode.data.id,
+						});
+						if (res.data.result_code === 0) {
+							ElMessage.success('移动成功');
+						}
+					}
+				})
+				.catch(() => {
+					// 如果点击取消，将拖拽的节点移回原来的位置
+					draggingNode.remove();
+					dataSource.value = copyDataSource.value;
+				});
+		} else {
+			ElMessageBox.confirm('确定要移动该接口吗？')
+				.then(async (action: string) => {
+					if (action === 'confirm') {
+						// 调用接口，更新接口的dictionary_id
+						const res = await updateApi({
+							api_id: draggingNode.data.id,
+							dictionary_id: findParentId(dataSource.value[0], dropNode.data.id),
+						});
+						if (res.data.result_code === 0) {
+							ElMessage.success('移动成功');
+						}
+					}
+				})
+				.catch(() => {
+					// 如果点击取消，将拖拽的节点移回原来的位置
+					draggingNode.remove();
+					dataSource.value = copyDataSource.value;
+				});
+		}
+	}
+};
 // 新增目录、接口
 const append = async (data: Tree, type: number) => {
 	if (type === 0) {
@@ -273,7 +372,6 @@ const checkoutApi = (node: Tree) => {
 		});
 	}
 };
-
 const getInfo = async (thisId: number) => {
 	await apiOperation.getApiInfo(thisId);
 };
