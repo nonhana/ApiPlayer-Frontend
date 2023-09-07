@@ -65,7 +65,7 @@
 									<el-table border :data="globalVariables">
 										<el-table-column prop="variable_name" label="Nate" width="140" />
 										<el-table-column prop="variable_type" label="Type" width="120" />
-										<el-table-column prop="variable_value" label="Value" width="140" />
+										<el-table-column show-overflow-tooltip prop="variable_value" label="Value" width="140" />
 										<el-table-column prop="variable_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
 											<template v-if="canModifyGlobalSettings" #default="scope">
@@ -89,7 +89,7 @@
 									<el-table height="300px" border :data="globalParams.find((item) => item.type === Number(currentEditParamsClass) - 1)?.params_list">
 										<el-table-column prop="param_name" label="Nate" width="140" />
 										<el-table-column prop="param_type" label="Type" width="120" />
-										<el-table-column prop="param_value" label="Value" width="140" />
+										<el-table-column show-overflow-tooltip prop="param_value" label="Value" width="140" />
 										<el-table-column prop="param_desc" label="Description" width="140" />
 										<el-table-column label="Actions">
 											<template v-if="canModifyGlobalSettings" #default="scope">
@@ -126,7 +126,7 @@
 			<template #footer>
 				<span class="dialog-footer">
 					<el-button @click="confirmEdit([0, 0])">关闭</el-button>
-					<el-button color="#59A8B9" @click="confirmEdit([0, 1])"><span style="color: #fff">保存</span></el-button>
+					<el-button v-loading="savingEnvInfo" color="#59A8B9" @click="confirmEdit([0, 1])"><span style="color: #fff">保存</span></el-button>
 				</span>
 			</template>
 		</el-dialog>
@@ -237,6 +237,7 @@ const canEditBaseUrl = computed(() => {
 });
 const changingEnv = ref<boolean>(false);
 const uploadingSwagger = ref<boolean>(false);
+const savingEnvInfo = ref<boolean>(false);
 
 const route = useRoute();
 const typeList = [
@@ -291,7 +292,9 @@ const envChoosing = async (envType: number) => {
 		project_current_type: envType,
 	});
 	// 切换环境后，更新apiStore中的apiInfo
-	await apiOperation.getApiInfo(Number(route.query.api_id));
+	if (route.query.api_id) {
+		await apiOperation.getApiInfo(Number(route.query.api_id));
+	}
 	changingEnv.value = false;
 };
 // 是否确认变更
@@ -300,6 +303,7 @@ const confirmEdit = async (type: number[]) => {
 		if (type[1] === 0) {
 			showDialogList.value[0] = false;
 		} else {
+			savingEnvInfo.value = true;
 			// 将envList保存到数据库
 			const envListSource = envList.value.map((item) => {
 				let envType: number = 0;
@@ -329,9 +333,11 @@ const confirmEdit = async (type: number[]) => {
 				project_id: Number(route.params.project_id),
 				env_list: envListSource,
 			});
-			// 重新获取apiOperation
-			await apiOperation.getApiInfo(Number(route.query.api_id));
-
+			if (route.query.api_id) {
+				// 重新获取apiOperation
+				await apiOperation.getApiInfo(Number(route.query.api_id));
+			}
+			savingEnvInfo.value = false;
 			showDialogList.value[0] = false;
 			ElMessage.success('保存成功');
 		}
@@ -403,8 +409,10 @@ const confirmEdit = async (type: number[]) => {
 				project_id: Number(route.params.project_id),
 				global_params: paramsList,
 			});
-			// 重新获取apiOperation
-			await apiOperation.getApiInfo(Number(route.query.api_id));
+			if (route.query.api_id) {
+				// 重新获取apiOperation
+				await apiOperation.getApiInfo(Number(route.query.api_id));
+			}
 
 			// 更新完成后，将editingParamsInfo置空
 			editingParamsInfo.value = {
@@ -478,8 +486,10 @@ const confirmEdit = async (type: number[]) => {
 				project_id: Number(route.params.project_id),
 				global_variables: variablesList,
 			});
-			// 重新获取apiOperation
-			await apiOperation.getApiInfo(Number(route.query.api_id));
+			if (route.query.api_id) {
+				// 重新获取apiOperation
+				await apiOperation.getApiInfo(Number(route.query.api_id));
+			}
 
 			// 更新完成后，将editingVariablesInfo置空
 			editingVariablesInfo.value = {
@@ -557,8 +567,10 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 							project_id: Number(route.params.project_id),
 							global_params: paramsList,
 						});
-						// 重新获取apiOperation
-						await apiOperation.getApiInfo(Number(route.query.api_id));
+						if (route.query.api_id) {
+							// 重新获取apiOperation
+							await apiOperation.getApiInfo(Number(route.query.api_id));
+						}
 
 						globalParams.value[Number(currentEditParamsClass.value) - 1].params_list.splice(index, 1);
 						ElMessage.success('已删除');
@@ -596,8 +608,10 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 							project_id: Number(route.params.project_id),
 							global_variables: variablesList,
 						});
-						// 重新获取apiOperation
-						await apiOperation.getApiInfo(Number(route.query.api_id));
+						if (route.query.api_id) {
+							// 重新获取apiOperation
+							await apiOperation.getApiInfo(Number(route.query.api_id));
+						}
 
 						globalVariables.value.splice(index, 1);
 						ElMessage.success('已删除');

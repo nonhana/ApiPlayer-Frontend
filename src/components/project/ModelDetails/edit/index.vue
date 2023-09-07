@@ -269,7 +269,7 @@ const saveApiInfo = async () => {
 	};
 	// 如果JSON_body的root属性下面有其他的属性，就添加api_request_JSON；否则不添加
 	if (Object.keys(JSON_body.value.root.properties).length > 0) {
-		saveBody.api_request_JSON = JSON_body.value;
+		saveBody.api_request_JSON = JSON.stringify(JSON_body.value);
 	}
 	const res = await updateApi(saveBody);
 	if (res.status == 200) {

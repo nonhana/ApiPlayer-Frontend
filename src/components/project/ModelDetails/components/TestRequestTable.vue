@@ -13,10 +13,10 @@
 			</el-table-column>
 			<el-table-column label="operate" align="center" width="100">
 				<template #default="scope">
-					<el-icon @click="handleAddDetails(scope.$index)">
+					<el-icon style="cursor: pointer" @click="handleAddDetails(scope.$index)">
 						<Plus />
 					</el-icon>
-					<el-icon style="margin-left: 10px" @click="handleDelete(scope.$index)">
+					<el-icon style="margin-left: 10px; cursor: pointer" @click="handleDelete(scope.$index)">
 						<Minus />
 					</el-icon>
 				</template>

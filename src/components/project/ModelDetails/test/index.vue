@@ -19,6 +19,13 @@
 				<el-tabs v-model="activeName" class="edit-tabs">
 					<el-tab-pane label="Params" name="first">
 						<TestRequestTable :request-data="requestParams[0]" />
+						<div v-if="globalQueryParams.length > 0">
+							<el-divider><span style="color: #aaa">全局Param</span></el-divider>
+							<el-table :data="globalQueryParams" border style="width: 100%">
+								<el-table-column align="center" prop="param_name" label="name" />
+								<el-table-column show-overflow-tooltip align="center" prop="param_value" label="value" />
+							</el-table>
+						</div>
 					</el-tab-pane>
 					<el-tab-pane label="Body" name="second">
 						<el-tabs v-model="bodyActiveName" class="body-tabs">
@@ -34,12 +41,13 @@
 								</div>
 								<div>
 									<v-ace-editor
+										ref="aceEditor"
 										v-model:value="requestJSON"
 										lang="json"
 										:theme="aceConfig.theme"
 										:options="aceConfig.options"
 										:readonly="aceConfig.readOnly"
-										style="width: 500px; min-height: 100px"
+										style="width: 500px; min-height: 150px"
 										class="ace-editor"
 									/>
 								</div>
@@ -48,9 +56,23 @@
 					</el-tab-pane>
 					<el-tab-pane label="Cookie" name="third">
 						<TestRequestTable :request-data="requestParams[3]" />
+						<div v-if="globalCookies.length > 0">
+							<el-divider><span style="color: #aaa">全局Cookie</span></el-divider>
+							<el-table :data="globalCookies" border style="width: 100%">
+								<el-table-column align="center" prop="param_name" label="name" />
+								<el-table-column show-overflow-tooltip align="center" prop="param_value" label="value" />
+							</el-table>
+						</div>
 					</el-tab-pane>
 					<el-tab-pane label="Header" name="fourth">
 						<TestRequestTable :request-data="requestParams[4]" />
+						<div v-if="globalHeaders.length > 0">
+							<el-divider><span style="color: #aaa">全局Header</span></el-divider>
+							<el-table :data="globalHeaders" border style="width: 100%">
+								<el-table-column align="center" prop="param_name" label="name" />
+								<el-table-column show-overflow-tooltip align="center" prop="param_value" label="value" />
+							</el-table>
+						</div>
 					</el-tab-pane>
 				</el-tabs>
 			</div>
@@ -80,11 +102,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { apiStore } from '@/store/apis.ts';
 import TestRequestTable from '../components/TestRequestTable.vue';
 import { executeApi } from '@/api/apis.ts';
-import { mock } from '@/api/projects';
+import { mock, getProjectGlobalInfo } from '@/api/projects';
 import { ElNotification } from 'element-plus';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
@@ -105,6 +128,8 @@ const aceConfig = reactive({
 		tabSize: 2,
 		showPrintMargin: false,
 		fontSize: 13,
+		// 高度自适应
+		autoScrollEditorIntoView: true,
 	},
 });
 const activeName = ref('first');
@@ -169,8 +194,12 @@ const requestParams = ref<RequestParams[]>([
 	},
 ]);
 const requestJSON = ref('');
+const globalHeaders = ref<any[]>([]);
+const globalCookies = ref<any[]>([]);
+const globalQueryParams = ref<any[]>([]);
 
 const apiOperation = apiStore();
+const route = useRoute();
 const apiInfo = ref(apiOperation.apiInfo);
 const result = ref({
 	result_code: '',
@@ -250,6 +279,40 @@ watch(
 		}
 	}
 );
+
+onMounted(async () => {
+	const res = await getProjectGlobalInfo({
+		project_id: Number(route.params.project_id),
+	});
+	console.log(res.data);
+	res.data.global_params.forEach((item: any) => {
+		if (item.type === 0) {
+			item.params_list.forEach((item2: any) => {
+				globalHeaders.value.push({
+					param_name: item2.param_name,
+					param_value: JSON.parse(item2.param_value).value,
+				});
+			});
+		} else if (item.type === 1) {
+			item.params_list.forEach((item2: any) => {
+				globalCookies.value.push({
+					param_name: item2.param_name,
+					param_value: JSON.parse(item2.param_value).value,
+				});
+			});
+		} else if (item.type === 2) {
+			item.params_list.forEach((item2: any) => {
+				globalQueryParams.value.push({
+					param_name: item2.param_name,
+					param_value: JSON.parse(item2.param_value).value,
+				});
+			});
+		}
+	});
+	console.log(globalHeaders.value);
+	console.log(globalCookies.value);
+	console.log(globalQueryParams.value);
+});
 </script>
 
 <style lang="less" scoped>

@@ -1,6 +1,6 @@
 <template>
 	<div class="SideBar-wrap">
-		<el-scrollbar>
+		<div style="width: 300px">
 			<el-tree
 				:data="dataSource"
 				draggable
@@ -12,7 +12,7 @@
 				@node-drag-start="handleDragStart"
 				@node-drop="handleDrop"
 			/>
-		</el-scrollbar>
+		</div>
 	</div>
 </template>
 
@@ -250,7 +250,7 @@ const renderContent = (
 						white-space: nowrap;
 						overflow: hidden;
 						text-overflow: ellipsis;
-						max-width: 100px;
+						max-width: 80px;
 					`,
 					onDblclick: () => {
 						if (data.label === '根目录') {
@@ -314,7 +314,7 @@ const renderContent = (
 						white-space: nowrap;
 						overflow: hidden;
 						text-overflow: ellipsis;
-						max-width: 100px;
+						max-width: 80px;
 					`,
 					onDblclick: () => {
 						showInputBox.value[node.id] = true;
@@ -400,7 +400,7 @@ onBeforeMount(async () => {
 	width: 230px;
 	border: 1px solid #bdbdbd;
 	border-radius: 10px;
-	overflow: hidden;
+	overflow-x: scroll;
 }
 
 /* el-tree样式 */
