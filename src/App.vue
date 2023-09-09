@@ -1,5 +1,5 @@
 <template>
-	<div :class="classList[classIndex]">
+	<div :class="appClass">
 		<el-row type="flex" justify="center">
 			<router-view></router-view>
 		</el-row>
@@ -7,29 +7,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
-const classList: string[] = ['app', 'login', 'home'];
+const classList: string[] = ['app', 'login'];
 
-let classIndex = ref<number>(0);
+const classIndex = computed(() => {
+	return route.name === 'login' ? 1 : 0;
+});
 
-// 监听路由变化，判断是否为登录页
-watch(
-	route,
-	(newV, _) => {
-		if (newV.name === 'login') {
-			classIndex.value = 1;
-		} else {
-			classIndex.value = 0;
-		}
-	},
-	{
-		immediate: true,
-		deep: true,
-	}
-);
+const appClass = computed(() => {
+	return classList[classIndex.value];
+});
 </script>
 
 <style scoped lang="less">
