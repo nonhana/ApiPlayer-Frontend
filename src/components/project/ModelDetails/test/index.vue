@@ -284,7 +284,6 @@ onMounted(async () => {
 	const res = await getProjectGlobalInfo({
 		project_id: Number(route.params.project_id),
 	});
-	console.log(res.data);
 	res.data.global_params.forEach((item: any) => {
 		if (item.type === 0) {
 			item.params_list.forEach((item2: any) => {
@@ -309,9 +308,6 @@ onMounted(async () => {
 			});
 		}
 	});
-	console.log(globalHeaders.value);
-	console.log(globalCookies.value);
-	console.log(globalQueryParams.value);
 });
 </script>
 
