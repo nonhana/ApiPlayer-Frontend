@@ -57,6 +57,8 @@ interface ProjectInfo {
 	project_img?: string;
 	project_name?: string;
 	team_id?: number;
+	global_params?: any[];
+	global_variables?: any[];
 }
 
 const teamConstance = {
@@ -83,7 +85,6 @@ export const useBaseStore = defineStore(Names.Base, {
 			teamIdentity: <number>0,
 			curTeamInfo: <TeamInfo>{},
 			curProjectInfo: <ProjectInfo>{},
-			// projectRoleList: new Map(),
 			projectRoleList: <any>{},
 		};
 	},

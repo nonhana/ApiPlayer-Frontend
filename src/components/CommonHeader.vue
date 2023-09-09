@@ -29,7 +29,6 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router';
 import type { UserInfo } from '../utils/types';
-import { BASE_URL } from '@/utils/constances';
 import { ref, reactive, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue';
 
 const cxt = getCurrentInstance();
@@ -37,7 +36,6 @@ const bus = cxt?.appContext.config.globalProperties.$bus;
 
 const router = useRouter();
 const route = useRoute();
-// 将BASE_URL替换成/api
 const userImg = ref(JSON.parse(localStorage.getItem('userInfo')!).user_img);
 let userInfo: UserInfo = reactive(JSON.parse(localStorage.getItem('userInfo') as string));
 
