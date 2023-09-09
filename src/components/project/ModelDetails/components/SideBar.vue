@@ -26,6 +26,11 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import { apiStore } from '@/store/apis.ts';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { NodeDropType } from 'element-plus/es/components/tree/src/tree.type';
+// 导入svg图片
+import DictClosed from '@/static/svg/ProjectDetailsSideBarDictClosed.svg';
+import NewDict from '@/static/svg/ProjectDetailsSideBarNewDict.svg';
+import NewApi from '@/static/svg/ProjectDetailsSideBarNewApi.svg';
+import Delete from '@/static/svg/ProjectDetailsSideBarDelete.svg';
 
 interface Tree {
 	id: number;
@@ -239,7 +244,7 @@ const renderContent = (
 				class: 'custom-tree-node',
 			},
 			h('img', {
-				src: '/src/static/svg/ProjectDetailsSideBarDictClosed.svg',
+				src: DictClosed,
 				style: 'width: 20px; height: 20px; margin-right: 8px',
 			}),
 			h(
@@ -283,17 +288,17 @@ const renderContent = (
 				'span',
 				null,
 				h('img', {
-					src: '/src/static/svg/ProjectDetailsSideBarNewDict.svg',
+					src: NewDict,
 					style: 'width: 20px; height: 20px;margin-left: 20px',
 					onClick: () => append(data, 0),
 				}),
 				h('img', {
-					src: '/src/static/svg/ProjectDetailsSideBarNewApi.svg',
+					src: NewApi,
 					style: 'width: 20px; height: 20px;margin-left: 8px',
 					onClick: () => append(data, 1),
 				}),
 				h('img', {
-					src: '/src/static/svg/ProjectDetailsSideBarDelete.svg',
+					src: Delete,
 					style: `display: ${data.label === '根目录' ? 'none' : 'inline-block'};width: 20px; height: 20px; margin-left: 8px`,
 					onClick: () => remove(node, data, 0),
 				})
@@ -340,7 +345,7 @@ const renderContent = (
 				},
 			}),
 			h('img', {
-				src: '/src/static/svg/ProjectDetailsSideBarDelete.svg',
+				src: Delete,
 				style: 'width: 20px; height: 20px;margin-left: 8px',
 				onClick: () => remove(node, data, 1),
 			})
