@@ -49,12 +49,5 @@ export default defineConfig({
 	server: {
 		port: 30000,
 		host: '0.0.0.0',
-		// proxy: {
-		// 	'/baseURL': {
-		// 		target: 'http://13.115.119.139:3000', // 实际请求地址
-		// 		changeOrigin: true,
-		// 		rewrite: (path) => path.replace(/^\/baseURL/, ''),
-		// 	},
-		// },
 	},
 });
