@@ -282,12 +282,14 @@ let userSign = ref<string>();
 let userName = ref<string>();
 let showTemplate = ref<boolean>(false);
 let windowShowList = ref<boolean[]>([false, false, false, false, false, false]);
+
+const croppedFileURL = ref<string>('');
 let sourceFile: File | null | undefined = null;
 let sourceFileURL: string = '';
 let croppedFile: File | null | undefined = null;
-let croppedFileURL = ref<string>('');
 let croppedFileType: string = ''; // 裁剪后的文件类型
-let pwdChangeInfo = ref({
+
+const pwdChangeInfo = ref({
 	pwd_change_step: 0,
 	phone_number: '',
 	verify_code: '',

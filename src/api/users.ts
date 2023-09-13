@@ -51,7 +51,6 @@ export const uploadAvatar = (paramsList: { avatar: File }) => {
 		method: 'POST',
 		data: paramsList,
 		headers: {
-			Authorization: localStorage.getItem('token') ?? '',
 			'Content-Type': 'multipart/form-data',
 		},
 	});
