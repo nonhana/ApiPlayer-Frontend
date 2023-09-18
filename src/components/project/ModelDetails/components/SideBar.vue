@@ -1,6 +1,6 @@
 <template>
 	<div class="SideBar-wrap">
-		<div style="width: 300px">
+		<div style="width: 228px">
 			<el-tree
 				:data="dataSource"
 				draggable
@@ -405,7 +405,6 @@ onBeforeMount(async () => {
 	width: 230px;
 	border: 1px solid #bdbdbd;
 	border-radius: 10px;
-	overflow-x: scroll;
 }
 
 /* el-tree样式 */
