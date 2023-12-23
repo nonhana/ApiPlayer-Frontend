@@ -35,38 +35,6 @@
 			</span>
 		</template>
 	</el-dialog>
-	<!-- <el-dialog v-model="changeMyNameDialog" title="修改昵称" width="28%">
-		<template #header>
-			<div class="dialog-title">修改昵称</div>
-		</template>
-		<el-form ref="userFormRef" :model="userForm" :rules="userRules" status-icon label-position="top" label-width="100px">
-			<el-form-item label="我的团队内昵称" prop="name">
-				<el-input v-model="myName" placeholder="" autocomplete="off" size="large" />
-			</el-form-item>
-		</el-form>
-		<template #footer>
-			<span class="dialog-footer">
-				<el-button type="default" size="large" auto-insert-space @click="changeMyNameDialog = false">取消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmChangeMyName">确定</el-button>
-			</span>
-		</template>
-	</el-dialog> -->
-	<!-- 移交团队 -->
-	<!-- <el-dialog v-model="moveToOtherTeamDialog" title="移交团队" width="25%">
-		<template #header>
-			<div class="dialog-title">移交团队</div>
-		</template>
-		<div class="input-label">选择团队</div>
-		<el-select v-model="receiver" placeholder="" class="select">
-			<el-option v-for="item in receivers" :key="item.value" :label="item.label" :value="item.value" />
-		</el-select>
-		<template #footer>
-			<span class="dialog-footer">
-				<el-button type="default" size="large" auto-insert-space @click="moveToOtherTeamDialog = false">取 消</el-button>
-				<el-button type="primary" size="large" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmMoveToOtherTeam">确 定</el-button>
-			</span>
-		</template>
-	</el-dialog> -->
 	<el-dialog v-model="deleteTeamDialog" title="删除项目?" width="33%">
 		<template #header>
 			<div class="dialog-title">删除项目</div>

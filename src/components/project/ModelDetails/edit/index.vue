@@ -125,6 +125,10 @@ const apiInfo = ref<any>({});
 const apiPrincipalName = ref<string>('');
 const gettingInfo = ref<boolean>(false);
 const fullscreenLoading = ref<boolean>(false);
+const editedResponse = ref<boolean>(false);
+const editedParams = ref<boolean>(false);
+const editedJSON = ref<boolean>(false);
+
 interface RequestParams {
 	type: number;
 	params_list: Array<{
@@ -192,7 +196,6 @@ const JSON_body = ref<any>({
 		properties: {},
 	},
 });
-
 const candidateList = ref<
 	{
 		label: string;
@@ -250,6 +253,7 @@ const saveApiInfo = async () => {
 	const saveBody: {
 		[key: string]: any;
 	} = {
+		project_id: Number(route.params.project_id),
 		api_id: apiInfo.value.api_id,
 		api_name: apiInfo.value.api_name,
 		api_url: apiInfo.value.api_url,
@@ -258,17 +262,21 @@ const saveApiInfo = async () => {
 		api_editor_id: apiInfo.value.api_editor_id,
 		api_principal_id: apiInfo.value.api_principal_id,
 		api_desc: apiInfo.value.api_desc,
-		api_request_params: requestParams.value,
-		api_responses: apiInfo.value.api_responses.map((item: any) => {
+	};
+	if (editedParams.value) {
+		saveBody.api_request_params = requestParams.value;
+	}
+	if (editedResponse.value) {
+		saveBody.api_responses = apiInfo.value.api_responses.map((item: any) => {
 			return {
 				http_status: Number(item.http_status),
 				response_name: item.response_name,
 				response_body: JSON.stringify(item.response_body),
 			};
-		}),
-	};
+		});
+	}
 	// 如果JSON_body的root属性下面有其他的属性，就添加api_request_JSON；否则不添加
-	if (Object.keys(JSON_body.value.root.properties).length > 0) {
+	if (editedJSON.value) {
 		saveBody.api_request_JSON = JSON.stringify(JSON_body.value);
 	}
 	const res = await updateApi(saveBody);
@@ -306,11 +314,13 @@ const deleteResponse = () => {
 	apiInfo.value.api_responses.splice(resActiveName.value, 1);
 	resActiveName.value--;
 };
-const saveResponse = (para: any) => {
-	apiInfo.value.api_responses[resActiveName.value].response_body = para;
+const saveResponse = (value: any, count: number) => {
+	apiInfo.value.api_responses[resActiveName.value].response_body = value;
+	if (count > 1) editedResponse.value = true;
 };
-const saveRequest = (para: any) => {
-	JSON_body.value = para;
+const saveRequest = (value: any, count: number) => {
+	JSON_body.value = value;
+	if (count > 1) editedJSON.value = true;
 };
 
 watch(
@@ -371,6 +381,28 @@ watch(
 			).data.result.userInfo.username;
 			gettingInfo.value = false;
 		}
+	}
+);
+
+// 检测requestParams中的数据是否被修改
+watch(
+	requestParams,
+	(newV, oldV) => {
+		if (newV !== oldV) {
+			editedParams.value = true;
+		}
+	},
+	{
+		deep: true,
+	}
+);
+
+watch(
+	() => route.query.api_id,
+	() => {
+		editedResponse.value = false;
+		editedParams.value = false;
+		editedJSON.value = false;
 	}
 );
 </script>

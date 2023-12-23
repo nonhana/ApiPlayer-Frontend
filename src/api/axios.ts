@@ -3,9 +3,7 @@ import { ElNotification } from 'element-plus';
 
 const myAxios = (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> => {
 	const service = axios.create({
-		// baseURL: 'http://127.0.0.1:3000', // 本地服务器环境(ApiPlayer-Backend)
-		baseURL: 'https://www.nonhana.site:3000', // 正式环境(AWS-EC2-Server)
-		// baseURL: 'https://mock.apifox.cn/m1/3099285-0-default', // apifox云端mock环境
+		baseURL: import.meta.env.VITE_BASE_URL as string, // 从环境变量文件中获取baseURL
 		timeout: 10000, // 10秒内无响应则报错
 	});
 	// 请求拦截器

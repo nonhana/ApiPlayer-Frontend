@@ -212,6 +212,7 @@ const remove = (node: Node, data: Tree, type: number) => {
 
 					await deleteApi({
 						api_id: data.id,
+						project_id: Number(route.params.project_id),
 					});
 					children.splice(index, 1);
 					dataSource.value = [...dataSource.value];

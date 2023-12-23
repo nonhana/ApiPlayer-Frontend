@@ -4,7 +4,6 @@
 		@click="
 			(event) => {
 				event.preventDefault();
-				console.log(event);
 				$router.push('/');
 			}
 		"

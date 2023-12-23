@@ -47,7 +47,6 @@ const clickHandler = () => {
 };
 
 const dialogBeforeCloseFn = () => {
-	// console.log(222);
 	props.closeWindow!();
 };
 </script>

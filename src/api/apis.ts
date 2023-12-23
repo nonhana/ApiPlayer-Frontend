@@ -27,6 +27,7 @@ export interface Execute {
 }
 export interface DeleteInfo {
 	api_id: number;
+	project_id: number;
 }
 export interface ApiRequest {
 	params_list?: ParamsList[];

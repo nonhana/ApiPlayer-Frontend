@@ -180,3 +180,12 @@ export const importSwagger = (paramsList: { yamlFile: File; project_id: number }
 		},
 	});
 };
+
+// 获取历史记录信息
+export const getHistoryInfo = (paramsList: { project_id: number }) => {
+	return myAxios({
+		url: '/projects/history',
+		method: 'GET',
+		params: paramsList,
+	});
+};

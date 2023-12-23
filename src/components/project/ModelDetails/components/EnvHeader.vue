@@ -6,8 +6,11 @@
 		</div>
 
 		<div class="button-group">
-			<el-tooltip class="box-item" effect="dark" content="当页面加载过慢时，可以尝试刷新" placement="left">
-				<img class="reload" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
+			<el-tooltip class="box-item" effect="dark" content="点击查看该接口历史修改记录" placement="top">
+				<img style="margin-right: 10px" class="icon" :src="History" alt="History" @click="showDialogList[3] = !showDialogList[3]" />
+			</el-tooltip>
+			<el-tooltip class="box-item" effect="dark" content="当页面加载过慢时，可以尝试刷新" placement="top">
+				<img class="icon" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
 			</el-tooltip>
 			<el-dropdown @command="envChoosing">
 				<el-button v-loading="changingEnv" class="main-button">
@@ -188,17 +191,41 @@
 				</span>
 			</template>
 		</el-dialog>
+
+		<el-dialog v-model="showDialogList[3]" title="项目操作历史记录" width="700px">
+			<!-- 使用el-table以列表形式呈现 -->
+			<el-table :data="history" border>
+				<el-table-column prop="createdAt" label="时间" width="200" />
+				<el-table-column prop="version_id" label="版本" width="60" />
+				<el-table-column prop="version_msg" label="具体操作" width="280" />
+				<el-table-column prop="user_avatar" label="用户信息">
+					<template #default="scope">
+						<img :src="scope.row.user_avatar" style="width: 30px; height: 30px; border-radius: 50%" />
+						<span>{{ scope.row.user_name }}</span>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { getProjectGlobalInfo, getProjectBasicInfo, updateProjectBasicInfo, updateProjectGlobalInfo, importSwagger } from '@/api/projects';
+import {
+	getProjectGlobalInfo,
+	getProjectBasicInfo,
+	updateProjectBasicInfo,
+	updateProjectGlobalInfo,
+	importSwagger,
+	getHistoryInfo,
+} from '@/api/projects';
+import { formatDate } from '@/utils';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index';
 import { ProjectRole } from '@/utils/projectPermission';
+import History from '@/static/svg/History.svg';
 
 interface EnvItem {
 	env_type: number;
@@ -222,6 +249,15 @@ interface GlobalVariableItem {
 	variable_type: string;
 	variable_value: number | string;
 	variable_desc: string;
+}
+interface HistoryItem {
+	createdAt: string;
+	project_id: number;
+	version_id: number;
+	version_msg: string;
+	user_id: number;
+	user_name: string;
+	user_avatar: string;
 }
 
 // 获取到input[type=file]的dom
@@ -260,7 +296,7 @@ let globalParams = ref<GlobalParamItem[]>([]); // 全局参数列表
 let globalVariables = ref<GlobalVariableItem[]>([]); // 全局变量列表
 let projectCurrentType = ref<number>(0); // 当前环境类型 0-开发环境 1-测试环境 2-正式环境 3-mock.js环境
 let currentEnvName = ref<string>(''); // 当前项目所处的环境名称
-let showDialogList = ref<boolean[]>([false, false, false]); // 控制弹窗显示隐藏
+let showDialogList = ref<boolean[]>([false, false, false, false]); // 控制弹窗显示隐藏
 let currentEditName = ref<string>('全局变量'); // 当前正在编辑的是什么内容，默认是全局变量
 let currentEditTable = ref<string>('1-1'); // 当前正在编辑的主要窗口
 let currentEditParamsClass = ref<string>('1'); // 当前正在编辑的全局参数所属的类别。0-Header，1-Query，2-Cookie
@@ -281,6 +317,8 @@ let editingVariablesInfo = ref<GlobalVariableItem>({
 let editingParamsStatus = ref<boolean>(false); // false：正在新增参数，true：正在编辑参数
 let editingVariablesStatus = ref<boolean>(false); // false：正在新增变量，true：正在编辑变量
 let sourceFile: File | null | undefined = null;
+
+const history = ref<HistoryItem[]>([]);
 
 // 下拉框点击切换环境
 const envChoosing = async (envType: number) => {
@@ -701,6 +739,19 @@ onMounted(async () => {
 		})
 	).data.project_info.project_current_type;
 
+	// 获取项目操作历史记录
+	history.value = (await getHistoryInfo({ project_id: Number(route.params.project_id) })).data.history_info.map((item: any) => {
+		return {
+			createdAt: formatDate(item.createdAt),
+			project_id: item.project_id,
+			version_id: item.version_id,
+			version_msg: item.version_msg,
+			user_id: item.user_id,
+			user_name: item.user_name,
+			user_avatar: item.user_avatar,
+		};
+	});
+
 	// 处理全局信息，将其转换为前端需要的格式
 	// 1. env_list
 	envList.value = globalInfo.env_list.map((item: any) => {
@@ -811,7 +862,7 @@ onMounted(async () => {
 	.button-group {
 		display: flex;
 		align-items: center;
-		.reload {
+		.icon {
 			margin-right: 10px;
 			width: 20px;
 			height: 20px;
