@@ -141,7 +141,7 @@ const confirmChange = async () => {
 	changeProjectDialog.value = false;
 };
 const goDetail = async (index: number) => {
-	if (canVisitProject(index) == true) {
+	if (canVisitProject(index) === true) {
 		await addRecentProject({
 			user_id: baseStore.user_info.user_id,
 			project_id: baseStore.teamDetailedInfo.project_list[index].project_id,

@@ -41,8 +41,10 @@ import { ref, toRefs, watch } from 'vue';
 const props = defineProps<{
 	requestData: any;
 }>();
+
 const { requestData } = toRefs(props);
-let tableData = ref(requestData.value.params_list);
+
+const tableData = ref(requestData.value.params_list);
 const options = [
 	{
 		value: 0,
@@ -88,7 +90,6 @@ const handleDelete = (index: number) => {
 </script>
 
 <style lang="less">
-// 设置表格中输入框为边框为0
 .ipt {
 	border: 0px;
 }

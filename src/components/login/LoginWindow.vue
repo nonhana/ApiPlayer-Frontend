@@ -103,7 +103,7 @@ const router = useRouter();
 const logining = ref<boolean>(false);
 // el-form自定义表单验证规则：确认密码是否一致
 const checkPassword = (_: any, value: any, callback: any) => {
-	if (value.trim().length == 0) {
+	if (value.trim().length === 0) {
 		callback(new Error('确认密码不能为空'));
 	} else if (value != userRegisterForm.value.password) {
 		callback(new Error('两次密码不一致'));
@@ -156,7 +156,7 @@ const sendVerifyCode = async () => {
 	}, 1000);
 };
 const myLogin = async () => {
-	if (validateEmail(userLoginForm.value.email) == false || userLoginForm.value.password === '') {
+	if (validateEmail(userLoginForm.value.email) === false || userLoginForm.value.password === '') {
 		ElNotification({
 			title: '登录失败',
 			message: '邮箱或密码不正确',

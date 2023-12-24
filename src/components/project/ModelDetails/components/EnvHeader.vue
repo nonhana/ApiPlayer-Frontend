@@ -192,19 +192,26 @@
 			</template>
 		</el-dialog>
 
-		<el-dialog v-model="showDialogList[3]" title="项目操作历史记录" width="700px">
+		<el-dialog v-model="showDialogList[3]" title="项目操作历史记录" width="800px">
 			<!-- 使用el-table以列表形式呈现 -->
-			<el-table :data="history" border>
-				<el-table-column prop="createdAt" label="时间" width="200" />
-				<el-table-column prop="version_id" label="版本" width="60" />
-				<el-table-column prop="version_msg" label="具体操作" width="280" />
-				<el-table-column prop="user_avatar" label="用户信息">
-					<template #default="scope">
-						<img :src="scope.row.user_avatar" style="width: 30px; height: 30px; border-radius: 50%" />
-						<span>{{ scope.row.user_name }}</span>
-					</template>
-				</el-table-column>
-			</el-table>
+			<div style="height: 600px; overflow: auto">
+				<el-table :data="history" border>
+					<el-table-column prop="createdAt" label="时间" width="160" />
+					<el-table-column prop="version_id" label="版本" width="60" />
+					<el-table-column prop="version_msg" label="具体操作" width="280" />
+					<el-table-column prop="user_avatar" label="用户信息">
+						<template #default="scope">
+							<img :src="scope.row.user_avatar" style="width: 30px; height: 30px; border-radius: 50%" />
+							<span>{{ scope.row.user_name }}</span>
+						</template>
+					</el-table-column>
+					<el-table-column label="操作">
+						<template #default="scope">
+							<el-button v-loading.fullscreen.lock="fullscreenLoading" @click="versionRollback(scope.row.version_id)">回滚</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+			</div>
 		</el-dialog>
 	</div>
 </template>
@@ -219,6 +226,7 @@ import {
 	updateProjectGlobalInfo,
 	importSwagger,
 	getHistoryInfo,
+	rollback,
 } from '@/api/projects';
 import { formatDate } from '@/utils';
 import { ElMessageBox, ElMessage } from 'element-plus';
@@ -274,6 +282,7 @@ const canEditBaseUrl = computed(() => {
 const changingEnv = ref<boolean>(false);
 const uploadingSwagger = ref<boolean>(false);
 const savingEnvInfo = ref<boolean>(false);
+const fullscreenLoading = ref<boolean>(false);
 
 const route = useRoute();
 const typeList = [
@@ -569,6 +578,25 @@ const handleSelect = (index: string) => {
 // 选择全局参数的类型：1-Header，2-Cookie，3-Query
 const globalParamsClassSelect = (index: string) => {
 	currentEditParamsClass.value = index;
+};
+// 点击回滚按钮进行版本回滚
+const versionRollback = (versionId: number) => {
+	ElMessageBox.confirm('是否确认回滚？')
+		.then(async () => {
+			console.log(versionId);
+			fullscreenLoading.value = true;
+			const res = await rollback({
+				version_id: versionId,
+			});
+			fullscreenLoading.value = false;
+			if (res.status === 200) {
+				ElMessage.success('回滚成功');
+				reload();
+			} else {
+				ElMessage.error('回滚失败');
+			}
+		})
+		.catch(() => {});
 };
 // 点击全局参数、全局变量table中的按钮
 const paramAndVarAction = (index: number, row: any, actionType: number, actionObjType: number) => {

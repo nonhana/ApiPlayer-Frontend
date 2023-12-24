@@ -2,12 +2,12 @@
 	<div class="index">
 		<el-row>
 			<el-col :span="3">
-				<el-select v-model="apiInfo.api_method" class="m-2" placeholder="Select" size="large">
+				<el-select v-model="basicInfo.api_method" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
 				</el-select>
 			</el-col>
 			<el-col :span="13">
-				<el-input v-model="apiInfo.api_url" placeholder="Please input" size="large" />
+				<el-input v-model="basicInfo.api_url" placeholder="Please input" size="large" />
 			</el-col>
 			<el-col :span="7">
 				<el-button v-loading.fullscreen.lock="fullscreenLoading" type="primary" round size="large" style="margin-left: 20px" @click="saveApiInfo"
@@ -24,16 +24,16 @@
 		</el-row>
 		<el-row>
 			<el-col :span="6">
-				<el-input v-model="apiInfo.api_name" size="large" />
+				<el-input v-model="basicInfo.api_name" size="large" />
 			</el-col>
 			<el-col :span="1"></el-col>
 			<el-col :span="6">
-				<el-select v-model="apiInfo.api_status" class="m-2" placeholder="Select" size="large">
+				<el-select v-model="basicInfo.api_status" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
 				</el-select>
 			</el-col>
 			<el-col :span="6">
-				<el-select v-model="apiInfo.api_principal_id" class="m-2" placeholder="Select" size="large">
+				<el-select v-model="basicInfo.api_principal_id" class="m-2" placeholder="Select" size="large">
 					<el-option v-for="item in candidateList" :key="item.value" :label="item.label" :value="item.value" />
 				</el-select>
 			</el-col>
@@ -44,7 +44,7 @@
 		</el-row>
 		<el-row>
 			<el-col :span="22">
-				<el-input v-model="apiInfo.api_desc" :rows="4" type="textarea" placeholder="请输入接口说明" />
+				<el-input v-model="basicInfo.api_desc" :rows="4" type="textarea" placeholder="请输入接口说明" />
 			</el-col>
 		</el-row>
 		<el-row></el-row>
@@ -110,7 +110,6 @@ import { useBaseStore } from '@/store/index.ts';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
 import { updateApi, deleteApi } from '@/api/apis.ts';
-import { getUserInfo } from '@/api/users';
 import { useRoute } from 'vue-router';
 import { ElNotification } from 'element-plus';
 
@@ -122,11 +121,13 @@ const route = useRoute();
 const baseStore = useBaseStore();
 const apiOperation = apiStore();
 const apiInfo = ref<any>({});
-const apiPrincipalName = ref<string>('');
 const gettingInfo = ref<boolean>(false);
 const fullscreenLoading = ref<boolean>(false);
+const editedBasicInfo = ref<boolean>(false);
+const editBasicInfoCount = ref<number>(0);
 const editedResponse = ref<boolean>(false);
 const editedParams = ref<boolean>(false);
+const editParamsCount = ref<number>(0);
 const editedJSON = ref<boolean>(false);
 
 interface RequestParams {
@@ -189,6 +190,16 @@ const requestParams = ref<RequestParams[]>([
 		],
 	},
 ]);
+
+const basicInfo = ref({
+	api_url: '',
+	api_name: '',
+	api_method: '',
+	api_status: 0,
+	api_editor_id: 0,
+	api_principal_id: 0,
+	api_desc: '',
+});
 
 const JSON_body = ref<any>({
 	root: {
@@ -253,19 +264,14 @@ const saveApiInfo = async () => {
 	const saveBody: {
 		[key: string]: any;
 	} = {
-		project_id: Number(route.params.project_id),
-		api_id: apiInfo.value.api_id,
-		api_name: apiInfo.value.api_name,
-		api_url: apiInfo.value.api_url,
-		api_method: apiInfo.value.api_method,
-		api_status: apiInfo.value.api_status,
-		api_editor_id: apiInfo.value.api_editor_id,
-		api_principal_id: apiInfo.value.api_principal_id,
-		api_desc: apiInfo.value.api_desc,
+		project_id: Number(route.params.project_id), // 默认参数：项目id
+		api_id: apiInfo.value.api_id, // 默认参数：接口id
 	};
-	if (editedParams.value) {
-		saveBody.api_request_params = requestParams.value;
-	}
+
+	// 如果某部分有修改，则将修改的数据保存到saveBody中
+	if (editedBasicInfo.value) saveBody.basic_info = basicInfo.value;
+	if (editedParams.value) saveBody.api_request_params = requestParams.value;
+	if (editedJSON.value) saveBody.api_request_JSON = JSON.stringify(JSON_body.value);
 	if (editedResponse.value) {
 		saveBody.api_responses = apiInfo.value.api_responses.map((item: any) => {
 			return {
@@ -275,12 +281,10 @@ const saveApiInfo = async () => {
 			};
 		});
 	}
-	// 如果JSON_body的root属性下面有其他的属性，就添加api_request_JSON；否则不添加
-	if (editedJSON.value) {
-		saveBody.api_request_JSON = JSON.stringify(JSON_body.value);
-	}
+
 	const res = await updateApi(saveBody);
-	if (res.status == 200) {
+
+	if (res.status === 200 && res.data.result_code === 0) {
 		// 保存成功后，重新获取接口信息
 		await apiOperation.getApiInfo(apiInfo.value.api_id);
 		fullscreenLoading.value = false;
@@ -290,7 +294,10 @@ const saveApiInfo = async () => {
 		});
 	} else {
 		fullscreenLoading.value = false;
-		return Promise.reject();
+		ElNotification({
+			title: '未检测到修改内容',
+			type: 'info',
+		});
 	}
 };
 const deleteApiInfo = async () => {
@@ -329,7 +336,20 @@ watch(
 		if (newV) {
 			gettingInfo.value = true;
 			apiInfo.value = newV;
-			// 先将requestParams中的数据清空
+
+			// 1. 处理basicInfo中的数据
+			basicInfo.value = {
+				api_url: newV.api_url,
+				api_name: newV.api_name,
+				api_method: newV.api_method,
+				api_status: newV.api_status,
+				api_editor_id: newV.api_editor_id,
+				api_principal_id: newV.api_principal_id,
+				api_desc: newV.api_desc,
+			};
+
+			// 2. 处理requestParams中的数据
+			// 2.1 先将requestParams中的数据清空
 			requestParams.value.forEach((item) => {
 				item.params_list = [
 					{
@@ -339,17 +359,20 @@ watch(
 					},
 				];
 			});
-			// 如果有参数，则遍历，将requestParams中的数据替换
+			// 2.2 如果有参数，则遍历，将requestParams中的数据替换
 			if (newV.api_request_params.length > 0) {
 				requestParams.value.forEach((item, index) => {
 					newV.api_request_params.forEach((item2: any) => {
-						if (item.type == item2.type) {
+						if (item.type === item2.type) {
 							requestParams.value[index] = item2;
 						}
 					});
 				});
 			}
+
+			// 3. 处理JSON_body中的数据
 			JSON_body.value = apiInfo.value.api_request_JSON ? JSON.parse(apiInfo.value.api_request_JSON.JSON_body) : JSON_body.value;
+			// 3.1 如果JSON_body中的数据不符合要求，则将其转换为符合要求的数据
 			if (!JSON_body.value.root) {
 				JSON_body.value = {
 					root: JSON_body.value,
@@ -373,35 +396,40 @@ watch(
 						value: item.user_id,
 					};
 				});
-			// 获取到当前责任人的名称
-			apiPrincipalName.value = (
-				await getUserInfo({
-					user_id: apiInfo.value.api_principal_id,
-				})
-			).data.result.userInfo.username;
 			gettingInfo.value = false;
 		}
 	}
 );
 
+// 检测basicInfo中的数据是否被修改
+watch(
+	basicInfo,
+	() => {
+		editBasicInfoCount.value++;
+		if (editBasicInfoCount.value > 1) editedBasicInfo.value = true;
+	},
+	{ deep: true }
+);
+
 // 检测requestParams中的数据是否被修改
 watch(
 	requestParams,
-	(newV, oldV) => {
-		if (newV !== oldV) {
-			editedParams.value = true;
-		}
+	() => {
+		editParamsCount.value++;
+		if (editParamsCount.value > 1) editedParams.value = true;
 	},
-	{
-		deep: true,
-	}
+	{ deep: true }
 );
 
+// 每次切换路由时，将修改状态重置
 watch(
 	() => route.query.api_id,
 	() => {
+		editedBasicInfo.value = false;
+		editBasicInfoCount.value = 0;
 		editedResponse.value = false;
 		editedParams.value = false;
+		editParamsCount.value = 0;
 		editedJSON.value = false;
 	}
 );

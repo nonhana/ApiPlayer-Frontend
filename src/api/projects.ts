@@ -189,3 +189,12 @@ export const getHistoryInfo = (paramsList: { project_id: number }) => {
 		params: paramsList,
 	});
 };
+
+// 版本回滚
+export const rollback = (data: { version_id: number }) => {
+	return myAxios({
+		url: '/projects/rollback',
+		method: 'POST',
+		data,
+	});
+};

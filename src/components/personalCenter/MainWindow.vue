@@ -406,7 +406,7 @@ const sendVerifyCode = (type: number) => {
 		}, 1000);
 	} else if (type === 1) {
 		// 邮箱格式校验
-		if (validateEmail(emailChangeInfo.value.email) == true) {
+		if (validateEmail(emailChangeInfo.value.email) === true) {
 			sendCaptcha({ email: emailChangeInfo.value.email }).then(
 				() => {},
 				() => {}
@@ -444,7 +444,7 @@ const confirmPwdChange = async () => {
 		windowShowList.value[2] = false;
 		clearInterval(pwdChangeInfo.value.timer);
 		const res = await changPassword({ newPassword: pwdChangeInfo.value.new_pwd, captcha: pwdChangeInfo.value.verify_code });
-		if (res.data.result_code == 0) {
+		if (res.data.result_code === 0) {
 			ElMessage.success('修改成功');
 		} else {
 			ElMessage.error('修改失败');
@@ -465,8 +465,8 @@ const confirmPwdChange = async () => {
 // 确认修改邮箱
 const confrimEmailChange = async () => {
 	// 邮箱格式校验
-	if (validateEmail(emailChangeInfo.value.email) == true) {
-		if (emailChangeInfo.value.verify_code == '') {
+	if (validateEmail(emailChangeInfo.value.email) === true) {
+		if (emailChangeInfo.value.verify_code === '') {
 			ElMessage.error('请填写验证码');
 		} else {
 			windowShowList.value[3] = false;

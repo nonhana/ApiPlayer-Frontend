@@ -265,7 +265,7 @@ watch(
 			if (newV.api_request_params.length > 0) {
 				requestParams.value.forEach((item) => {
 					newV.api_request_params.forEach((item2: any) => {
-						if (item.type == item2.type) {
+						if (item.type === item2.type) {
 							item2.params_list.forEach((item3: any, index: number) => {
 								item.params_list[index] = {
 									param_name: item3.param_name,

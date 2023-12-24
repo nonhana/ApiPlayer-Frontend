@@ -164,7 +164,7 @@ const handleClose = (done: () => void) => {
 const handleClick = (tab: TabsPaneContext) => {
 	if (tab.paneName === 'first') {
 		isShowMiddleRight.value = true;
-	} else if (tab.paneName == 'second' || tab.paneName == 'third') {
+	} else if (tab.paneName === 'second' || tab.paneName === 'third') {
 		isShowMiddleRight.value = false;
 	}
 };
