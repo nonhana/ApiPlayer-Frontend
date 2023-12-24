@@ -583,7 +583,6 @@ const globalParamsClassSelect = (index: string) => {
 const versionRollback = (versionId: number) => {
 	ElMessageBox.confirm('是否确认回滚？')
 		.then(async () => {
-			console.log(versionId);
 			fullscreenLoading.value = true;
 			const res = await rollback({
 				version_id: versionId,
