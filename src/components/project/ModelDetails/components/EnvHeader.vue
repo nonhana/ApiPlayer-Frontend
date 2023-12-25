@@ -6,10 +6,10 @@
 		</div>
 
 		<div class="button-group">
-			<el-tooltip class="box-item" effect="dark" content="点击查看该接口历史修改记录" placement="top">
+			<el-tooltip effect="dark" content="点击查看该接口历史修改记录" placement="top">
 				<img style="margin-right: 10px" class="icon" :src="History" alt="History" @click="showDialogList[3] = !showDialogList[3]" />
 			</el-tooltip>
-			<el-tooltip class="box-item" effect="dark" content="当页面加载过慢时，可以尝试刷新" placement="top">
+			<el-tooltip effect="dark" content="当页面加载过慢时，可以尝试刷新" placement="top">
 				<img class="icon" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
 			</el-tooltip>
 			<el-dropdown @command="envChoosing">
@@ -193,11 +193,19 @@
 		</el-dialog>
 
 		<el-dialog v-model="showDialogList[3]" title="项目操作历史记录" width="800px">
+			<el-tooltip
+				effect="dark"
+				content="说明：0-接口基本信息更新；1-接口返回体更新；2-接口请求参数更新；3-接口请求体(Body-JSON)更新；4-新增接口；5-删除接口。"
+				placement="right"
+			>
+				<img style="cursor: pointer; width: 24px; height: 24px; margin: 12px" :src="HistoryTips" alt="HistoryTips" />
+			</el-tooltip>
 			<!-- 使用el-table以列表形式呈现 -->
-			<div style="height: 600px; overflow: auto">
+			<div style="height: 500px; overflow: auto">
 				<el-table :data="history" border>
 					<el-table-column prop="createdAt" label="时间" width="160" />
 					<el-table-column prop="version_id" label="版本" width="60" />
+					<el-table-column prop="version_type" label="类型" width="120" />
 					<el-table-column prop="version_msg" label="具体操作" width="280" />
 					<el-table-column prop="user_avatar" label="用户信息">
 						<template #default="scope">
@@ -205,13 +213,16 @@
 							<span>{{ scope.row.user_name }}</span>
 						</template>
 					</el-table-column>
-					<el-table-column label="操作">
-						<template #default="scope">
-							<el-button v-loading.fullscreen.lock="fullscreenLoading" @click="versionRollback(scope.row.version_id)">回滚</el-button>
-						</template>
-					</el-table-column>
 				</el-table>
 			</div>
+
+			<template #footer>
+				<span>
+					<el-button v-loading.fullscreen.lock="fullscreenLoading" type="primary" @click="versionRollback(history[0].version_id)">
+						回滚至上一个版本
+					</el-button>
+				</span>
+			</template>
 		</el-dialog>
 	</div>
 </template>
@@ -234,6 +245,7 @@ import { apiStore } from '@/store/apis.ts';
 import { useBaseStore } from '@/store/index';
 import { ProjectRole } from '@/utils/projectPermission';
 import History from '@/static/svg/History.svg';
+import HistoryTips from '@/static/svg/HistoryTips.svg';
 
 interface EnvItem {
 	env_type: number;
@@ -262,6 +274,7 @@ interface HistoryItem {
 	createdAt: string;
 	project_id: number;
 	version_id: number;
+	version_type: string;
 	version_msg: string;
 	user_id: number;
 	user_name: string;
@@ -300,31 +313,31 @@ const typeList = [
 	},
 ];
 
-let envList = ref<EnvItem[]>([]); // 环境列表
-let globalParams = ref<GlobalParamItem[]>([]); // 全局参数列表
-let globalVariables = ref<GlobalVariableItem[]>([]); // 全局变量列表
-let projectCurrentType = ref<number>(0); // 当前环境类型 0-开发环境 1-测试环境 2-正式环境 3-mock.js环境
-let currentEnvName = ref<string>(''); // 当前项目所处的环境名称
-let showDialogList = ref<boolean[]>([false, false, false, false]); // 控制弹窗显示隐藏
-let currentEditName = ref<string>('全局变量'); // 当前正在编辑的是什么内容，默认是全局变量
-let currentEditTable = ref<string>('1-1'); // 当前正在编辑的主要窗口
-let currentEditParamsClass = ref<string>('1'); // 当前正在编辑的全局参数所属的类别。0-Header，1-Query，2-Cookie
+const envList = ref<EnvItem[]>([]); // 环境列表
+const globalParams = ref<GlobalParamItem[]>([]); // 全局参数列表
+const globalVariables = ref<GlobalVariableItem[]>([]); // 全局变量列表
+const projectCurrentType = ref<number>(0); // 当前环境类型 0-开发环境 1-测试环境 2-正式环境 3-mock.js环境
+const currentEnvName = ref<string>(''); // 当前项目所处的环境名称
+const showDialogList = ref<boolean[]>([false, false, false, false]); // 控制弹窗显示隐藏
+const currentEditName = ref<string>('全局变量'); // 当前正在编辑的是什么内容，默认是全局变量
+const currentEditTable = ref<string>('1-1'); // 当前正在编辑的主要窗口
+const currentEditParamsClass = ref<string>('1'); // 当前正在编辑的全局参数所属的类别。0-Header，1-Query，2-Cookie
 // 点开编辑全局参数弹窗时，当前正在编辑的全局参数信息
-let editingParamsInfo = ref<ParamItem>({
+const editingParamsInfo = ref<ParamItem>({
 	param_name: '',
 	param_type: '',
 	param_value: '',
 	param_desc: '',
 });
 // 点开编辑全局变量弹窗时，当前正在编辑的全局变量信息
-let editingVariablesInfo = ref<GlobalVariableItem>({
+const editingVariablesInfo = ref<GlobalVariableItem>({
 	variable_name: '',
 	variable_type: '',
 	variable_value: '',
 	variable_desc: '',
 });
-let editingParamsStatus = ref<boolean>(false); // false：正在新增参数，true：正在编辑参数
-let editingVariablesStatus = ref<boolean>(false); // false：正在新增变量，true：正在编辑变量
+const editingParamsStatus = ref<boolean>(false); // false：正在新增参数，true：正在编辑参数
+const editingVariablesStatus = ref<boolean>(false); // false：正在新增变量，true：正在编辑变量
 let sourceFile: File | null | undefined = null;
 
 const history = ref<HistoryItem[]>([]);
@@ -586,9 +599,10 @@ const versionRollback = (versionId: number) => {
 			fullscreenLoading.value = true;
 			const res = await rollback({
 				version_id: versionId,
+				project_id: Number(route.params.project_id),
 			});
 			fullscreenLoading.value = false;
-			if (res.status === 200) {
+			if (res.data.result_code === 0) {
 				ElMessage.success('回滚成功');
 				reload();
 			} else {
@@ -772,6 +786,7 @@ onMounted(async () => {
 			createdAt: formatDate(item.createdAt),
 			project_id: item.project_id,
 			version_id: item.version_id,
+			version_type: item.version_type,
 			version_msg: item.version_msg,
 			user_id: item.user_id,
 			user_name: item.user_name,
