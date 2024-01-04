@@ -1,5 +1,5 @@
 <template>
-	<div class="CommonAside-wrap">
+	<div class="CommonAside-wrapper">
 		<el-menu class="el-menu-vertical-demo" router :default-active="$route.path">
 			<el-sub-menu index="1">
 				<template #title>
@@ -35,12 +35,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from '@/store';
 import { teamList, addTeam } from '@/api/teams';
-import { useBaseStore } from '@/store/index';
 import { ElMessage } from 'element-plus';
 
 const customRouter = useRouter();
-const baseStore = useBaseStore();
+const { baseStore } = useStore();
+
 const dialogVisible = ref<boolean>(false);
 const teamName = ref<string>('');
 
@@ -75,7 +76,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.CommonAside-wrap {
+.CommonAside-wrapper {
 	height: 100%;
 }
 

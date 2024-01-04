@@ -1,5 +1,5 @@
 <template>
-	<div class="visit-wrap">
+	<div class="VisitWindow-wrapper">
 		<div class="visit-header">
 			<div class="visit-name">最近访问</div>
 		</div>
@@ -25,12 +25,12 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import { recentlyVisited, addRecentProject } from '../../api/projects';
 import { useRouter } from 'vue-router';
-import { useBaseStore } from '../../store/index';
+import { useStore } from '@/store';
+import { recentlyVisited, addRecentProject } from '@/api/projects';
 
 const router = useRouter();
-const baseStore = useBaseStore();
+const { baseStore } = useStore();
 
 const timeAgo = (dateTime: string) => {
 	// dateTime格式：2023-08-23T19:03:47.000Z
@@ -41,8 +41,7 @@ const timeAgo = (dateTime: string) => {
 	const month = day * 30;
 	const now = new Date().getTime();
 
-	// 由于时差，需要加8小时
-	const dateTimeStampNumber = new Date(dateTime).getTime() + 8 * hour;
+	const dateTimeStampNumber = new Date(dateTime).getTime();
 	const diffValue = now - dateTimeStampNumber;
 
 	if (diffValue < 0) {
@@ -73,24 +72,24 @@ const timeAgo = (dateTime: string) => {
 	}
 	return result;
 };
-const getRecentlyVisited = () => {
-	recentlyVisited({ user_id: baseStore.user_info.user_id }).then(async (res) => {
-		if (res.data) {
-			baseStore.setLastVisitedList(res.data.data);
-		}
-	});
+const getRecentlyVisited = async () => {
+	const res = await recentlyVisited({ user_id: baseStore.user_info.user_id });
+	if (res.data.result_code === 0) {
+		baseStore.setLastVisitedList(res.data.data);
+	}
 };
 const goDetail = (index: number) => {
 	router.push({ path: `/project/${baseStore.lastVisitedList[index].project_id}` });
 	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.lastVisitedList[index].project_id });
 };
+
 onMounted(() => {
 	getRecentlyVisited();
 });
 </script>
 
 <style scoped lang="less">
-.visit-wrap {
+.VisitWindow-wrapper {
 	width: 100%;
 	padding: 0 32px;
 	display: flex;
@@ -138,7 +137,6 @@ onMounted(() => {
 			}
 		}
 		.project:hover {
-			// 弥散阴影
 			box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
 		}
 	}

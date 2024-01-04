@@ -2,7 +2,7 @@
 	<div class="index">
 		<CommonHeader />
 		<div class="index-main">
-			<router-view></router-view>
+			<router-view />
 		</div>
 	</div>
 </template>
@@ -13,6 +13,7 @@ import CommonHeader from '@/components/CommonHeader.vue';
 
 <style scoped lang="less">
 .index {
+	position: relative;
 	width: 100%;
 	height: auto;
 	display: flex;

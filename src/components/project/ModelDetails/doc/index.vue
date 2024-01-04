@@ -1,24 +1,24 @@
 <template>
 	<div class="index">
 		<el-row class="title">
-			<el-text class="mx-1" size="large">{{ apiOperation.apiInfo.api_name }}</el-text>
+			<el-text class="mx-1" size="large">{{ apiStore.apiInfo.api_name }}</el-text>
 		</el-row>
 		<el-row>
 			<el-col :span="24">
 				<el-tag type="" class="mx-1" effect="dark" round size="large">
-					{{ apiOperation.apiInfo.api_method.toUpperCase() }}
+					{{ apiStore.apiInfo.api_method.toUpperCase() }}
 				</el-tag>
-				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiOperation.apiInfo.api_url }}</el-text>
-				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ statusMap.get(apiOperation.apiInfo.api_status) }}</el-text>
+				<el-text class="mx-1" size="large" style="padding-left: 2%">{{ apiStore.apiInfo.api_url }}</el-text>
+				<el-text class="mx-1" size="large" style="padding-left: 5%">{{ statusMap.get(apiStore.apiInfo.api_status) }}</el-text>
 			</el-col>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1">前置url：{{ apiOperation.apiInfo.baseUrl }} </el-text>
+			<el-text class="mx-1">前置url：{{ apiStore.apiInfo.baseUrl }} </el-text>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1">创建时间 {{ timestampToTime(Date.parse(apiOperation.apiInfo.api_createdAt)) }}</el-text>
+			<el-text class="mx-1">创建时间 {{ timestampToTime(Date.parse(apiStore.apiInfo.api_createdAt)) }}</el-text>
 			<el-col :span="1"></el-col>
-			<el-text class="mx-1">修改时间 {{ timestampToTime(Date.parse(apiOperation.apiInfo.api_editedAt)) }}</el-text>
+			<el-text class="mx-1">修改时间 {{ timestampToTime(Date.parse(apiStore.apiInfo.api_editedAt)) }}</el-text>
 			<el-col :span="1"></el-col>
 			<el-text class="mx-1">修改者 {{ apiEditorName }}</el-text>
 			<el-col :span="1"></el-col>
@@ -27,19 +27,19 @@
 			<el-text class="mx-1">责任人 {{ apiPrincipalName === '' ? '未指定' : apiPrincipalName }}</el-text>
 			<el-col :span="1"></el-col>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row>
 			<el-text class="mx-1" size="large">接口说明</el-text>
 		</el-row>
 		<el-row>
-			<el-text class="mx-1"> {{ apiOperation.apiInfo.api_desc }}</el-text>
+			<el-text class="mx-1"> {{ apiStore.apiInfo.api_desc }}</el-text>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row>
 			<el-text class="mx-1" size="large">请求参数</el-text>
 		</el-row>
-		<div v-if="apiOperation.apiInfo.api_request_params.length > 0 || apiOperation.apiInfo.api_request_JSON">
-			<div v-for="(item, index) in apiOperation.apiInfo.api_request_params" :key="index">
+		<div v-if="apiStore.apiInfo.api_request_params.length > 0 || apiStore.apiInfo.api_request_JSON">
+			<div v-for="(item, index) in apiStore.apiInfo.api_request_params" :key="index">
 				<el-text class="mx-1">{{ map.get(item.type) }}</el-text>
 				<el-row>
 					<el-table :data="item.params_list" border style="width: 95%">
@@ -52,23 +52,23 @@
 						<el-table-column prop="param_desc" label="desc" />
 					</el-table>
 				</el-row>
-				<el-divider></el-divider>
+				<el-divider />
 			</div>
 		</div>
 		<div v-else class="params-empty">
 			<span>{{ emptyRequestWarning }}</span>
 		</div>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row>
 			<el-text class="mx-1" size="large">请求体(Body-JSON)</el-text>
 		</el-row>
-		<div v-if="apiOperation.apiInfo.api_request_JSON" v-loading="treeBuilding">
+		<div v-if="apiStore.apiInfo.api_request_JSON" v-loading="treeBuilding">
 			<el-tree default-expand-all :data="treeData" :render-content="renderContent" />
 		</div>
 		<div v-else class="params-empty">
 			<span>暂无请求体信息</span>
 		</div>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row>
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
@@ -93,24 +93,25 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import ResponseCard from '../components/ResponseCard.vue';
-import { apiStore } from '@/store/apis.ts';
+import { useStore } from '@/store';
 import { getUserInfo } from '@/api/users';
-import type Node from 'element-plus/es/components/tree/src/model/node';
 import type { TreeNode } from '@/utils/convertSchemaToTree';
 import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
+import ResponseCard from '../components/ResponseCard.vue';
+import type Node from 'element-plus/es/components/tree/src/model/node';
 
-const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
-const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
-const requestMap = new Map().set(0, 'number').set(1, 'integer').set(2, 'string').set(3, 'array');
+const { apiStore } = useStore();
 
-const apiOperation = apiStore();
 const apiResponses = ref<any[]>([]);
 const activeName = ref<number>(0);
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
 const apiEditorName = ref<string>('');
 const treeBuilding = ref<boolean>(false);
+
+const map = new Map().set(0, 'Params').set(1, 'Body(form-data)').set(2, 'Body(x-www-form-unlencoded)').set(3, 'Cookie').set(4, 'Header');
+const statusMap = new Map().set(0, '开发中').set(1, '测试中').set(2, '已发布').set(3, '将废弃');
+const requestMap = new Map().set(0, 'number').set(1, 'integer').set(2, 'string').set(3, 'array');
 const emptyRequestWarning: string = '暂无请求参数';
 const emptyResponseWarning: string = '暂无返回响应';
 
@@ -197,7 +198,7 @@ const timestampToTime = (timestamp: number | null) => {
 };
 
 watch(
-	() => apiOperation.apiInfo,
+	() => apiStore.apiInfo,
 	async (newV, _) => {
 		if (newV) {
 			apiResponses.value = newV.api_responses;
@@ -257,10 +258,8 @@ watch(
 		align-items: center;
 		background-color: #f5f7fa;
 		border-radius: 20px;
-		span {
-			color: #999999;
-			font-size: 16px;
-		}
+		color: #999999;
+		font-size: 16px;
 	}
 
 	.el-row {

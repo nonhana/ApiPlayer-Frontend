@@ -1,5 +1,5 @@
 <template>
-	<div v-loading="logining" class="LoginWindow-wrap">
+	<div v-loading="logining" class="LoginWindow-wrapper">
 		<div v-if="loginType === 0" class="content">
 			<span class="title">登录</span>
 			<el-form :model="userLoginForm" :rules="loginRules">
@@ -25,6 +25,7 @@
 				</div>
 			</el-row>
 		</div>
+
 		<div v-if="loginType === 1" class="content">
 			<span class="title">注册</span>
 			<el-form :model="userRegisterForm" :rules="registerRules">
@@ -77,12 +78,12 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useBaseStore } from '@/store/index';
+import { useStore } from '@/store';
+import { login, register, sendCaptcha, getUserInfo } from '@/api/users';
 import type { UserInfo } from '@/utils/types';
+import { validateEmail } from '@/utils/validate.ts';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
-import { login, register, sendCaptcha, getUserInfo } from '@/api/users.ts';
-import { validateEmail } from '@/utils/validate.ts';
 
 // 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
 interface LoginRuleForm {
@@ -98,14 +99,15 @@ interface RegisterRuleForm {
 	password_again: string;
 }
 
-const store = useBaseStore();
+const { baseStore } = useStore();
 const router = useRouter();
+
 const logining = ref<boolean>(false);
 // el-form自定义表单验证规则：确认密码是否一致
 const checkPassword = (_: any, value: any, callback: any) => {
 	if (value.trim().length === 0) {
 		callback(new Error('确认密码不能为空'));
-	} else if (value != userRegisterForm.value.password) {
+	} else if (value !== userRegisterForm.value.password) {
 		callback(new Error('两次密码不一致'));
 	} else {
 		callback();
@@ -126,22 +128,23 @@ const registerRules = reactive<FormRules<RegisterRuleForm>>({
 });
 
 // 登录表单
-let userLoginForm = ref({
+const userLoginForm = ref({
 	email: '',
 	password: '',
 	verify_code: '',
 });
 // 注册表单
-let userRegisterForm = ref({
+const userRegisterForm = ref({
 	email: '',
 	verify_code: '',
 	password: '',
 	password_again: '',
 });
-let loginType = ref<number>(0);
-let verifyCodeStatus = ref<boolean>(false);
-let verifyCodeTimer = ref<number>(60);
-let timer: any = null;
+const loginType = ref<number>(0);
+const verifyCodeStatus = ref<boolean>(false);
+const verifyCodeTimer = ref<number>(60);
+
+let timer: number;
 
 const sendVerifyCode = async () => {
 	await sendCaptcha({ email: userRegisterForm.value.email });
@@ -176,7 +179,7 @@ const myLogin = async () => {
 				user_sign: userInfoSource.introduce,
 			} as UserInfo;
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
-			store.setUserInfo(userInfo);
+			baseStore.setUserInfo(userInfo);
 			router.push({ name: 'main' });
 			ElNotification({
 				title: '登录成功',
@@ -187,7 +190,7 @@ const myLogin = async () => {
 		logining.value = false;
 	}
 };
-const myRegister = () => {
+const myRegister = async () => {
 	if (
 		userRegisterForm.value.email === '' ||
 		userRegisterForm.value.password === '' ||
@@ -214,31 +217,22 @@ const myRegister = () => {
 			user_sign: 'A passionate developer and lifelong learner.',
 		};
 		localStorage.setItem('userInfo', JSON.stringify(userInfo));
-		store.setUserInfo(userInfo);
+		baseStore.setUserInfo(userInfo);
 
-		register({
+		const res = await register({
 			email: userRegisterForm.value.email,
 			captcha: userRegisterForm.value.verify_code,
 			password: userRegisterForm.value.password,
-		}).then(
-			(res) => {
-				if (res.data) {
-					loginType.value = 0;
-					ElNotification({
-						title: '注册成功',
-						message: '请登录！',
-						type: 'success',
-					});
-				}
-			},
-			() => {
-				ElNotification({
-					title: '注册失败',
-					message: '请求服务器失败',
-					type: 'error',
-				});
-			}
-		);
+		});
+
+		if (res.data.result_code === 0) {
+			loginType.value = 0;
+			ElNotification({
+				title: '注册成功',
+				message: '请登录！',
+				type: 'success',
+			});
+		}
 	}
 };
 // 当按下回车键时，触发登录
@@ -272,12 +266,12 @@ watch(loginType, (newV, _) => {
 </script>
 
 <style scoped lang="less">
-.LoginWindow-wrap {
+.LoginWindow-wrapper {
 	position: relative;
 	width: 400px;
 	padding: 40px 0 100px;
 	border-radius: 50px;
-	background: #ffffff;
+	background: #fff;
 	overflow: hidden;
 	.content {
 		display: flex;
@@ -294,17 +288,15 @@ watch(loginType, (newV, _) => {
 			margin-top: 40px;
 			align-items: center;
 			width: 330px;
-			span {
-				font-family: Microsoft YaHei;
-				font-size: 18px;
-				font-weight: normal;
-				color: #3d3d3d;
-			}
+			font-family: Microsoft YaHei;
+			font-size: 18px;
+			font-weight: normal;
+			color: #3d3d3d;
 			.button-text {
 				font-family: Microsoft YaHei;
 				font-size: 14px;
 				font-weight: normal;
-				color: #ffffff;
+				color: #fff;
 			}
 		}
 		.tip {
@@ -315,9 +307,9 @@ watch(loginType, (newV, _) => {
 			color: #3d3d3d;
 			span {
 				cursor: pointer;
-			}
-			span:hover {
-				color: #59a8b9;
+				&:hover {
+					color: #59a8b9;
+				}
 			}
 		}
 		.button {
@@ -331,15 +323,13 @@ watch(loginType, (newV, _) => {
 			background: #59a8b9;
 			cursor: pointer;
 			transition: all 0.3s ease;
-			span {
-				font-family: Source Han Sans CN;
-				font-size: 16px;
-				font-weight: normal;
-				color: #ffffff;
+			font-family: Source Han Sans CN;
+			font-size: 16px;
+			font-weight: normal;
+			color: #fff;
+			&:hover {
+				box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 			}
-		}
-		.button:hover {
-			box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 		}
 	}
 }
@@ -352,3 +342,4 @@ watch(loginType, (newV, _) => {
 	margin: 0;
 }
 </style>
+@/utils/types/types

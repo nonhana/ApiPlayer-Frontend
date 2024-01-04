@@ -10,7 +10,6 @@ declare module 'vue' {
     ChooseApi: typeof import('./components/project/ModelDetails/components/ChooseApi.vue')['default']
     CommonAside: typeof import('./components/CommonAside.vue')['default']
     CommonHeader: typeof import('./components/CommonHeader.vue')['default']
-    Default: typeof import('./components/project/ModelDetails/components/Default.vue')['default']
     Doc: typeof import('./components/project/ModelDetails/doc/index.vue')['default']
     Edit: typeof import('./components/project/ModelDetails/edit/index.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']

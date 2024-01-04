@@ -98,7 +98,7 @@
 		</template>
 	</el-dialog>
 
-	<div class="MemberPermission-wrap">
+	<div class="MemberPermission-wrapper">
 		<div class="statistic">
 			<div class="statistic-item">
 				<el-statistic title="团队管理者" :value="adminNum" />
@@ -160,41 +160,17 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
-import { Search, CirclePlusFilled } from '@element-plus/icons-vue';
-import { FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus';
-import { inviteUser, setMemberIdentity, removeMember } from '@/api/teams';
-import type { TeamIdentity } from '@/api/teams';
-import { searchUser } from '@/api/users';
-import { useBaseStore } from '@/store';
+import { useStore } from '@/store';
 import { useRoute } from 'vue-router';
-
-interface User {
-	id: number;
-	avatar: string;
-	email: string;
-	name: string;
-	team_name: string;
-	tag: string;
-	projectAbility: {
-		image: string;
-		title: string;
-		ability: string;
-	}[];
-}
-interface RuleForm {
-	username: string;
-	searchUserData: User[];
-}
+import { searchUser } from '@/api/users';
+import { inviteUser, setMemberIdentity, removeMember } from '@/api/teams';
+import type { TeamIdentity } from '@/api/teams/types';
+import type { User } from '@/utils/types';
+import { FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus';
+import { Search, CirclePlusFilled } from '@element-plus/icons-vue';
 
 const route = useRoute();
-const baseStore = useBaseStore();
-
-// const canModifyMemberPermission = computed(() => {
-// 	return (
-// 		baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.ADMIN ||
-// 		baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.EDITOR
-// 	);
-// });
+const { baseStore } = useStore();
 
 // 初始化user
 const user = ref<User>({
@@ -206,13 +182,18 @@ const user = ref<User>({
 	tag: '',
 	projectAbility: [],
 });
-const colorMap = new Map().set('团队所有者', 'danger').set('团队管理者', 'warning').set('团队成员', 'success').set('游客', 'info');
-const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
-const identityMapReverse = new Map().set('团队所有者', 0).set('团队管理者', 1).set('团队成员', 2).set('游客', 3);
-const projectMap = new Map().set(0, '管理员').set(1, '编辑者').set(2, '只读成员').set(3, '禁止访问');
-const projectMapReverse = new Map().set('管理员', 0).set('编辑者', 1).set('只读成员', 2).set('禁止访问', 3);
 const inviteDialog = ref<boolean>(false);
 const inviteFormRef = ref<FormInstance>();
+const settingDialog = ref<boolean>(false);
+const settingFormRef = ref<FormInstance>();
+const settingFormRules = reactive<FormRules<User>>({
+	tag: [{ required: true, message: '请选择所有权限', trigger: 'blur' }],
+});
+
+interface RuleForm {
+	username: string;
+	searchUserData: User[];
+}
 const inviteForm = reactive<RuleForm>({
 	username: '',
 	searchUserData: [],
@@ -220,11 +201,13 @@ const inviteForm = reactive<RuleForm>({
 const inviteFormRules = reactive<FormRules<RuleForm>>({
 	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
 });
-const settingDialog = ref<boolean>(false);
-const settingFormRef = ref<FormInstance>();
-const settingFormRules = reactive<FormRules<User>>({
-	tag: [{ required: true, message: '请选择所有权限', trigger: 'blur' }],
-});
+
+const colorMap = new Map().set('团队所有者', 'danger').set('团队管理者', 'warning').set('团队成员', 'success').set('游客', 'info');
+const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
+const identityMapReverse = new Map().set('团队所有者', 0).set('团队管理者', 1).set('团队成员', 2).set('游客', 3);
+const projectMap = new Map().set(0, '管理员').set(1, '编辑者').set(2, '只读成员').set(3, '禁止访问');
+const projectMapReverse = new Map().set('管理员', 0).set('编辑者', 1).set('只读成员', 2).set('禁止访问', 3);
+
 // 项目权限列表:0-管理员，1-编辑者，2-只读成员，3-禁止访问
 const projectIdentities = [
 	{
@@ -393,6 +376,7 @@ watch(settingDialog, (newV, _) => {
 		};
 	}
 });
+
 watch(inviteDialog, (newV, _) => {
 	if (!newV) {
 		// 关闭dialog时，清空数据
@@ -403,7 +387,7 @@ watch(inviteDialog, (newV, _) => {
 </script>
 
 <style scoped lang="less">
-.MemberPermission-wrap {
+.MemberPermission-wrapper {
 	.statistic {
 		height: 120px;
 		display: flex;

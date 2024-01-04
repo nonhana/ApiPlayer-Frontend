@@ -1,5 +1,5 @@
 <template>
-	<div class="team-wrap">
+	<div class="TeamWindow-wrapper">
 		<div class="team-header">
 			<div class="team-name">{{ baseStore.teamDetailedInfo.team_info.team_name }}</div>
 			<div>
@@ -110,25 +110,24 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { useRoute } from 'vue-router';
+import { useStore } from '@/store';
+import { addProject, uploadProjectIcon } from '@/api/projects';
+import { ProjectRole } from '@/utils/projectPermission';
+import type { AddProjectForm } from '@/utils/types';
 import ProjectList from '@/components/team/ProjectList.vue';
 import MemberPermission from '@/components/team/MemberPermission.vue';
 import TeamSetting from '@/components/team/TeamSetting.vue';
-import { useRoute } from 'vue-router';
-import { addProject, uploadProjectIcon } from '@/api/projects';
-import { useBaseStore } from '@/store/index';
+import VuePictureCropper, { cropper } from 'vue-picture-cropper';
+import { ElMessage } from 'element-plus';
 import type { TabsPaneContext } from 'element-plus';
 import { Search, Plus } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
-import VuePictureCropper, { cropper } from 'vue-picture-cropper';
-import { ProjectRole } from '@/utils/projectPermission';
 
-// 获取文件上传的input元素
-const fileRef = ref<HTMLInputElement>();
-const baseStore = useBaseStore();
 const route = useRoute();
-const colorMap = new Map().set(0, 'danger').set(1, 'warning').set(2, 'success').set(3, 'info');
-const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
+const { baseStore } = useStore();
+
+const fileRef = ref<HTMLInputElement>();
 const activeName = ref<string>('first');
 const searchContent = ref<string>('');
 const addProjectDialog = ref<boolean>(false);
@@ -136,18 +135,15 @@ const isShowMiddleRight = ref<boolean>(true);
 const cutImgDialog = ref<boolean>(false);
 const showTemplate = ref<boolean>(false);
 const gettingProject = ref<boolean>(false);
-interface AddProjectForm {
-	user_id: number;
-	team_id: number;
-	project_name: string;
-	project_img: string;
-}
 const addProjectForm = ref<AddProjectForm>({
 	user_id: 0,
 	team_id: 0,
 	project_name: '',
 	project_img: '',
 });
+
+const colorMap = new Map().set(0, 'danger').set(1, 'warning').set(2, 'success').set(3, 'info');
+const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
 
 let sourceFile: File | null | undefined = null;
 let sourceFileURL: string = '';
@@ -191,7 +187,7 @@ const confirmCreate = async () => {
 const fileChange = () => {
 	sourceFile = fileRef.value?.files?.[0] || null;
 	croppedFileType = sourceFile?.type ?? '';
-	if (sourceFile != null) {
+	if (sourceFile !== null) {
 		cutImgDialog.value = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
 	}
@@ -244,7 +240,7 @@ watch(
 </script>
 
 <style scoped lang="less">
-.team-wrap {
+.TeamWindow-wrapper {
 	width: 100%;
 	height: 100%;
 	padding: 0 32px;
@@ -309,7 +305,7 @@ watch(
 			font-family: Microsoft YaHei;
 			font-size: 14px;
 			font-weight: normal;
-			color: #ffffff;
+			color: #fff;
 		}
 		z-index: 10;
 	}

@@ -1,5 +1,5 @@
 <template>
-	<div id="app">
+	<div class="JsonSchemaEditor-wrapper">
 		<json-schema-editor :value="tree" />
 	</div>
 </template>
@@ -18,7 +18,6 @@ const props = withDefaults(
 		responseData: {},
 	}
 );
-
 const emits = defineEmits<{
 	(e: 'sendResponse', value: any, count: number): void;
 }>();
@@ -28,12 +27,12 @@ const sendCount = ref<number>(0);
 
 watch(
 	() => props.responseData,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			if (newVal.root) {
-				tree.value.root = newVal.root;
+	(newV, _) => {
+		if (newV !== undefined && newV !== null) {
+			if (newV.root) {
+				tree.value.root = newV.root;
 			} else {
-				tree.value.root = newVal;
+				tree.value.root = newV;
 			}
 		}
 	},
@@ -42,10 +41,10 @@ watch(
 
 watch(
 	tree.value,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
+	(newV, _) => {
+		if (newV !== undefined && newV !== null) {
 			sendCount.value++;
-			emits('sendResponse', newVal, sendCount.value);
+			emits('sendResponse', newV, sendCount.value);
 		}
 	},
 	{ immediate: true, deep: true }
@@ -59,3 +58,10 @@ watch(
 	{ immediate: true, deep: true }
 );
 </script>
+
+<style scoped lang="less">
+.JsonSchemaEditor-wrapper {
+	position: relative;
+	width: 100%;
+}
+</style>

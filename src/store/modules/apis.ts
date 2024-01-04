@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { getApiInfo } from '@/api/apis';
 
-export const apiStore = defineStore('apiStore', {
+export const useApiStore = defineStore('apiStore', {
 	state: () => {
 		return {
 			apiInfo: <any>{},

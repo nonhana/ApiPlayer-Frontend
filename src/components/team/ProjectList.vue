@@ -1,5 +1,5 @@
 <template>
-	<div class="project-wrap">
+	<div class="ProjectList-wrapper">
 		<div v-if="baseStore.teamDetailedInfo.project_list.length === 0" class="empty-alert">
 			<el-empty description="该团队目前还没有项目哦~" :image-size="200" />
 		</div>
@@ -11,11 +11,11 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
+import { useStore } from '@/store';
 import { teamInfo } from '@/api/teams';
-import { useBaseStore } from '@/store';
 import ProjectItem from './components/ProjectItem.vue';
 
-const baseStore = useBaseStore();
+const { baseStore } = useStore();
 
 onMounted(async () => {
 	await teamInfo({ team_id: baseStore.curTeamInfo.team_id });
@@ -23,7 +23,7 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-.project-wrap {
+.ProjectList-wrapper {
 	width: 100%;
 	display: flex;
 	flex-wrap: wrap;

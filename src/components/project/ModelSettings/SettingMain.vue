@@ -56,7 +56,6 @@
 		<div class="uploadBtn" @click="uploadFile">选择图标</div>
 		<input v-show="false" ref="fileRef" placeholder="选择图标" autocomplete="off" type="file" @change="fileChange" />
 	</el-dialog>
-
 	<el-dialog v-model="windowShowList[0]" title="图片裁剪" width="800px" :before-close="handleClose">
 		<vue-picture-cropper
 			:box-style="{
@@ -81,7 +80,7 @@
 		</template>
 	</el-dialog>
 
-	<div class="setting-wrap">
+	<div class="SettingMain-wrapper">
 		<div class="header">基本设置</div>
 		<el-divider />
 		<div class="container">
@@ -114,7 +113,6 @@
 							<div class="label title">项目图标</div>
 							<div class="label description">
 								<img v-if="projectInfo?.project_img" :src="projectInfo.project_img" alt="" style="width: 50px; border-radius: 4px" />
-								<!-- <img v-if="!projectInfo?.project_img" style="width: 40px; border-radius: 6px" src="../../../static/projectIcons/12.jpg" /> -->
 							</div>
 						</div>
 					</div>
@@ -161,56 +159,40 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useStore } from '@/store';
+import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '@/api/projects';
+import { ProjectRole } from '@/utils/projectPermission';
+import type { ProjectInfo } from '@/utils/types';
+import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getProjectBasicInfo, updateProjectBasicInfo, deleteProject, uploadProjectIcon } from '../../../api/projects';
-import { useBaseStore } from '../../../store/index';
-import { useRouter, useRoute } from 'vue-router';
 
-import VuePictureCropper, { cropper } from 'vue-picture-cropper';
-
-import { ProjectRole } from '@/utils/projectPermission';
-
-interface ProjectInfo {
-	project_current_type?: number;
-	project_desc?: string;
-	project_id?: number;
-	project_img?: string;
-	project_name?: string;
-	team_id?: number;
-}
-
-const baseStore = useBaseStore();
 const router = useRouter();
 const route = useRoute();
+const { baseStore } = useStore();
 
 const deleteTeamDialog = ref(false);
 const changeTeamNameDialog = ref(false);
 const changeTeamDescDialog = ref(false);
 const uploadIconDialog = ref(false);
 
-let projectInfo = reactive<ProjectInfo>({});
-let projectName = ref(projectInfo.project_name);
-let projectDesc = ref(projectInfo.project_desc);
+const projectInfo = reactive<ProjectInfo>({});
+const projectName = ref(projectInfo.project_name);
+const projectDesc = ref(projectInfo.project_desc);
 
 const printTeamName = ref('');
 
 const fileRef = ref<HTMLInputElement>();
 let sourceFile: File | null | undefined = null;
-// let sourceFileURL = ref('');
-let windowShowList = ref<boolean[]>([false]);
+const windowShowList = ref<boolean[]>([false]);
 
 let sourceFileURL: string = '';
 let croppedFile: File | null | undefined = null;
-let croppedFileURL = ref<string>('');
+const croppedFileURL = ref<string>('');
 let croppedFileType: string = ''; // 裁剪后的文件类型
 
-interface RuleForm {
-	name: string;
-}
-
 const canDeletePro = computed(() => {
-	// const roleList: any = baseStore.projectRoleList;
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.ADMIN;
 });
 const canModifyProjectInfo = computed(() => {
@@ -218,10 +200,16 @@ const canModifyProjectInfo = computed(() => {
 });
 
 const teamFormRef = ref<FormInstance>();
-const teamForm = reactive<RuleForm>({
+const teamForm = reactive<{
+	name: string;
+}>({
 	name: '',
 });
-const teamRules = reactive<FormRules<RuleForm>>({
+const teamRules = reactive<
+	FormRules<{
+		name: string;
+	}>
+>({
 	name: [{ required: true, message: '请输入团队名称', trigger: 'blur' }],
 });
 const getProjectInfos = async () => {
@@ -297,7 +285,7 @@ const fileChange = () => {
 	// windowShowList.value[0] = true;
 	sourceFile = fileRef.value?.files?.[0] || null;
 	croppedFileType = sourceFile?.type ?? '';
-	if (sourceFile != null) {
+	if (sourceFile !== null) {
 		windowShowList.value[0] = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
 	}
@@ -350,7 +338,7 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-.setting-wrap {
+.SettingMain-wrapper {
 	width: 90%;
 	margin-left: 0px;
 

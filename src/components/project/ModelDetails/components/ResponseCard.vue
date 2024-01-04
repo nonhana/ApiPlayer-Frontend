@@ -1,15 +1,15 @@
 <template>
-	<div class="index">
+	<div class="ResponseCard-wrapper">
 		<el-row>
-			<el-col :span="5">
+			<div>
 				<el-text class="mx-1" type="info">HTTP状态码：{{ props.context.http_status }}</el-text>
-			</el-col>
-			<el-col :span="5">
+			</div>
+			<div>
 				<el-text class="mx-1" type="info">内容格式：JSON</el-text>
-			</el-col>
+			</div>
 		</el-row>
 		<el-row>
-			<el-col class="cardA">
+			<div class="cardA">
 				<el-card class="box-card" shadow="never">
 					<template #header>
 						<div class="card-header">
@@ -20,16 +20,16 @@
 						<el-tree default-expand-all :data="treeData" :render-content="renderContent" />
 					</div>
 				</el-card>
-			</el-col>
+			</div>
 		</el-row>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import type Node from 'element-plus/es/components/tree/src/model/node';
-import type { TreeNode, SchemaNode } from '@/utils/convertSchemaToTree';
 import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
+import type { TreeNode, SchemaNode } from '@/utils/convertSchemaToTree';
+import type Node from 'element-plus/es/components/tree/src/model/node';
 
 // 从父组件拿到的数据
 const props = defineProps<{
@@ -129,7 +129,7 @@ watch(
 </script>
 
 <style scoped lang="less">
-.index {
+.ResponseCard-wrapper {
 	width: 1000px;
 	.cardA {
 		.card-header {

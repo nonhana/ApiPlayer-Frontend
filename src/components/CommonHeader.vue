@@ -1,21 +1,21 @@
 <template>
-	<div class="CommonHeader-wrap">
-		<img style="cursor: pointer" src="../static/svg/HeaderLogo.svg" @click="userAction('3')" />
+	<div class="CommonHeader-wrapper">
+		<img style="cursor: pointer" :src="HeaderLogo" alt="HeaderLogo" @click="userAction('3')" />
 		<div class="user-info">
-			<img class="message" src="../static/svg/HeaderMessage.svg" />
+			<img class="message" :src="HeaderMessage" alt="HeaderMessage" />
 			<el-dropdown class="user-head" @command="userAction">
 				<img :src="userImg" />
 				<template #dropdown>
 					<el-dropdown-menu>
 						<el-dropdown-item command="1">
 							<div class="choice">
-								<img src="../static/svg/HeaderPersonalCenter.svg" />
+								<img :src="HeaderPersonalCenter" alt="HeaderPersonalCenter" />
 								<span>个人中心</span>
 							</div>
 						</el-dropdown-item>
 						<el-dropdown-item command="2">
 							<div class="choice">
-								<img src="../static/svg/HeaderExit.svg" />
+								<img :src="HeaderExit" alt="HeaderExit" />
 								<span>退出登录</span>
 							</div>
 						</el-dropdown-item>
@@ -27,15 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from 'vue-router';
-import type { UserInfo } from '../utils/types';
 import { ref, reactive, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import type { UserInfo } from '@/utils/types';
+import HeaderLogo from '@/static/svg/HeaderLogo.svg';
+import HeaderMessage from '@/static/svg/HeaderMessage.svg';
+import HeaderPersonalCenter from '@/static/svg/HeaderPersonalCenter.svg';
+import HeaderExit from '@/static/svg/HeaderExit.svg';
+
+const router = useRouter();
+const route = useRoute();
 
 const cxt = getCurrentInstance();
 const bus = cxt?.appContext.config.globalProperties.$bus;
 
-const router = useRouter();
-const route = useRoute();
 const userImg = ref(JSON.parse(localStorage.getItem('userInfo')!).user_img);
 let userInfo: UserInfo = reactive(JSON.parse(localStorage.getItem('userInfo') as string));
 
@@ -54,7 +59,7 @@ const userAction = (command: string) => {
 			break;
 		case '3':
 			// 当前路由如果是team开头的，意味已经到首页了
-			if (route.fullPath.split('/')[1] != 'team' && route.fullPath.split('/')[1] != 'recentVisit') {
+			if (route.fullPath.split('/')[1] !== 'team' && route.fullPath.split('/')[1] !== 'recentVisit') {
 				router.push({
 					path: '/',
 				});
@@ -67,17 +72,18 @@ onMounted(() => {
 		userImg.value = JSON.parse(localStorage.getItem('userInfo')!).user_img;
 	});
 });
+
 onBeforeUnmount(() => {
 	bus.off('updateAvatar');
 });
 </script>
 
 <style scoped lang="less">
-.CommonHeader-wrap {
+.CommonHeader-wrapper {
 	position: relative;
 	width: 1300px;
 	height: 60px;
-	background: #ffffff;
+	background: #fff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -101,17 +107,13 @@ onBeforeUnmount(() => {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-
+			font-family: Microsoft YaHei;
+			font-size: 14px;
+			font-weight: normal;
+			color: #3d3d3d;
 			img {
 				width: 40px;
 				height: 40px;
-			}
-
-			span {
-				font-family: Microsoft YaHei;
-				font-size: 14px;
-				font-weight: normal;
-				color: #3d3d3d;
 			}
 		}
 	}

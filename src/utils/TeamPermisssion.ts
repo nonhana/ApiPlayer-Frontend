@@ -1,11 +1,4 @@
-import { usePermisssiontStore } from '@/store/permissons';
-
-// export enum TeamRole {
-// 	OWNER = 'Owner',
-// 	ADMIN = 'Admin',
-// 	MEMBER = 'Member',
-// 	GUEST = 'Guest',
-// }
+import { useStore } from '@/store';
 
 export enum TeamRole {
 	OWNER = 0,
@@ -14,11 +7,10 @@ export enum TeamRole {
 	GUEST = 3,
 }
 
-const baseStore = usePermisssiontStore();
-const role = baseStore.getTeamRole();
+const { permissionStore } = useStore();
+const role = permissionStore.getTeamRole();
 
 export function canEditTeam(): boolean {
-	// const role = getUserRole();
 	return role === TeamRole.OWNER;
 }
 

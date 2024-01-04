@@ -8,17 +8,18 @@
 </template>
 
 <script setup lang="ts">
-import MainWindow from '../../components/personalCenter/MainWindow.vue';
-import CommonHeader from '../../components/CommonHeader.vue';
+import MainWindow from '@/components/personalCenter/MainWindow.vue';
+import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <style scoped lang="less">
 .index {
+	position: relative;
 	width: 100%;
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
-	.index-main {
+	&-main {
 		display: flex;
 		justify-content: center;
 	}

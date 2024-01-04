@@ -1,5 +1,5 @@
 <template>
-	<div class="project" @click="goDetail(index)">
+	<div class="ProjectItem-wrapper" @click="goDetail(index)">
 		<div class="project-header">
 			<div class="project-img">
 				<el-image shape="square" size="20" :src="project.project_img">
@@ -47,28 +47,13 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { addRecentProject, deleteProject, updateProjectBasicInfo } from '@/api/projects';
 import { useRouter, useRoute } from 'vue-router';
-import { useBaseStore } from '@/store';
+import { useStore } from '@/store';
+import { addRecentProject, deleteProject, updateProjectBasicInfo } from '@/api/projects';
 import { ProjectRole } from '@/utils/projectPermission';
+import type { Project } from '@/utils/types';
 import { ElNotification, ElMessageBox, ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
-
-interface Project {
-	project_id: number;
-	project_img: string;
-	project_name: string;
-	project_member_list: Array<{
-		user_id: number;
-		user_name: string;
-		user_img: string;
-		user_email: string;
-		user_identity: number;
-	}>;
-}
-interface RuleForm {
-	name: string;
-}
 
 defineProps<{
 	project: Project;
@@ -77,15 +62,21 @@ defineProps<{
 
 const route = useRoute();
 const router = useRouter();
-const baseStore = useBaseStore();
+const { baseStore } = useStore();
 
 const projectName = ref<string>('');
 const changeProjectDialog = ref<boolean>(false);
 const formRef = ref<FormInstance>();
-const form = reactive<RuleForm>({
+const form = reactive<{
+	name: string;
+}>({
 	name: '',
 });
-const rules = reactive<FormRules<RuleForm>>({
+const rules = reactive<
+	FormRules<{
+		name: string;
+	}>
+>({
 	name: [{ required: true, message: '请输入项目名称', trigger: 'blur' }],
 });
 
@@ -158,7 +149,7 @@ const goDetail = async (index: number) => {
 </script>
 
 <style scoped lang="less">
-.project {
+.ProjectItem-wrapper {
 	margin: 30px;
 	width: 250px;
 	display: flex;
@@ -168,6 +159,9 @@ const goDetail = async (index: number) => {
 	padding: 16px;
 	cursor: pointer;
 	transition: all 0.3s;
+	&:hover {
+		box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.16);
+	}
 	.dialog-title {
 		color: rgba(16, 24, 40, 0.8);
 		font-size: 16px;
@@ -191,12 +185,9 @@ const goDetail = async (index: number) => {
 			font-size: 14px;
 		}
 	}
-}
-.project:hover {
-	box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.16);
-}
-.dialog-btn {
-	color: #fff;
-	font-size: 14px;
+	.dialog-btn {
+		color: #fff;
+		font-size: 14px;
+	}
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="MainWindow-wrap">
+	<div class="MainWindow-wrapper">
 		<el-row type="flex" justify="start" style="align-items: center; width: 100%; height: 100px">
 			<div class="title">
 				<span>头像</span>
@@ -32,7 +32,7 @@
 				</el-image>
 			</div>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -46,7 +46,7 @@
 				<span>编辑</span>
 			</div>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -60,7 +60,7 @@
 				<span>编辑</span>
 			</div>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider />
 		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -74,7 +74,7 @@
 				<span>修改</span>
 			</div>
 		</el-row>
-		<el-divider></el-divider>
+		<el-divider />
 		<!-- <el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -88,7 +88,7 @@
 				<span>修改</span>
 			</div>
 		</el-row>
-		<el-divider></el-divider> -->
+		<el-divider /> -->
 		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -254,23 +254,23 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount, watch, getCurrentInstance } from 'vue';
-import type { UserInfo } from '../../utils/types';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { useStore } from '@/store';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
-import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha, changEmail, changPassword, sendCaptchaChangPassword } from '../../api/users.ts';
+import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha, changEmail, changPassword, sendCaptchaChangPassword } from '@/api/users';
+import type { UserInfo } from '@/utils/types';
+import { validateEmail } from '@/utils/validate.ts';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { Picture as IconPicture } from '@element-plus/icons-vue';
-import { validateEmail } from '../../utils/validate.ts';
-import { useBaseStore } from '@/store';
 
-const baseStore = useBaseStore();
+const { baseStore } = useStore();
 
-const cxt = getCurrentInstance();
-const bus = cxt?.appContext.config.globalProperties.$bus;
+// 获取事件总线
+const bus = getCurrentInstance()?.appContext.config.globalProperties.$bus;
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
 
-let userInfo = ref<UserInfo>({
+const userInfo = ref<UserInfo>({
 	user_id: 0,
 	user_name: '',
 	user_img: '',
@@ -278,10 +278,10 @@ let userInfo = ref<UserInfo>({
 	user_phone: '',
 	user_sign: '',
 });
-let userSign = ref<string>();
-let userName = ref<string>();
-let showTemplate = ref<boolean>(false);
-let windowShowList = ref<boolean[]>([false, false, false, false, false, false]);
+const userSign = ref<string>();
+const userName = ref<string>();
+const showTemplate = ref<boolean>(false);
+const windowShowList = ref<boolean[]>([false, false, false, false, false, false]);
 
 const croppedFileURL = ref<string>('');
 let sourceFile: File | null | undefined = null;
@@ -299,14 +299,14 @@ const pwdChangeInfo = ref({
 	verify_code_timer: 60,
 	timer: 0,
 });
-let emailChangeInfo = ref({
+const emailChangeInfo = ref({
 	email: '',
 	verify_code: '',
 	verify_code_status: false,
 	verify_code_timer: 60,
 	timer: 0,
 });
-let phoneNumberChangeInfo = ref({
+const phoneNumberChangeInfo = ref({
 	phone_number: '',
 	verify_code: '',
 	verify_code_status: false,
@@ -328,7 +328,7 @@ const uploadFile = () => {
 const fileChange = () => {
 	sourceFile = fileRef.value?.files?.[0] || null;
 	croppedFileType = sourceFile?.type ?? '';
-	if (sourceFile != null) {
+	if (sourceFile !== null) {
 		windowShowList.value[0] = true;
 		sourceFileURL = URL.createObjectURL(sourceFile as Blob);
 	}
@@ -355,7 +355,6 @@ const confirmCropper = async () => {
 		bus.emit('updateAvatar');
 	}
 };
-
 // 修改个人资料
 const changeAction = (type: number) => {
 	if (type === 0) {
@@ -390,7 +389,6 @@ const changeAction = (type: number) => {
 		);
 	}
 };
-
 // 发送验证码
 const sendVerifyCode = (type: number) => {
 	if (type === 0) {
@@ -531,25 +529,21 @@ watch(
 	}
 );
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
 	if (localStorage.getItem('userInfo')) {
 		userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
 		userSign.value = userInfo.value?.user_sign;
 		userName.value = userInfo.value?.user_name;
 	} else {
-		getUserInfo({}).then(
-			(res) => {
-				// userInfo.value = res.data.result.userInfo;
-				userInfo.value!.user_email = res.data.result.userInfo.email;
-				userInfo.value!.user_name = res.data.result.userInfo.username;
-				userInfo.value!.user_sign = res.data.result.userInfo.introduce;
-				userInfo.value!.user_img = res.data.result.userInfo.avatar;
-			},
-			() => {
-				userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
-			}
-		);
-		// userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+		const res = await getUserInfo({});
+		if (res.data.result_code === 0) {
+			userInfo.value!.user_email = res.data.result.userInfo.email;
+			userInfo.value!.user_name = res.data.result.userInfo.username;
+			userInfo.value!.user_sign = res.data.result.userInfo.introduce;
+			userInfo.value!.user_img = res.data.result.userInfo.avatar;
+		} else {
+			userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+		}
 		userSign.value = userInfo.value?.user_sign;
 		userName.value = userInfo.value?.user_name;
 	}
@@ -557,45 +551,73 @@ onBeforeMount(() => {
 </script>
 
 <style scoped lang="less">
-.MainWindow-wrap {
+.MainWindow-wrapper {
 	position: relative;
 	width: 780px;
 	padding: 20px 60px 40px;
 	border-radius: 20px;
-	background: #ffffff;
+	background: #fff;
 	transition: all 0.3s ease;
 	top: 20px;
+	&:hover {
+		box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
+	}
+	.user-head {
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+		cursor: pointer;
+		img {
+			width: 100px;
+		}
+		.template {
+			position: absolute;
+			width: 100px;
+			height: 100px;
+			border-radius: 1000px;
+			background: rgba(0, 0, 0, 0.5);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+			font-family: Microsoft YaHei;
+			font-size: 14px;
+			font-weight: normal;
+			color: #fff;
+			z-index: 10;
+		}
+	}
 	.title {
 		margin-right: 104px;
 		width: 75px;
 		display: flex;
 		justify-content: flex-end;
-		span {
-			font-family: Microsoft YaHei;
-			font-size: 18px;
-			font-weight: normal;
-			color: #3d3d3d;
-		}
+		font-family: Microsoft YaHei;
+		font-size: 18px;
+		font-weight: normal;
+		color: #3d3d3d;
 	}
 	.content {
 		min-width: 180px;
 		height: 20px;
 		padding: 10px;
 		border-radius: 10px;
-		background: #ffffff;
+		background: #fff;
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
 		transition: all 0.3s ease;
-		span {
-			font-family: Microsoft YaHei;
-			font-size: 18px;
-			font-weight: normal;
-			color: #999999;
+		font-family: Microsoft YaHei;
+		font-size: 18px;
+		font-weight: normal;
+		color: #999999;
+		&:hover {
+			box-shadow: inset 0px 4px 16px 0px rgba(0, 0, 0, 0.16);
 		}
-	}
-	.content:hover {
-		box-shadow: inset 0px 4px 16px 0px rgba(0, 0, 0, 0.16);
 	}
 	.button {
 		width: 100px;
@@ -607,51 +629,16 @@ onBeforeMount(() => {
 		align-items: center;
 		transition: all 0.3s ease;
 		cursor: pointer;
-		span {
-			font-family: Microsoft YaHei;
-			font-size: 14px;
-			font-weight: normal;
-			color: #ffffff;
+		font-family: Microsoft YaHei;
+		font-size: 14px;
+		font-weight: normal;
+		color: #fff;
+		&:hover {
+			box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
 		}
 	}
-	.button:hover {
-		box-shadow: inset 0px 4px 10px 0px rgba(0, 0, 0, 0.3);
-	}
 }
-.MainWindow-wrap:hover {
-	box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
-}
-.user-head {
-	width: 100px;
-	height: 100px;
-	border-radius: 1000px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-	cursor: pointer;
-	img {
-		width: 100px;
-	}
-	.template {
-		position: absolute;
-		width: 100px;
-		height: 100px;
-		border-radius: 1000px;
-		background: rgba(0, 0, 0, 0.5);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		cursor: pointer;
-		span {
-			font-family: Microsoft YaHei;
-			font-size: 14px;
-			font-weight: normal;
-			color: #ffffff;
-		}
-		z-index: 10;
-	}
-}
+
 /* transition动画样式 */
 .fade-leave,
 .fade-enter-to {
@@ -665,6 +652,7 @@ onBeforeMount(() => {
 .fade-enter {
 	opacity: 0;
 }
+
 /* dialog样式 */
 :deep(.el-dialog) {
 	border-radius: 20px;
@@ -674,3 +662,4 @@ onBeforeMount(() => {
 	justify-content: center;
 }
 </style>
+@/utils/types/types

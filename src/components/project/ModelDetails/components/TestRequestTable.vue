@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="TestRequestTable-wrapper">
 		<el-table :data="tableData" stripe table-layout="auto" style="width: 100%" :editable="true" border>
 			<el-table-column prop="name" label="name" width="200" align="center">
 				<template #default="scope">
@@ -33,7 +33,7 @@ const props = defineProps<{
 }>();
 
 const requestData = ref(props.requestData);
-let tableData = ref(requestData.value.params_list);
+const tableData = ref(requestData.value.params_list);
 
 const handleAddDetails = (index: number) => {
 	let obj = {
@@ -48,17 +48,21 @@ const handleDelete = (index: number) => {
 
 watch(
 	props.requestData,
-	(newVal, _) => {
-		if (newVal != undefined && newVal != null) {
-			requestData.value = newVal;
+	(newV, _) => {
+		if (newV !== undefined && newV !== null) {
+			requestData.value = newV;
 		}
 	},
 	{ immediate: true, deep: true }
 );
 </script>
 
-<style lang="less">
-.ipt {
-	border: 0px;
+<style scoped lang="less">
+.TestRequestTable-wrapper {
+	position: relative;
+	width: 100%;
+	.ipt {
+		border: 0px;
+	}
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="SideBar-wrap">
+	<div class="SideBar-wrapper">
 		<div style="width: 228px">
 			<el-tree
 				:data="dataSource"
@@ -19,35 +19,28 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '@/api/projects';
+import { useStore } from '@/store';
 import { addApi, updateApi, deleteApi } from '@/api/apis';
-import type { ApiAddInfo } from '@/api/apis';
-import { ElMessageBox, ElMessage } from 'element-plus';
-import { apiStore } from '@/store/apis.ts';
-import type Node from 'element-plus/es/components/tree/src/model/node';
-import type { NodeDropType } from 'element-plus/es/components/tree/src/tree.type';
-// 导入svg图片
+import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '@/api/projects';
+import type { ApiAddInfo } from '@/api/apis/types';
+import type { Tree } from '@/utils/types';
 import DictClosed from '@/static/svg/ProjectDetailsSideBarDictClosed.svg';
 import NewDict from '@/static/svg/ProjectDetailsSideBarNewDict.svg';
 import NewApi from '@/static/svg/ProjectDetailsSideBarNewApi.svg';
 import Delete from '@/static/svg/ProjectDetailsSideBarDelete.svg';
-
-interface Tree {
-	id: number;
-	label: string;
-	type: string;
-	children: Tree[];
-}
+import { ElMessageBox, ElMessage } from 'element-plus';
+import type Node from 'element-plus/es/components/tree/src/model/node';
+import type { NodeDropType } from 'element-plus/es/components/tree/src/tree.type';
 
 const route = useRoute();
 const router = useRouter();
-const apiOperation = apiStore();
+const { apiStore } = useStore();
 
-let newChild = ref<Tree>({ id: 0, label: '', type: '', children: [] });
-let dataSource = ref<Tree[]>([]);
-let copyDataSource = ref<Tree[]>([]);
-let windowShowList = ref<boolean[]>([false]);
-let showInputBox = ref<boolean[]>([]);
+const newChild = ref<Tree>({ id: 0, label: '', type: '', children: [] });
+const dataSource = ref<Tree[]>([]);
+const copyDataSource = ref<Tree[]>([]);
+const windowShowList = ref<boolean[]>([false]);
+const showInputBox = ref<boolean[]>([]);
 
 // 节点拖曳相关函数
 const handleDragStart = () => {
@@ -379,7 +372,7 @@ const checkoutApi = (node: Tree) => {
 	}
 };
 const getInfo = async (thisId: number) => {
-	await apiOperation.getApiInfo(thisId);
+	await apiStore.getApiInfo(thisId);
 };
 
 onBeforeMount(async () => {
@@ -402,7 +395,7 @@ onBeforeMount(async () => {
 </script>
 
 <style scoped lang="less">
-.SideBar-wrap {
+.SideBar-wrapper {
 	width: 230px;
 	border: 1px solid #bdbdbd;
 	border-radius: 10px;

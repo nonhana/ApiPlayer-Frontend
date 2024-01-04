@@ -1,32 +1,31 @@
 <template>
-	<div class="main">
+	<div class="ProjectSettings-wrapper">
 		<div class="container">
 			<SideNav />
-			<settings />
+			<SettingMain />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import SideNav from '../project/ModelSettings/SideNav.vue';
-import settings from './ModelSettings/SettingMain.vue';
+import SettingMain from './ModelSettings/SettingMain.vue';
 </script>
 
-<style scoped>
-.main {
+<style scoped lang="less">
+.ProjectSettings-wrapper {
+	position: relative;
 	width: 100%;
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	overflow: hidden;
 	align-items: center;
 	background-color: #fff;
-}
-.container {
-	width: 1300px;
-	height: 100%;
-	display: flex;
-	justify-content: space-between;
+	.container {
+		width: 1300px;
+		display: flex;
+		justify-content: space-between;
+	}
 }
 </style>

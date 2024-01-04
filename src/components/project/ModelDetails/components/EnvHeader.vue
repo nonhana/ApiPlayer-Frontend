@@ -1,5 +1,5 @@
 <template>
-	<div class="EnvHeader-wrap">
+	<div class="EnvHeader-wrapper">
 		<div class="swagger">
 			<el-button v-loading.fullscreen.lock="uploadingSwagger" @click="uploadFile">Swagger文档导入(目前仅支持2.0)</el-button>
 			<input v-show="false" ref="fileRef" type="file" accept=".yaml, .yml" @change="fileChange" />
@@ -10,12 +10,12 @@
 				<img style="margin-right: 10px" class="icon" :src="History" alt="History" @click="showDialogList[3] = !showDialogList[3]" />
 			</el-tooltip>
 			<el-tooltip effect="dark" content="当页面加载过慢时，可以尝试刷新" placement="top">
-				<img class="icon" src="@/static/svg/ProjectDetailsEnvHeaderReload.svg" @click="reload" />
+				<img class="icon" :src="ProjectDetailsEnvHeaderReload" alt="ProjectDetailsEnvHeaderReload" @click="reload" />
 			</el-tooltip>
 			<el-dropdown @command="envChoosing">
 				<el-button v-loading="changingEnv" class="main-button">
 					<span>{{ currentEnvName }}</span>
-					<img src="@/static/svg/ProjectDetailsEnvHeaderOpenList.svg" />
+					<img :src="ProjectDetailsEnvHeaderOpenList" alt="ProjectDetailsEnvHeaderOpenList" />
 				</el-button>
 				<template #dropdown>
 					<el-dropdown-menu>
@@ -24,7 +24,7 @@
 				</template>
 			</el-dropdown>
 			<el-button class="edit-button" @click="showDialogList[0] = !showDialogList[0]">
-				<img src="@/static/svg/ProjectDetailsEnvHeaderEdit.svg" />
+				<img :src="ProjectDetailsEnvHeaderEdit" alt="ProjectDetailsEnvHeaderEdit" />
 			</el-button>
 		</div>
 
@@ -36,7 +36,7 @@
 							<el-menu default-active="1-1" :default-openeds="['1']" @select="handleSelect">
 								<el-sub-menu index="1">
 									<template #title>
-										<img style="margin-right: 5px" src="@/static/svg/ProjectDetailsEnvHeaderDialogParams.svg" />
+										<img style="margin-right: 5px" :src="ProjectDetailsEnvHeaderDialogParams" alt="ProjectDetailsEnvHeaderDialogParams" />
 										<span>全局变量、参数</span>
 									</template>
 									<el-menu-item index="1-1">全局变量</el-menu-item>
@@ -44,7 +44,7 @@
 								</el-sub-menu>
 								<el-sub-menu index="2">
 									<template #title>
-										<img style="margin-right: 5px" src="@/static/svg/ProjectDetailsEnvHeaderDialogEnv.svg" />
+										<img style="margin-right: 5px" :src="ProjectDetailsEnvHeaderDialogEnv" alt="ProjectDetailsEnvHeaderDialogEnv" />
 										<span>环境管理</span>
 									</template>
 									<el-menu-item v-for="(envItem, index) in envList" :key="index" :index="`2-${envItem.env_type + 1}`">{{
@@ -230,6 +230,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useStore } from '@/store';
 import {
 	getProjectGlobalInfo,
 	getProjectBasicInfo,
@@ -240,64 +241,34 @@ import {
 	rollback,
 } from '@/api/projects';
 import { formatDate } from '@/utils';
-import { ElMessageBox, ElMessage } from 'element-plus';
-import { apiStore } from '@/store/apis.ts';
-import { useBaseStore } from '@/store/index';
 import { ProjectRole } from '@/utils/projectPermission';
+import type { EnvItem, GlobalParamItem, GlobalVariableItem, ParamItem, HistoryItem } from '@/utils/types';
+import ProjectDetailsEnvHeaderReload from '@/static/svg/ProjectDetailsEnvHeaderReload.svg';
+import ProjectDetailsEnvHeaderOpenList from '@/static/svg/ProjectDetailsEnvHeaderOpenList.svg';
+import ProjectDetailsEnvHeaderEdit from '@/static/svg/ProjectDetailsEnvHeaderEdit.svg';
+import ProjectDetailsEnvHeaderDialogParams from '@/static/svg/ProjectDetailsEnvHeaderDialogParams.svg';
+import ProjectDetailsEnvHeaderDialogEnv from '@/static/svg/ProjectDetailsEnvHeaderDialogEnv.svg';
 import History from '@/static/svg/History.svg';
 import HistoryTips from '@/static/svg/HistoryTips.svg';
+import { ElMessageBox, ElMessage } from 'element-plus';
 
-interface EnvItem {
-	env_type: number;
-	env_name: string;
-	env_baseurl: string;
-}
-interface ParamItem {
-	param_id?: number;
-	param_name: string;
-	param_type: string;
-	param_value: number | string;
-	param_desc: string;
-}
-interface GlobalParamItem {
-	type: number;
-	params_list: ParamItem[];
-}
-interface GlobalVariableItem {
-	variable_id?: number;
-	variable_name: string;
-	variable_type: string;
-	variable_value: number | string;
-	variable_desc: string;
-}
-interface HistoryItem {
-	createdAt: string;
-	project_id: number;
-	version_id: number;
-	version_type: string;
-	version_msg: string;
-	user_id: number;
-	user_name: string;
-	user_avatar: string;
-}
+const route = useRoute();
+const { baseStore, apiStore } = useStore();
 
-// 获取到input[type=file]的dom
 const fileRef = ref<HTMLInputElement>();
 
-const apiOperation = apiStore();
-const baseStore = useBaseStore();
+const changingEnv = ref<boolean>(false);
+const uploadingSwagger = ref<boolean>(false);
+const savingEnvInfo = ref<boolean>(false);
+const fullscreenLoading = ref<boolean>(false);
+
 const canModifyGlobalSettings = computed(() => {
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] !== ProjectRole.READ_ONLY;
 });
 const canEditBaseUrl = computed(() => {
 	return baseStore.projectRoleList[baseStore.curProjectInfo.project_id!] === ProjectRole.READ_ONLY;
 });
-const changingEnv = ref<boolean>(false);
-const uploadingSwagger = ref<boolean>(false);
-const savingEnvInfo = ref<boolean>(false);
-const fullscreenLoading = ref<boolean>(false);
 
-const route = useRoute();
 const typeList = [
 	{
 		value: 'number',
@@ -353,7 +324,7 @@ const envChoosing = async (envType: number) => {
 	});
 	// 切换环境后，更新apiStore中的apiInfo
 	if (route.query.api_id) {
-		await apiOperation.getApiInfo(Number(route.query.api_id));
+		await apiStore.getApiInfo(Number(route.query.api_id));
 	}
 	changingEnv.value = false;
 };
@@ -394,8 +365,8 @@ const confirmEdit = async (type: number[]) => {
 				env_list: envListSource,
 			});
 			if (route.query.api_id) {
-				// 重新获取apiOperation
-				await apiOperation.getApiInfo(Number(route.query.api_id));
+				// 重新获取apiStore
+				await apiStore.getApiInfo(Number(route.query.api_id));
 			}
 			savingEnvInfo.value = false;
 			showDialogList.value[0] = false;
@@ -470,8 +441,8 @@ const confirmEdit = async (type: number[]) => {
 				global_params: paramsList,
 			});
 			if (route.query.api_id) {
-				// 重新获取apiOperation
-				await apiOperation.getApiInfo(Number(route.query.api_id));
+				// 重新获取apiStore
+				await apiStore.getApiInfo(Number(route.query.api_id));
 			}
 
 			// 更新完成后，将editingParamsInfo置空
@@ -547,8 +518,8 @@ const confirmEdit = async (type: number[]) => {
 				global_variables: variablesList,
 			});
 			if (route.query.api_id) {
-				// 重新获取apiOperation
-				await apiOperation.getApiInfo(Number(route.query.api_id));
+				// 重新获取apiStore
+				await apiStore.getApiInfo(Number(route.query.api_id));
 			}
 
 			// 更新完成后，将editingVariablesInfo置空
@@ -647,8 +618,8 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 							global_params: paramsList,
 						});
 						if (route.query.api_id) {
-							// 重新获取apiOperation
-							await apiOperation.getApiInfo(Number(route.query.api_id));
+							// 重新获取apiStore
+							await apiStore.getApiInfo(Number(route.query.api_id));
 						}
 
 						globalParams.value[Number(currentEditParamsClass.value) - 1].params_list.splice(index, 1);
@@ -688,8 +659,8 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 							global_variables: variablesList,
 						});
 						if (route.query.api_id) {
-							// 重新获取apiOperation
-							await apiOperation.getApiInfo(Number(route.query.api_id));
+							// 重新获取apiStore
+							await apiStore.getApiInfo(Number(route.query.api_id));
 						}
 
 						globalVariables.value.splice(index, 1);
@@ -890,12 +861,12 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-.EnvHeader-wrap {
+.EnvHeader-wrapper {
 	position: relative;
 	width: 1000px;
 	padding: 0 20px;
 	height: 50px;
-	background-color: #ffffff;
+	background-color: #fff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -911,12 +882,10 @@ onMounted(async () => {
 			cursor: pointer;
 		}
 		.main-button {
-			span {
-				font-family: Microsoft YaHei;
-				font-size: 14px;
-				font-weight: normal;
-				color: #3d3d3d;
-			}
+			font-family: Microsoft YaHei;
+			font-size: 14px;
+			font-weight: normal;
+			color: #3d3d3d;
 			img {
 				margin-left: 10px;
 				width: 16px;

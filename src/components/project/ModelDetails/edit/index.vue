@@ -105,21 +105,24 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { apiStore } from '@/store/apis.ts';
-import { useBaseStore } from '@/store/index.ts';
+import { useRoute } from 'vue-router';
+import { useStore } from '@/store';
+import { updateApi, deleteApi } from '@/api/apis';
+import type { RequestParams } from '@/utils/types';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
-import { updateApi, deleteApi } from '@/api/apis.ts';
-import { useRoute } from 'vue-router';
 import { ElNotification } from 'element-plus';
 
-let activeName = ref('first');
-let bodyActiveName = ref('bodyFirst');
-let resActiveName = ref(0);
-
 const route = useRoute();
-const baseStore = useBaseStore();
-const apiOperation = apiStore();
+const { baseStore, apiStore } = useStore();
+
+const emit = defineEmits<{
+	(event: 'clickrun'): void;
+}>();
+
+const activeName = ref('first');
+const bodyActiveName = ref('bodyFirst');
+const resActiveName = ref(0);
 const apiInfo = ref<any>({});
 const gettingInfo = ref<boolean>(false);
 const fullscreenLoading = ref<boolean>(false);
@@ -129,15 +132,6 @@ const editedResponse = ref<boolean>(false);
 const editedParams = ref<boolean>(false);
 const editParamsCount = ref<number>(0);
 const editedJSON = ref<boolean>(false);
-
-interface RequestParams {
-	type: number;
-	params_list: Array<{
-		param_name: string;
-		param_type: number;
-		param_desc: string;
-	}>;
-}
 const requestParams = ref<RequestParams[]>([
 	{
 		type: 0,
@@ -190,7 +184,6 @@ const requestParams = ref<RequestParams[]>([
 		],
 	},
 ]);
-
 const basicInfo = ref({
 	api_url: '',
 	api_name: '',
@@ -200,7 +193,6 @@ const basicInfo = ref({
 	api_principal_id: 0,
 	api_desc: '',
 });
-
 const JSON_body = ref<any>({
 	root: {
 		type: 'object',
@@ -232,7 +224,6 @@ const options = [
 		label: 'DELETE',
 	},
 ];
-
 const statusOptions = [
 	{
 		value: 0,
@@ -251,10 +242,6 @@ const statusOptions = [
 		label: '将废弃',
 	},
 ];
-
-const emit = defineEmits<{
-	(event: 'clickrun'): void;
-}>();
 
 const runApi = () => {
 	emit('clickrun');
@@ -286,7 +273,7 @@ const saveApiInfo = async () => {
 
 	if (res.status === 200 && res.data.result_code === 0) {
 		// 保存成功后，重新获取接口信息
-		await apiOperation.getApiInfo(apiInfo.value.api_id);
+		await apiStore.getApiInfo(apiInfo.value.api_id);
 		fullscreenLoading.value = false;
 		ElNotification({
 			title: '保存成功',
@@ -331,7 +318,7 @@ const saveRequest = (value: any, count: number) => {
 };
 
 watch(
-	() => apiOperation.apiInfo,
+	() => apiStore.apiInfo,
 	async (newV, _) => {
 		if (newV) {
 			gettingInfo.value = true;

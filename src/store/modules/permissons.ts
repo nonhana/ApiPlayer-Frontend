@@ -1,28 +1,7 @@
 import { defineStore } from 'pinia';
-// import { TeamRole } from '@/utils/TeamPermisssion';
-// import { ProjectRole } from '@/utils/projectPermission';
+import { ProjectRole, ProjectState, TeamRole } from '../types';
 
-enum TeamRole {
-	OWNER = 0,
-	ADMIN = 1,
-	MEMBER = 2,
-	GUEST = 3,
-}
-
-enum ProjectRole {
-	ADMIN = 0,
-	EDITOR = 1,
-	READ_ONLY = 2,
-	NO_ACCESS = 3,
-}
-
-interface ProjectState {
-	teamRole: TeamRole;
-	projectRoleList: Map<number, ProjectRole>;
-}
-
-export const usePermisssiontStore = defineStore({
-	id: 'permissions',
+export const usePermissionStore = defineStore('permissionStore', {
 	state: (): ProjectState => ({
 		teamRole: TeamRole.GUEST,
 		projectRoleList: new Map<number, ProjectRole>(),

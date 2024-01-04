@@ -1,4 +1,6 @@
-import { usePermisssiontStore } from '@/store/permissons';
+import { useStore } from '@/store';
+
+const { permissionStore } = useStore();
 
 export enum ProjectRole {
 	ADMIN = 0,
@@ -7,8 +9,7 @@ export enum ProjectRole {
 	NO_ACCESS = 3,
 }
 
-const baseStore = usePermisssiontStore();
-const roleList: Map<number, ProjectRole> = baseStore.getProjectRoleList();
+const roleList: Map<number, ProjectRole> = permissionStore.getProjectRoleList();
 
 export function canCreateProject(id: number): boolean {
 	return roleList.get(id) === ProjectRole.ADMIN;

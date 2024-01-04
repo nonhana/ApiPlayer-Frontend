@@ -7,7 +7,7 @@
 				}"
 				class="img"
 			>
-				<img src="@/static/svg/LoginLogo.svg" />
+				<img :src="LoginLogo" alt="LoginLogo" />
 			</div>
 			<div :style="{ opacity: opacityList[1] }" class="login-window">
 				<LoginWindow />
@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import LoginWindow from '@/components/login/LoginWindow.vue';
+import LoginLogo from '@/static/svg/LoginLogo.svg';
 
 const opacityList = ref([0, 0]);
 

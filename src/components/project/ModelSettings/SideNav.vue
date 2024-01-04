@@ -1,5 +1,5 @@
 <template>
-	<div class="nav_side">
+	<div class="SideNav-wrapper">
 		<div class="item" @click="clickhandler(1)">
 			<el-icon size="20px"><Box /></el-icon>
 			<div>接口管理</div>
@@ -15,8 +15,10 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
+
+const inviteDialog = ref(false);
 
 const clickhandler = (type: number): void => {
 	switch (type) {
@@ -42,15 +44,13 @@ const clickhandler = (type: number): void => {
 	}
 };
 
-const inviteDialog = ref(false);
-
 const inviteMember = () => {
 	inviteDialog.value = true;
 };
 </script>
 
-<style lang="less" scoped>
-.nav_side {
+<style scoped lang="less">
+.SideNav-wrapper {
 	width: 70px;
 	height: 1000px;
 	display: flex;

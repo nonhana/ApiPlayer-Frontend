@@ -104,10 +104,11 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { apiStore } from '@/store/apis.ts';
-import TestRequestTable from '../components/TestRequestTable.vue';
-import { executeApi } from '@/api/apis.ts';
+import { useStore } from '@/store';
+import { executeApi } from '@/api/apis';
 import { mock, getProjectGlobalInfo } from '@/api/projects';
+import type { RequestParams } from '@/utils/types';
+import TestRequestTable from '../components/TestRequestTable.vue';
 import { ElNotification } from 'element-plus';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
@@ -116,7 +117,10 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-chrome';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
-//ace编辑器配置
+const { apiStore } = useStore();
+const route = useRoute();
+
+// ace编辑器配置
 const aceConfig = reactive({
 	lang: 'json', //解析json
 	theme: 'chrome', //主题
@@ -139,13 +143,6 @@ const runningApi = ref<boolean>(false);
 
 const map = new Map().set(0, 'success').set(1, 'fail');
 
-interface RequestParams {
-	type: number;
-	params_list: {
-		param_name: string;
-		param_value: string | number;
-	}[];
-}
 const requestParams = ref<RequestParams[]>([
 	{
 		type: 0,
@@ -198,9 +195,7 @@ const globalHeaders = ref<any[]>([]);
 const globalCookies = ref<any[]>([]);
 const globalQueryParams = ref<any[]>([]);
 
-const apiOperation = apiStore();
-const route = useRoute();
-const apiInfo = ref(apiOperation.apiInfo);
+const apiInfo = ref(apiStore.apiInfo);
 const result = ref({
 	result_code: '',
 	result_msg: '',
@@ -209,8 +204,8 @@ const result = ref({
 
 // mock数据，仅限Body-JSON
 const executeMock = async () => {
-	if (apiOperation.apiInfo.api_request_JSON) {
-		const res = await mock(JSON.parse(apiOperation.apiInfo.api_request_JSON.JSON_body));
+	if (apiStore.apiInfo.api_request_JSON) {
+		const res = await mock(JSON.parse(apiStore.apiInfo.api_request_JSON.JSON_body));
 		// 将mock好的数据放入requestJSON中
 		if (res.data.root) {
 			res.data = res.data.root;
@@ -258,7 +253,7 @@ const runApi = async () => {
 };
 
 watch(
-	() => apiOperation.apiInfo,
+	() => apiStore.apiInfo,
 	(newV, _) => {
 		if (newV) {
 			apiInfo.value = newV;
@@ -359,10 +354,8 @@ onMounted(async () => {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		span {
-			font-size: 20px;
-			color: #c0c4cc;
-		}
+		font-size: 20px;
+		color: #c0c4cc;
 	}
 }
 </style>

@@ -81,7 +81,8 @@
 			</span>
 		</template>
 	</el-dialog>
-	<div class="setting-wrap">
+
+	<div class="TeamSetting-wrapper">
 		<div class="container">
 			<div class="container-header">基础信息</div>
 			<div class="content">
@@ -159,18 +160,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
-import { updateTeam, deleteTeam, setMemberIdentity } from '@/api/teams';
-import { useBaseStore } from '@/store';
 import { useRoute } from 'vue-router';
+import { useStore } from '@/store';
+import { updateTeam, deleteTeam, setMemberIdentity } from '@/api/teams';
 import { ElMessage } from 'element-plus';
-
-interface RuleForm {
-	name: string;
-}
+import type { FormInstance, FormRules } from 'element-plus';
 
 const route = useRoute();
-const baseStore = useBaseStore();
+const { baseStore } = useStore();
+
 const deleteTeamDialog = ref<boolean>(false);
 const changeTeamDialog = ref<boolean>(false);
 const changeTeamNameDialog = ref<boolean>(false);
@@ -183,6 +181,10 @@ const confrimTeamName = ref<string>('');
 const receiver = ref<string>('');
 const receivers = ref<any[]>([]);
 const teamFormRef = ref<FormInstance>();
+
+interface RuleForm {
+	name: string;
+}
 const teamForm = reactive<RuleForm>({
 	name: '',
 });
@@ -299,7 +301,7 @@ watch(
 </script>
 
 <style scoped lang="less">
-.setting-wrap {
+.TeamSetting-wrapper {
 	.container {
 		margin-bottom: 40px;
 		.container-header {
