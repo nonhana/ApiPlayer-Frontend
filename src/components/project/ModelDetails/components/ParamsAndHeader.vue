@@ -39,9 +39,10 @@
 
 <script lang="ts" setup>
 import { ref, toRefs, watch } from 'vue';
+import { GlobalParamsList } from '@/api/projects/types';
 
 const props = defineProps<{
-	requestData: any;
+	requestData: GlobalParamsList;
 }>();
 
 const { requestData } = toRefs(props);
@@ -67,7 +68,7 @@ const options = [
 ];
 
 watch(
-	() => props.requestData,
+	requestData,
 	(newV, _) => {
 		if (newV !== undefined && newV !== null) {
 			tableData.value = newV.params_list;
@@ -77,12 +78,13 @@ watch(
 );
 
 const handleAddDetails = (index: number) => {
-	let obj = {
+	const paramItem = {
 		param_name: '',
 		param_type: 0,
 		param_desc: '',
+		param_value: '',
 	};
-	tableData.value.splice(index + 1, 0, obj);
+	tableData.value.splice(index + 1, 0, paramItem);
 };
 
 // 删除单个行

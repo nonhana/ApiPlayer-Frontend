@@ -1,14 +1,14 @@
 <template>
 	<div class="main">
 		<el-container>
-			<el-header>
+			<el-header class="header">
 				<CommonHeader />
 			</el-header>
 			<el-container>
 				<el-aside class="aside">
 					<CommonAside />
 				</el-aside>
-				<el-main class="main">
+				<el-main class="router">
 					<router-view />
 				</el-main>
 			</el-container>
@@ -24,7 +24,7 @@ import CommonAside from '../CommonAside.vue';
 
 const route = useRoute();
 
-let classIndex = ref<number>(0);
+const classIndex = ref<number>(0);
 
 // 监听路由变化，判断是否为登录页
 watch(
@@ -36,10 +36,7 @@ watch(
 			classIndex.value = 0;
 		}
 	},
-	{
-		immediate: true,
-		deep: true,
-	}
+	{ immediate: true }
 );
 </script>
 
@@ -56,14 +53,23 @@ watch(
 	width: 100%;
 	height: 60px;
 }
+:deep(.el-header) {
+	padding: 0;
+}
 .aside {
 	width: 250px;
 	height: calc(100vh - 60px);
-	background-color: #fcfcfd;
+	background: #fcfcfd;
+	border-right: 1px solid #bdbdbd;
+	border-left: 1px solid #bdbdbd;
+	border-bottom: 1px solid #bdbdbd;
 }
 .main {
 	width: 100%;
-	background-color: #fff;
-	border: 1px solid #bdbdbd;
+	background: #fff;
+}
+.router {
+	border-right: 1px solid #bdbdbd;
+	border-bottom: 1px solid #bdbdbd;
 }
 </style>

@@ -4,7 +4,10 @@
 			<el-col :span="2">
 				<el-button type="primary" round size="large">{{ apiInfo.api_method }}</el-button>
 			</el-col>
-			<el-col :span="18">
+			<el-col :span="6">
+				<el-input v-model="apiStore.preUrl" disabled size="large" />
+			</el-col>
+			<el-col :span="12">
 				<el-input v-model="apiInfo.api_url" disabled size="large" />
 			</el-col>
 			<el-col :span="4">
@@ -197,7 +200,7 @@ const globalQueryParams = ref<any[]>([]);
 
 const apiInfo = ref(apiStore.apiInfo);
 const result = ref({
-	result_code: '',
+	result_code: 0,
 	result_msg: '',
 	result: '',
 });
@@ -205,12 +208,12 @@ const result = ref({
 // mock数据，仅限Body-JSON
 const executeMock = async () => {
 	if (apiStore.apiInfo.api_request_JSON) {
-		const res = await mock(JSON.parse(apiStore.apiInfo.api_request_JSON.JSON_body));
+		let { result } = await mock(JSON.parse(apiStore.apiInfo.api_request_JSON.JSON_body));
 		// 将mock好的数据放入requestJSON中
-		if (res.data.root) {
-			res.data = res.data.root;
+		if (result.root) {
+			result = result.root;
 		}
-		requestJSON.value = JSON.stringify(res.data, null, 2);
+		requestJSON.value = JSON.stringify(result, null, 2);
 	} else {
 		ElNotification({
 			title: 'Mock失败',
@@ -222,17 +225,17 @@ const executeMock = async () => {
 // 运行api
 const runApi = async () => {
 	runningApi.value = true;
-	let requestBody = {
+	const requestBody = {
 		api_id: apiInfo.value.api_id,
 		api_request_params: requestParams.value,
 		// 去掉所有的\n和\t
 		api_request_JSON: requestJSON.value.replace(/\n/g, '').replace(/\t/g, ''),
 	};
 	const res = await executeApi(requestBody);
-	if (res.data.result_code === 0) {
-		result.value.result_code = res.data.result_code;
-		result.value.result_msg = res.data.result_msg;
-		result.value.result = res.data.data;
+	if (res.result_code === 0) {
+		result.value.result_code = res.result_code;
+		result.value.result_msg = res.result_msg;
+		result.value.result = res.result.data;
 		runningApi.value = false;
 		ElNotification({
 			title: '成功',
@@ -240,9 +243,9 @@ const runApi = async () => {
 			type: 'success',
 		});
 	} else {
-		result.value.result_code = res.data.result_code;
-		result.value.result_msg = res.data.result_msg;
-		result.value.result = res.data.data;
+		result.value.result_code = res.result_code;
+		result.value.result_msg = res.result_msg;
+		result.value.result = res.result.data;
 		runningApi.value = false;
 		ElNotification({
 			title: '失败',
@@ -259,9 +262,9 @@ watch(
 			apiInfo.value = newV;
 			if (newV.api_request_params.length > 0) {
 				requestParams.value.forEach((item) => {
-					newV.api_request_params.forEach((item2: any) => {
+					newV.api_request_params.forEach((item2) => {
 						if (item.type === item2.type) {
-							item2.params_list.forEach((item3: any, index: number) => {
+							item2.params_list.forEach((item3, index: number) => {
 								item.params_list[index] = {
 									param_name: item3.param_name,
 									param_value: item3.param_type === 2 ? '' : 0,
@@ -279,26 +282,26 @@ onMounted(async () => {
 	const res = await getProjectGlobalInfo({
 		project_id: Number(route.params.project_id),
 	});
-	res.data.global_params.forEach((item: any) => {
+	res.result.global_params.forEach((item) => {
 		if (item.type === 0) {
-			item.params_list.forEach((item2: any) => {
+			item.params_list.forEach((item2) => {
 				globalHeaders.value.push({
 					param_name: item2.param_name,
-					param_value: JSON.parse(item2.param_value).value,
+					param_value: typeof item2.param_value === 'string' ? JSON.parse(item2.param_value) : item2.param_value,
 				});
 			});
 		} else if (item.type === 1) {
-			item.params_list.forEach((item2: any) => {
+			item.params_list.forEach((item2) => {
 				globalCookies.value.push({
 					param_name: item2.param_name,
-					param_value: JSON.parse(item2.param_value).value,
+					param_value: typeof item2.param_value === 'string' ? JSON.parse(item2.param_value) : item2.param_value,
 				});
 			});
 		} else if (item.type === 2) {
-			item.params_list.forEach((item2: any) => {
+			item.params_list.forEach((item2) => {
 				globalQueryParams.value.push({
 					param_name: item2.param_name,
-					param_value: JSON.parse(item2.param_value).value,
+					param_value: typeof item2.param_value === 'string' ? JSON.parse(item2.param_value) : item2.param_value,
 				});
 			});
 		}
@@ -306,7 +309,7 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="less" scoped>
+<style scoped lang="less">
 .index {
 	width: 978px;
 

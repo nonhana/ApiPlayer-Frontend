@@ -46,11 +46,9 @@ const dialogVisible = ref<boolean>(false);
 const teamName = ref<string>('');
 
 const getTeamList = async () => {
-	const res = await teamList({ user_id: baseStore.user_info.user_id });
-	if (res.data) {
-		baseStore.setTeamInfo(res.data.data);
-		customRouter.push({ path: `/team/${res.data.data[0].team_id}` });
-	}
+	const { result } = await teamList({ user_id: baseStore.user_info.user_id });
+	baseStore.setTeamInfo(result);
+	customRouter.push({ path: `/team/${result[0].team_id}` });
 };
 const createTeam = () => {
 	dialogVisible.value = true;
@@ -58,13 +56,12 @@ const createTeam = () => {
 const confirmCreate = async () => {
 	dialogVisible.value = false;
 	const res = await addTeam({
-		user_id: baseStore.user_info.user_id,
 		team_name: teamName.value,
 		team_desc: '团队的简介很重要哦~',
 		team_user_name: baseStore.user_info.user_name, // 默认是自己的用户名
 	});
 
-	if (res.data.result_code === 0) {
+	if (res.result_code === 0) {
 		ElMessage.success('新建团队成功');
 		getTeamList();
 	}
@@ -94,12 +91,5 @@ h1 {
 	color: #fff;
 	font-size: 16px;
 	width: 98%;
-}
-
-//一般需要用深度选择器才可以设置
-:deep(.el-input__inner) {
-	&::placeholder {
-		text-align: center;
-	}
 }
 </style>

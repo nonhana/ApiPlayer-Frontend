@@ -1,74 +1,75 @@
-import myAxios from '../axios';
-import { TeamIdentity, TeamInfo } from './types';
+import request from '@/service';
+import { TeamId, UserIdReq } from '../types';
+import { CreateTeamReq, DetailTeamInfo, InviteUserReq, RemoveMemberReq, SetMemberIdentityReq, TeamItem, UpdateTeamInfoReq } from './types';
 
 // 获取团队列表
-export const teamList = (paramsList: { user_id: number }) => {
-	return myAxios({
+export const teamList = (params: UserIdReq) => {
+	return request<UserIdReq, TeamItem[]>({
 		url: '/teams/teamlist',
 		method: 'GET',
-		params: paramsList,
+		params,
 	});
 };
 
 //新建团队
-export const addTeam = (paramsList: { user_id: number; team_name: string; team_desc: string; team_user_name: string }) => {
-	return myAxios({
+export const addTeam = (data: CreateTeamReq) => {
+	return request<CreateTeamReq, undefined>({
 		url: '/teams/addteam',
 		method: 'POST',
-		data: paramsList,
+		data,
 	});
 };
 
 //删除团队
-export const deleteTeam = (paramsList: { team_id: number }) => {
-	return myAxios({
+export const deleteTeam = (data: TeamId) => {
+	return request<TeamId, undefined>({
 		url: '/teams/deleteteam',
 		method: 'POST',
-		data: paramsList,
+		data,
 	});
 };
 
 //获取团队详情信息
-export const teamInfo = (paramsList: { team_id: number }) => {
-	return myAxios({
+export const teamInfo = (params: TeamId) => {
+	return request<TeamId, DetailTeamInfo>({
 		url: '/teams/teaminfo',
 		method: 'GET',
-		params: paramsList,
+		params,
 	});
 };
 
 //更新团队信息
-export const updateTeam = (paramsList: TeamInfo) => {
-	return myAxios({
+export const updateTeam = (data: UpdateTeamInfoReq) => {
+	return request<UpdateTeamInfoReq, undefined>({
 		url: '/teams/updateteam',
 		method: 'POST',
-		data: paramsList,
+		data,
 	});
 };
 
 //邀请用户加入团队
-export const inviteUser = (paramsList: { team_id: number; user_id: number; team_user_name?: string }) => {
-	return myAxios({
+export const inviteUser = (data: InviteUserReq) => {
+	return request<InviteUserReq, undefined>({
 		url: '/teams/inviteuser',
 		method: 'POST',
-		data: paramsList,
+		data,
 	});
 };
 
 //设置成员权限
-export const setMemberIdentity = (paramsList: TeamIdentity) => {
-	return myAxios({
+export const setMemberIdentity = (data: SetMemberIdentityReq) => {
+	return request<SetMemberIdentityReq, undefined>({
 		url: '/teams/setmemberidentity',
 		method: 'POST',
-		data: paramsList,
+		data,
 	});
 };
 
 //移除成员
-export const removeMember = (paramsList: { team_id: number; user_id: number }) => {
-	return myAxios({
+export const removeMember = (data: RemoveMemberReq) => {
+	return request<RemoveMemberReq, undefined>({
 		url: '/teams/removemember',
 		method: 'POST',
-		data: paramsList,
+		data,
 	});
 };

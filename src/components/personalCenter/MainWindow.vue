@@ -75,20 +75,6 @@
 			</div>
 		</el-row>
 		<el-divider />
-		<!-- <el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
-			<div style="display: flex; justify-content: flex-start; align-items: center">
-				<div class="title">
-					<span>手机号</span>
-				</div>
-				<div class="content">
-					<span>{{ userInfo!.user_phone }}</span>
-				</div>
-			</div>
-			<div class="button" @click="windowShowList[4] = true">
-				<span>修改</span>
-			</div>
-		</el-row>
-		<el-divider /> -->
 		<el-row type="flex" justify="space-between" style="align-items: center; width: 100%; height: 60px">
 			<div style="display: flex; justify-content: flex-start; align-items: center">
 				<div class="title">
@@ -253,7 +239,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, watch, getCurrentInstance } from 'vue';
+import { ref, onBeforeMount, watch } from 'vue';
 import { useStore } from '@/store';
 import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 import { getUserInfo, updateUserInfo, uploadAvatar, sendCaptcha, changEmail, changPassword, sendCaptchaChangPassword } from '@/api/users';
@@ -263,9 +249,6 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import { Picture as IconPicture } from '@element-plus/icons-vue';
 
 const { baseStore } = useStore();
-
-// 获取事件总线
-const bus = getCurrentInstance()?.appContext.config.globalProperties.$bus;
 
 // 获取文件上传的input元素
 const fileRef = ref<HTMLInputElement>();
@@ -346,91 +329,81 @@ const confirmCropper = async () => {
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
 		const res = await uploadAvatar({ avatar: uploadFile });
-		userInfo.value!.user_img = res.data.result.avatar;
+		userInfo.value!.user_img = res.result;
 
 		const info = JSON.parse(localStorage.getItem('userInfo') ?? '');
-		localStorage.setItem('userInfo', JSON.stringify({ ...info, user_img: res.data.result.avatar }));
-		baseStore.user_info.user_img = res.data.result.avatar;
-
-		bus.emit('updateAvatar');
+		localStorage.setItem('userInfo', JSON.stringify({ ...info, user_img: res.result }));
+		baseStore.user_info.user_img = res.result;
 	}
 };
 // 修改个人资料
-const changeAction = (type: number) => {
-	if (type === 0) {
-		windowShowList.value = [false, false, false, false, false, false];
-		userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
-		ElMessage.info('已取消');
-	} else if (type === 1) {
-		windowShowList.value = [false, false, false, false, false, false];
-		updateUserInfo({ username: userName.value }).then(
-			() => {
-				userInfo.value!.user_name = userName.value!;
-				localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
-				baseStore.user_info.user_name = userName.value!;
-				ElMessage.success('修改成功');
-			},
-			() => {
-				ElMessage.error('修改失败');
-			}
-		);
-	} else if (type === 2) {
-		windowShowList.value = [false, false, false, false, false, false];
-		updateUserInfo({ introduce: userSign.value }).then(
-			() => {
-				userInfo.value!.user_sign = userSign.value!;
-				localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
-				baseStore.user_info.user_sign = userSign.value!;
-				ElMessage.success('修改成功');
-			},
-			() => {
-				ElMessage.error('修改失败');
-			}
-		);
+const changeAction = async (type: number) => {
+	switch (type) {
+		case 0:
+			windowShowList.value = [false, false, false, false, false, false];
+			userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
+			break;
+		case 1:
+			windowShowList.value = [false, false, false, false, false, false];
+			await updateUserInfo({ username: userName.value });
+			userInfo.value!.user_name = userName.value!;
+			localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+			baseStore.user_info.user_name = userName.value!;
+			ElMessage.success('修改成功');
+			break;
+		case 2:
+			windowShowList.value = [false, false, false, false, false, false];
+			await updateUserInfo({ introduce: userSign.value });
+			userInfo.value!.user_sign = userSign.value!;
+			localStorage.setItem('userInfo', JSON.stringify(userInfo.value));
+			baseStore.user_info.user_sign = userSign.value!;
+			ElMessage.success('修改成功');
+			break;
 	}
 };
 // 发送验证码
-const sendVerifyCode = (type: number) => {
-	if (type === 0) {
-		pwdChangeInfo.value.verify_code_status = true;
-		sendCaptchaChangPassword();
-		pwdChangeInfo.value.timer = setInterval(() => {
-			pwdChangeInfo.value.verify_code_timer--;
-			if (pwdChangeInfo.value.verify_code_timer === 0) {
-				clearInterval(pwdChangeInfo.value.timer);
-				pwdChangeInfo.value.verify_code_status = false;
-				pwdChangeInfo.value.verify_code_timer = 60;
-			}
-		}, 1000);
-	} else if (type === 1) {
-		// 邮箱格式校验
-		if (validateEmail(emailChangeInfo.value.email) === true) {
-			sendCaptcha({ email: emailChangeInfo.value.email }).then(
-				() => {},
-				() => {}
-			);
-			emailChangeInfo.value.verify_code_status = true;
-			emailChangeInfo.value.timer = setInterval(() => {
-				emailChangeInfo.value.verify_code_timer--;
-				if (emailChangeInfo.value.verify_code_timer === 0) {
-					clearInterval(emailChangeInfo.value.timer);
-					emailChangeInfo.value.verify_code_status = false;
-					emailChangeInfo.value.verify_code_timer = 60;
+const sendVerifyCode = async (type: number) => {
+	switch (type) {
+		case 0:
+			pwdChangeInfo.value.verify_code_status = true;
+			sendCaptchaChangPassword();
+			pwdChangeInfo.value.timer = setInterval(() => {
+				pwdChangeInfo.value.verify_code_timer--;
+				if (pwdChangeInfo.value.verify_code_timer === 0) {
+					clearInterval(pwdChangeInfo.value.timer);
+					pwdChangeInfo.value.verify_code_status = false;
+					pwdChangeInfo.value.verify_code_timer = 60;
 				}
 			}, 1000);
-		} else {
-			ElMessage.error('邮箱格式错误');
-		}
-	} else if (type === 2) {
-		phoneNumberChangeInfo.value.verify_code_status = true;
-		phoneNumberChangeInfo.value.timer = setInterval(() => {
-			phoneNumberChangeInfo.value.verify_code_timer--;
-			if (phoneNumberChangeInfo.value.verify_code_timer === 0) {
-				clearInterval(phoneNumberChangeInfo.value.timer);
-				phoneNumberChangeInfo.value.verify_code_status = false;
-				phoneNumberChangeInfo.value.verify_code_timer = 60;
+			break;
+		case 1:
+			// 邮箱格式校验
+			if (validateEmail(emailChangeInfo.value.email) === true) {
+				await sendCaptcha({ email: emailChangeInfo.value.email });
+				emailChangeInfo.value.verify_code_status = true;
+				emailChangeInfo.value.timer = setInterval(() => {
+					emailChangeInfo.value.verify_code_timer--;
+					if (emailChangeInfo.value.verify_code_timer === 0) {
+						clearInterval(emailChangeInfo.value.timer);
+						emailChangeInfo.value.verify_code_status = false;
+						emailChangeInfo.value.verify_code_timer = 60;
+					}
+				}, 1000);
+			} else {
+				ElMessage.error('邮箱格式错误');
 			}
-		}, 1000);
+			break;
+		case 2:
+			phoneNumberChangeInfo.value.verify_code_status = true;
+			phoneNumberChangeInfo.value.timer = setInterval(() => {
+				phoneNumberChangeInfo.value.verify_code_timer--;
+				if (phoneNumberChangeInfo.value.verify_code_timer === 0) {
+					clearInterval(phoneNumberChangeInfo.value.timer);
+					phoneNumberChangeInfo.value.verify_code_status = false;
+					phoneNumberChangeInfo.value.verify_code_timer = 60;
+				}
+			}, 1000);
+			break;
 	}
 };
 // 确认修改密码
@@ -442,12 +415,11 @@ const confirmPwdChange = async () => {
 		windowShowList.value[2] = false;
 		clearInterval(pwdChangeInfo.value.timer);
 		const res = await changPassword({ newPassword: pwdChangeInfo.value.new_pwd, captcha: pwdChangeInfo.value.verify_code });
-		if (res.data.result_code === 0) {
+		if (res.result_code === 0) {
 			ElMessage.success('修改成功');
 		} else {
 			ElMessage.error('修改失败');
 		}
-
 		pwdChangeInfo.value = {
 			pwd_change_step: 0,
 			phone_number: '',
@@ -469,33 +441,19 @@ const confrimEmailChange = async () => {
 		} else {
 			windowShowList.value[3] = false;
 			await changEmail({ newEmail: emailChangeInfo.value.email, captcha: emailChangeInfo.value.verify_code });
-			await updateUserInfo({ email: emailChangeInfo.value.email }).then(
-				() => {
-					userInfo.value!.user_email = emailChangeInfo.value.email;
-					localStorage.setItem('userInfo', JSON.stringify(userInfo));
-					baseStore.user_info.user_email = emailChangeInfo.value.email;
-					ElMessage.success('修改成功');
-					clearInterval(emailChangeInfo.value.timer);
-					emailChangeInfo.value = {
-						email: '',
-						verify_code: '',
-						verify_code_status: false,
-						verify_code_timer: 60,
-						timer: 0,
-					};
-				},
-				() => {
-					ElMessage.error('修改失败');
-					clearInterval(emailChangeInfo.value.timer);
-					emailChangeInfo.value = {
-						email: '',
-						verify_code: '',
-						verify_code_status: false,
-						verify_code_timer: 60,
-						timer: 0,
-					};
-				}
-			);
+			await updateUserInfo({ email: emailChangeInfo.value.email });
+			userInfo.value!.user_email = emailChangeInfo.value.email;
+			localStorage.setItem('userInfo', JSON.stringify(userInfo));
+			baseStore.user_info.user_email = emailChangeInfo.value.email;
+			ElMessage.success('修改成功');
+			clearInterval(emailChangeInfo.value.timer);
+			emailChangeInfo.value = {
+				email: '',
+				verify_code: '',
+				verify_code_status: false,
+				verify_code_timer: 60,
+				timer: 0,
+			};
 		}
 	} else {
 		ElMessage.error('邮箱格式错误');
@@ -536,11 +494,11 @@ onBeforeMount(async () => {
 		userName.value = userInfo.value?.user_name;
 	} else {
 		const res = await getUserInfo({});
-		if (res.data.result_code === 0) {
-			userInfo.value!.user_email = res.data.result.userInfo.email;
-			userInfo.value!.user_name = res.data.result.userInfo.username;
-			userInfo.value!.user_sign = res.data.result.userInfo.introduce;
-			userInfo.value!.user_img = res.data.result.userInfo.avatar;
+		if (res.result_code === 0) {
+			userInfo.value!.user_email = res.result.email;
+			userInfo.value!.user_name = res.result.username;
+			userInfo.value!.user_sign = res.result.introduce;
+			userInfo.value!.user_img = res.result.avatar;
 		} else {
 			userInfo.value = JSON.parse(localStorage.getItem('userInfo') || '{}');
 		}
@@ -555,10 +513,10 @@ onBeforeMount(async () => {
 	position: relative;
 	width: 780px;
 	padding: 20px 60px 40px;
-	border-radius: 20px;
 	background: #fff;
 	transition: all 0.3s ease;
 	top: 20px;
+	border-radius: 20px;
 	&:hover {
 		box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.16);
 	}
@@ -578,7 +536,7 @@ onBeforeMount(async () => {
 			position: absolute;
 			width: 100px;
 			height: 100px;
-			border-radius: 1000px;
+			border-radius: 50px;
 			background: rgba(0, 0, 0, 0.5);
 			display: flex;
 			justify-content: center;
@@ -603,7 +561,7 @@ onBeforeMount(async () => {
 	}
 	.content {
 		min-width: 180px;
-		height: 20px;
+		height: 40px;
 		padding: 10px;
 		border-radius: 10px;
 		background: #fff;
@@ -622,7 +580,7 @@ onBeforeMount(async () => {
 	.button {
 		width: 100px;
 		height: 40px;
-		border-radius: 1000px;
+		border-radius: 20px;
 		background: #59a8b9;
 		display: flex;
 		justify-content: center;
@@ -640,26 +598,21 @@ onBeforeMount(async () => {
 }
 
 /* transition动画样式 */
-.fade-leave,
+.fade-leave-from,
 .fade-enter-to {
 	opacity: 1;
 }
 .fade-leave-active,
 .fade-enter-active {
-	transition: all 0.5s;
+	transition: all 0.3s;
 }
 .fade-leave-to,
-.fade-enter {
+.fade-enter-from {
 	opacity: 0;
 }
 
-/* dialog样式 */
-:deep(.el-dialog) {
-	border-radius: 20px;
-}
 :deep(.el-dialog__header) {
 	display: flex;
 	justify-content: center;
 }
 </style>
-@/utils/types/types

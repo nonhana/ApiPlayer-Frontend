@@ -112,6 +112,7 @@ import type { RequestParams } from '@/utils/types';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
 import { ElNotification } from 'element-plus';
+import { ApiDetailInfo } from '@/api/apis/types';
 
 const route = useRoute();
 const { baseStore, apiStore } = useStore();
@@ -123,7 +124,7 @@ const emit = defineEmits<{
 const activeName = ref('first');
 const bodyActiveName = ref('bodyFirst');
 const resActiveName = ref(0);
-const apiInfo = ref<any>({});
+const apiInfo = ref<ApiDetailInfo>(apiStore.apiInfo);
 const gettingInfo = ref<boolean>(false);
 const fullscreenLoading = ref<boolean>(false);
 const editedBasicInfo = ref<boolean>(false);
@@ -260,7 +261,7 @@ const saveApiInfo = async () => {
 	if (editedParams.value) saveBody.api_request_params = requestParams.value;
 	if (editedJSON.value) saveBody.api_request_JSON = JSON.stringify(JSON_body.value);
 	if (editedResponse.value) {
-		saveBody.api_responses = apiInfo.value.api_responses.map((item: any) => {
+		saveBody.api_responses = apiInfo.value.api_responses.map((item) => {
 			return {
 				http_status: Number(item.http_status),
 				response_name: item.response_name,
@@ -271,7 +272,7 @@ const saveApiInfo = async () => {
 
 	const res = await updateApi(saveBody);
 
-	if (res.status === 200 && res.data.result_code === 0) {
+	if (res.result_code === 0) {
 		// 保存成功后，重新获取接口信息
 		await apiStore.getApiInfo(apiInfo.value.api_id);
 		fullscreenLoading.value = false;
@@ -288,12 +289,12 @@ const saveApiInfo = async () => {
 	}
 };
 const deleteApiInfo = async () => {
-	await deleteApi(apiInfo.value.api_id);
+	await deleteApi({ api_id: apiInfo.value.api_id, project_id: Number(route.params.project_id) });
 };
 const addResponse = () => {
 	let obj = {
-		http_status: null,
-		response_name: null,
+		http_status: 200,
+		response_name: '响应名称',
 		response_body: {
 			root: {
 				type: 'object',
@@ -349,7 +350,7 @@ watch(
 			// 2.2 如果有参数，则遍历，将requestParams中的数据替换
 			if (newV.api_request_params.length > 0) {
 				requestParams.value.forEach((item, index) => {
-					newV.api_request_params.forEach((item2: any) => {
+					newV.api_request_params.forEach((item2) => {
 						if (item.type === item2.type) {
 							requestParams.value[index] = item2;
 						}

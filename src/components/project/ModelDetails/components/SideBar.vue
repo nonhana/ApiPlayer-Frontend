@@ -1,6 +1,7 @@
 <template>
 	<div class="SideBar-wrapper">
-		<div style="width: 228px">
+		<div v-if="loading" v-loading="loading" element-loading-text="API列表加载中..." class="loading" />
+		<div v-else style="width: 228px">
 			<el-tree
 				:data="dataSource"
 				draggable
@@ -22,25 +23,26 @@ import { useRoute, useRouter } from 'vue-router';
 import { useStore } from '@/store';
 import { addApi, updateApi, deleteApi } from '@/api/apis';
 import { getProjectApiList, addDictionary, updateDictionary, deleteDictionary } from '@/api/projects';
-import type { ApiAddInfo } from '@/api/apis/types';
+import type { AddApiReq } from '@/api/apis/types';
 import type { Tree } from '@/utils/types';
 import DictClosed from '@/static/svg/ProjectDetailsSideBarDictClosed.svg';
 import NewDict from '@/static/svg/ProjectDetailsSideBarNewDict.svg';
 import NewApi from '@/static/svg/ProjectDetailsSideBarNewApi.svg';
 import Delete from '@/static/svg/ProjectDetailsSideBarDelete.svg';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import type Node from 'element-plus/es/components/tree/src/model/node';
+import Node from 'element-plus/es/components/tree/src/model/node';
 import type { NodeDropType } from 'element-plus/es/components/tree/src/tree.type';
 
 const route = useRoute();
 const router = useRouter();
-const { apiStore } = useStore();
+const { apiStore, baseStore } = useStore();
 
 const newChild = ref<Tree>({ id: 0, label: '', type: '', children: [] });
 const dataSource = ref<Tree[]>([]);
 const copyDataSource = ref<Tree[]>([]);
 const windowShowList = ref<boolean[]>([false]);
 const showInputBox = ref<boolean[]>([]);
+const loading = ref<boolean>(false);
 
 // 节点拖曳相关函数
 const handleDragStart = () => {
@@ -60,7 +62,7 @@ const handleDrop = (draggingNode: Node, dropNode: Node, dropType: NodeDropType) 
 								father_id: dropNode.data.id,
 								dictionary_id: draggingNode.data.id,
 							});
-							if (res.data.result_code === 0) {
+							if (res.result_code === 0) {
 								ElMessage.success('移动成功');
 							}
 						}
@@ -77,10 +79,11 @@ const handleDrop = (draggingNode: Node, dropNode: Node, dropType: NodeDropType) 
 						if (action === 'confirm') {
 							// 调用接口，更新接口的dictionary_id
 							const res = await updateApi({
+								project_id: Number(route.params.project_id),
 								api_id: draggingNode.data.id,
 								dictionary_id: dropNode.data.id,
 							});
-							if (res.data.result_code === 0) {
+							if (res.result_code === 0) {
 								ElMessage.success('移动成功');
 							}
 						}
@@ -104,7 +107,7 @@ const handleDrop = (draggingNode: Node, dropNode: Node, dropType: NodeDropType) 
 							father_id: findParentId(dataSource.value[0], dropNode.data.id),
 							dictionary_id: draggingNode.data.id,
 						});
-						if (res.data.result_code === 0) {
+						if (res.result_code === 0) {
 							ElMessage.success('移动成功');
 						}
 					}
@@ -120,10 +123,11 @@ const handleDrop = (draggingNode: Node, dropNode: Node, dropType: NodeDropType) 
 					if (action === 'confirm') {
 						// 调用接口，更新接口的dictionary_id
 						const res = await updateApi({
+							project_id: Number(route.params.project_id),
 							api_id: draggingNode.data.id,
-							dictionary_id: findParentId(dataSource.value[0], dropNode.data.id),
+							dictionary_id: findParentId(dataSource.value[0], dropNode.data.id)!,
 						});
-						if (res.data.result_code === 0) {
+						if (res.result_code === 0) {
 							ElMessage.success('移动成功');
 						}
 					}
@@ -150,7 +154,7 @@ const append = async (data: Tree, type: number) => {
 				father_id: data.id,
 				dictionary_name: newChild.value.label,
 			})
-		).data.dictionary_id;
+		).result;
 		newChild.value.id = new_dict_id;
 
 		data.children.push(newChild.value);
@@ -162,13 +166,13 @@ const append = async (data: Tree, type: number) => {
 		if (!data.children) {
 			data.children = [];
 		}
-		const newApiInfo: ApiAddInfo = {
+		const newApiInfo: AddApiReq = {
 			dictionary_id: data.id,
 			project_id: Number(route.params.project_id),
-			api_editor_id: JSON.parse(localStorage.getItem('userInfo')!).user_id,
-			api_creator_id: JSON.parse(localStorage.getItem('userInfo')!).user_id,
+			api_editor_id: baseStore.user_info.user_id,
+			api_creator_id: baseStore.user_info.user_id,
 		};
-		const new_api_id = (await addApi(newApiInfo)).data.api_id;
+		const new_api_id = (await addApi(newApiInfo)).result;
 		newChild.value.id = new_api_id;
 
 		data.children.push(newChild.value);
@@ -183,7 +187,7 @@ const remove = (node: Node, data: Tree, type: number) => {
 			.then(async (action: string) => {
 				if (action === 'confirm') {
 					const parent = node.parent;
-					const children: Tree[] = parent.data.children || parent.data;
+					const children: Tree[] = parent.data.children || parent;
 					const index = children.findIndex((d) => d.id === data.id);
 
 					await deleteDictionary({
@@ -200,7 +204,7 @@ const remove = (node: Node, data: Tree, type: number) => {
 			.then(async (action: string) => {
 				if (action === 'confirm') {
 					const parent = node.parent;
-					const children: Tree[] = parent.data.children || parent.data;
+					const children: Tree[] = parent.data.children || parent;
 					const index = children.findIndex((d) => d.id === data.id);
 
 					await deleteApi({
@@ -328,9 +332,12 @@ const renderContent = (
 				style: `display: ${!showInputBox.value[node.id] ? 'none' : 'inline-block'}; width: 100px; height: 20px; margin-left: 8px`,
 				onBlur: async () => {
 					await updateApi({
+						project_id: Number(route.params.project_id),
 						api_id: data.id,
-						api_name: data.label,
-						api_editor_id: JSON.parse(localStorage.getItem('userInfo') || '{}').id,
+						basic_info: {
+							api_name: data.label,
+							api_editor_id: baseStore.user_info.user_id,
+						},
 					});
 					showInputBox.value[node.id] = false;
 				},
@@ -376,9 +383,9 @@ const getInfo = async (thisId: number) => {
 };
 
 onBeforeMount(async () => {
-	// dataSource.value = (await getProjectApiList({ project_id: Number(route.params.project_id) })).data.data;
-	const res = await getProjectApiList({ project_id: Number(route.params.project_id) });
-	dataSource.value = res.data.data;
+	loading.value = true;
+	const { result } = await getProjectApiList({ project_id: Number(route.params.project_id) });
+	dataSource.value = result;
 
 	// 遍历目录树，获取到节点个数
 	function countAllNodes(tree: Tree): number {
@@ -391,19 +398,23 @@ onBeforeMount(async () => {
 		return count;
 	}
 	showInputBox.value = new Array(countAllNodes(dataSource.value[0])).fill(false);
+	loading.value = false;
 });
 </script>
 
 <style scoped lang="less">
 .SideBar-wrapper {
 	width: 230px;
-	border: 1px solid #bdbdbd;
-	border-radius: 10px;
+	border-bottom: 1px solid #bdbdbd;
+	.loading {
+		position: relative;
+		height: 150px;
+	}
 }
 
 /* el-tree样式 */
 :deep(.el-tree-node__content) {
-	height: 50px;
+	height: 49px;
 	transition: all 0.3s;
 }
 :deep(.custom-tree-node) {

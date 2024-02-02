@@ -1,4 +1,5 @@
 // src/utils/types/index.ts
+// 前后端分离开发时，前端在渲染阶段定义的数据类型
 
 export interface UserInfo {
 	user_id: number;
@@ -108,8 +109,14 @@ export interface User {
 }
 
 export interface AddProjectForm {
-	user_id: number;
 	team_id: number;
 	project_name: string;
 	project_img: string;
+}
+
+export interface ApiResponse {
+	http_status: number;
+	response_id?: number;
+	response_name: string;
+	response_body: any;
 }

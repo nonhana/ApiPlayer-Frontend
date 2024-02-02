@@ -209,7 +209,7 @@
 					<el-table-column prop="version_msg" label="具体操作" width="280" />
 					<el-table-column prop="user_avatar" label="用户信息">
 						<template #default="scope">
-							<img :src="scope.row.user_avatar" style="width: 30px; height: 30px; border-radius: 50%" />
+							<img :src="scope.row.user_avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px" />
 							<span>{{ scope.row.user_name }}</span>
 						</template>
 					</el-table-column>
@@ -251,6 +251,7 @@ import ProjectDetailsEnvHeaderDialogEnv from '@/static/svg/ProjectDetailsEnvHead
 import History from '@/static/svg/History.svg';
 import HistoryTips from '@/static/svg/HistoryTips.svg';
 import { ElMessageBox, ElMessage } from 'element-plus';
+import { GlobalParamsListItem, GlobalVariablesListItem } from '@/api/projects/types';
 
 const route = useRoute();
 const { baseStore, apiStore } = useStore();
@@ -317,6 +318,7 @@ const history = ref<HistoryItem[]>([]);
 const envChoosing = async (envType: number) => {
 	changingEnv.value = true;
 	projectCurrentType.value = envType;
+	apiStore.setPreUrl(envList.value.find((item) => item.env_type === projectCurrentType.value)!.env_baseurl);
 	currentEnvName.value = envList.value.find((item) => item.env_type === envType)!.env_name;
 	await updateProjectBasicInfo({
 		project_id: Number(route.params.project_id),
@@ -573,7 +575,7 @@ const versionRollback = (versionId: number) => {
 				project_id: Number(route.params.project_id),
 			});
 			fullscreenLoading.value = false;
-			if (res.data.result_code === 0) {
+			if (res.result_code === 0) {
 				ElMessage.success('回滚成功');
 				reload();
 			} else {
@@ -603,7 +605,7 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 						const paramsList = globalParams.value.map((item) => {
 							return {
 								type: item.type,
-								params_list: [] as any[],
+								params_list: <GlobalParamsListItem[]>[],
 							};
 						});
 
@@ -646,7 +648,7 @@ const paramAndVarAction = (index: number, row: any, actionType: number, actionOb
 			case 1:
 				ElMessageBox.confirm('是否确认删除？')
 					.then(async () => {
-						const variablesList: any[] = [];
+						const variablesList: GlobalVariablesListItem[] = [];
 
 						// 找到要删除的那一项，把variable_action_type置为2，加到variablesList中
 						variablesList.push({
@@ -694,7 +696,7 @@ const fileChange = async () => {
 			project_id: Number(route.params.project_id),
 			yamlFile: file,
 		});
-		if (res.status === 200) {
+		if (res.result_code === 0) {
 			ElMessage.success('上传成功');
 			uploadingSwagger.value = false;
 			reload();
@@ -738,27 +740,26 @@ watch(
 
 onMounted(async () => {
 	// 拿到项目的全局信息
-	const globalInfo = (
-		await getProjectGlobalInfo({
-			project_id: Number(route.params.project_id),
-		})
-	).data;
+	const globalInfo = await getProjectGlobalInfo({
+		project_id: Number(route.params.project_id),
+	});
 
 	// 获取该项目当前所处的环境
 	projectCurrentType.value = (
 		await getProjectBasicInfo({
 			project_id: Number(route.params.project_id),
 		})
-	).data.project_info.project_current_type;
+	).result.project_current_type;
 
 	// 获取项目操作历史记录
-	history.value = (await getHistoryInfo({ project_id: Number(route.params.project_id) })).data.history_info.map((item: any) => {
+	history.value = (await getHistoryInfo({ project_id: Number(route.params.project_id) })).result.map((item) => {
 		return {
 			createdAt: formatDate(item.createdAt),
 			project_id: item.project_id,
 			version_id: item.version_id,
 			version_type: item.version_type,
-			version_msg: item.version_msg,
+			// 把所有的；替换成换行
+			version_msg: item.version_msg.replace(/；/g, '\n'),
 			user_id: item.user_id,
 			user_name: item.user_name,
 			user_avatar: item.user_avatar,
@@ -767,7 +768,7 @@ onMounted(async () => {
 
 	// 处理全局信息，将其转换为前端需要的格式
 	// 1. env_list
-	envList.value = globalInfo.env_list.map((item: any) => {
+	envList.value = globalInfo.result.env_list.map((item) => {
 		let envName = '';
 		switch (item.env_type) {
 			case 0:
@@ -792,11 +793,12 @@ onMounted(async () => {
 			env_baseurl: item.env_baseurl,
 		};
 	});
+	apiStore.setPreUrl(envList.value.find((item) => item.env_type === projectCurrentType.value)!.env_baseurl);
 	// 2. global_params
-	globalParams.value = globalInfo.global_params.map((item: any) => {
+	globalParams.value = globalInfo.result.global_params.map((item) => {
 		return {
 			type: item.type,
-			params_list: item.params_list.map((param: any) => {
+			params_list: item.params_list.map((param) => {
 				let paramType = '';
 				switch (param.param_type) {
 					case 0:
@@ -809,15 +811,15 @@ onMounted(async () => {
 						paramType = 'string';
 						break;
 					default:
-						paramType = '未知类型';
+						paramType = 'unknown';
 						break;
 				}
 				return {
-					param_id: param.param_id,
-					param_name: param.param_name,
+					param_id: param.param_id!,
+					param_name: param.param_name!,
 					param_type: paramType,
-					param_value: JSON.parse(param.param_value).value,
-					param_desc: param.param_desc,
+					param_value: typeof param.param_value === 'string' ? JSON.parse(param.param_value) : param.param_value,
+					param_desc: param.param_desc!,
 				};
 			}),
 		};
@@ -831,7 +833,7 @@ onMounted(async () => {
 		}
 	}
 	// 3. global_variables
-	globalVariables.value = globalInfo.global_variables.map((item: any) => {
+	globalVariables.value = globalInfo.result.global_variables.map((item) => {
 		let variableType = '';
 		switch (item.variable_type) {
 			case 0:
@@ -848,11 +850,11 @@ onMounted(async () => {
 				break;
 		}
 		return {
-			variable_id: item.variable_id,
-			variable_name: item.variable_name,
+			variable_id: item.variable_id!,
+			variable_name: item.variable_name!,
 			variable_type: variableType,
-			variable_value: JSON.parse(item.variable_value).value,
-			variable_desc: item.variable_desc,
+			variable_value: typeof item.variable_value === 'string' ? JSON.parse(item.variable_value) : item.variable_value,
+			variable_desc: item.variable_desc!,
 		};
 	});
 	// 把当前环境的名称显示在页面上
@@ -863,15 +865,16 @@ onMounted(async () => {
 <style scoped lang="less">
 .EnvHeader-wrapper {
 	position: relative;
-	width: 1000px;
+	width: 1050px;
 	padding: 0 20px;
 	height: 50px;
 	background-color: #fff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border: 1px solid #bdbdbd;
-	border-radius: 10px;
+	border-left: 1px solid #bdbdbd;
+	border-bottom: 1px solid #bdbdbd;
+	border-right: 1px solid #bdbdbd;
 	.button-group {
 		display: flex;
 		align-items: center;
@@ -955,8 +958,12 @@ onMounted(async () => {
 	}
 }
 
-/* el-input样式 */
 :deep(.el-input) {
 	height: 40px;
+}
+:deep(.cell) {
+	display: flex;
+	align-items: center;
+	white-space: pre-wrap; // 遇到/n换行
 }
 </style>

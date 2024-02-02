@@ -26,13 +26,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, toRefs, watch } from 'vue';
+import type { GlobalParamsList } from '@/api/projects/types';
 
 const props = defineProps<{
-	requestData: any;
+	requestData: GlobalParamsList;
 }>();
 
-const requestData = ref(props.requestData);
+const { requestData } = toRefs(props);
 const tableData = ref(requestData.value.params_list);
 
 const handleAddDetails = (index: number) => {

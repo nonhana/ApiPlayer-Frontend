@@ -6,16 +6,15 @@ export const useBaseStore = defineStore('baseStore', {
 	state: () => {
 		return {
 			user_info: <UserInfo>{},
-			lastVisitedList: [] as RecentlyVisitedListItem[],
-			teamInfo: [] as TeamInfo[],
+			lastVisitedList: <RecentlyVisitedListItem[]>[],
+			teamInfo: <TeamInfo[]>[],
 			teamDetailedInfo: <TeamDetailedInfo>{},
 			teamIdentity: <number>0,
 			curTeamInfo: <TeamInfo>{},
 			curProjectInfo: <ProjectInfo>{},
-			projectRoleList: <any>{},
+			projectRoleList: <Record<number, number>>{},
 		};
 	},
-
 	getters: {
 		inviteMemberBtnVisible(): boolean {
 			const { TEAM_OWNER, TEAM_MANAGER } = teamConstance;
@@ -52,16 +51,16 @@ export const useBaseStore = defineStore('baseStore', {
 		// 获取团队信息
 		async getTeamInfo(team_id: number): Promise<void> {
 			const res = await teamInfo({ team_id });
-			const team_user_name = res.data.member_list.find((item: any) => item.user_id === this.user_info.user_id).user_team_name;
-			const userIdentity = res.data.member_list.find((item: any) => item.user_id === this.user_info.user_id).user_identity;
-			this.setTeamDetailedInfo(res.data);
+			const team_user_name = res.result.member_list.find((item) => item.user_id === this.user_info.user_id)!.user_team_name;
+			const userIdentity = res.result.member_list.find((item) => item.user_id === this.user_info.user_id)!.user_identity;
+			this.setTeamDetailedInfo(res.result);
 			this.setCurTeamInfo({
-				...res.data.team_info,
+				...res.result.team_info,
 				team_user_name,
 			});
 			this.teamIdentity = userIdentity;
 		},
-		setProjectRoleList(projectRoleList: any): void {
+		setProjectRoleList(projectRoleList: Record<number, number>): void {
 			this.projectRoleList = projectRoleList;
 		},
 	},

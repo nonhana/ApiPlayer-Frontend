@@ -1,5 +1,5 @@
 <template>
-	<div :class="appClass">
+	<div :class="classList[classIndex]">
 		<el-row type="flex" justify="center">
 			<router-view />
 		</el-row>
@@ -16,9 +16,6 @@ const classList: string[] = ['app', 'login'];
 
 const classIndex = computed(() => {
 	return route.name === 'login' ? 1 : 0;
-});
-const appClass = computed(() => {
-	return classList[classIndex.value];
 });
 </script>
 

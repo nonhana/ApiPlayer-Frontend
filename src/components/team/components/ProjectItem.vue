@@ -97,7 +97,7 @@ const confirmDeleteProject = (index: number) => {
 	})
 		.then(async () => {
 			const res = await deleteProject({ project_id: baseStore.teamDetailedInfo.project_list[index].project_id });
-			if (res.data.result_code === 0) {
+			if (res.result_code === 0) {
 				ElMessage({
 					type: 'success',
 					message: '删除成功',
@@ -134,7 +134,6 @@ const confirmChange = async () => {
 const goDetail = async (index: number) => {
 	if (canVisitProject(index) === true) {
 		await addRecentProject({
-			user_id: baseStore.user_info.user_id,
 			project_id: baseStore.teamDetailedInfo.project_list[index].project_id,
 		});
 		router.push({ path: `/project/${baseStore.teamDetailedInfo.project_list[index].project_id}` });

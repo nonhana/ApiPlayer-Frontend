@@ -70,8 +70,6 @@ export interface TeamInfo {
 }
 
 export interface TeamDetailedInfo {
-	result_code: number;
-	result_msg: string;
 	member_list: MemberList[];
 	project_list: ProjectList[];
 	team_info: TeamInfo;

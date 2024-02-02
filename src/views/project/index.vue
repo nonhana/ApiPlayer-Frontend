@@ -20,7 +20,9 @@ import CommonHeader from '@/components/CommonHeader.vue';
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: center;
-
+	&-main {
+		width: 100%;
+	}
 	.demo-tabs > .el-tabs__content {
 		padding: 32px;
 		color: #6b778c;

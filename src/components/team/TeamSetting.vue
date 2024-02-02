@@ -280,7 +280,7 @@ const confirmDelete = async () => {
 	const res = await deleteTeam({
 		team_id: baseStore.teamDetailedInfo.team_info.team_id,
 	});
-	if (res.data.result_code === 0) {
+	if (res.result_code === 0) {
 		ElMessage.success('解散成功');
 		window.location.href = '/';
 		deleteTeamDialog.value = false;

@@ -23,7 +23,7 @@ import SettingMain from './ModelSettings/SettingMain.vue';
 	align-items: center;
 	background-color: #fff;
 	.container {
-		width: 1300px;
+		width: 100%;
 		display: flex;
 		justify-content: space-between;
 	}

@@ -2,9 +2,8 @@
 	<div class="CommonHeader-wrapper">
 		<img style="cursor: pointer" :src="HeaderLogo" alt="HeaderLogo" @click="userAction('3')" />
 		<div class="user-info">
-			<img class="message" :src="HeaderMessage" alt="HeaderMessage" />
 			<el-dropdown class="user-head" @command="userAction">
-				<img :src="userImg" />
+				<img :src="userImg" alt="avatar" />
 				<template #dropdown>
 					<el-dropdown-menu>
 						<el-dropdown-item command="1">
@@ -27,22 +26,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useStore } from '@/store';
 import type { UserInfo } from '@/utils/types';
 import HeaderLogo from '@/static/svg/HeaderLogo.svg';
-import HeaderMessage from '@/static/svg/HeaderMessage.svg';
 import HeaderPersonalCenter from '@/static/svg/HeaderPersonalCenter.svg';
 import HeaderExit from '@/static/svg/HeaderExit.svg';
 
 const router = useRouter();
 const route = useRoute();
 
-const cxt = getCurrentInstance();
-const bus = cxt?.appContext.config.globalProperties.$bus;
+const { baseStore } = useStore();
 
-const userImg = ref(JSON.parse(localStorage.getItem('userInfo')!).user_img);
-let userInfo: UserInfo = reactive(JSON.parse(localStorage.getItem('userInfo') as string));
+const userImg = ref<string>(baseStore.user_info.user_img);
+const userInfo = reactive<UserInfo>(baseStore.user_info);
 
 const userAction = (command: string) => {
 	switch (command) {
@@ -67,35 +65,23 @@ const userAction = (command: string) => {
 			break;
 	}
 };
-onMounted(() => {
-	bus.on('updateAvatar', () => {
-		userImg.value = JSON.parse(localStorage.getItem('userInfo')!).user_img;
-	});
-});
-
-onBeforeUnmount(() => {
-	bus.off('updateAvatar');
-});
 </script>
 
 <style scoped lang="less">
 .CommonHeader-wrapper {
 	position: relative;
-	width: 1300px;
+	width: 100%;
+	padding: 0 20px;
 	height: 60px;
-	background: #fff;
+	background-color: #fff;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	border: 1px solid #bdbdbd;
 
 	.user-info {
 		display: flex;
 		align-items: center;
-
-		.message {
-			margin-right: 40px;
-			cursor: pointer;
-		}
 
 		.user-head {
 			margin-right: 20px;

@@ -213,15 +213,14 @@ const teamRules = reactive<
 	name: [{ required: true, message: '请输入团队名称', trigger: 'blur' }],
 });
 const getProjectInfos = async () => {
-	const res = await getProjectBasicInfo({
+	const { result } = await getProjectBasicInfo({
 		project_id: baseStore.curProjectInfo.project_id!,
 	});
-	const resData = res.data.project_info;
-	projectInfo.project_current_type = resData.project_current_type;
-	projectInfo.project_desc = resData.project_desc;
-	projectInfo.project_id = resData.project_id;
-	projectInfo.project_img = resData.project_img;
-	projectInfo.project_name = resData.project_name;
+	projectInfo.project_current_type = result.project_current_type;
+	projectInfo.project_desc = result.project_desc;
+	projectInfo.project_id = result.project_id;
+	projectInfo.project_img = result.project_img;
+	projectInfo.project_name = result.project_name;
 
 	projectDesc.value = projectInfo?.project_desc ?? '';
 	projectName.value = projectInfo?.project_name ?? '';
@@ -305,15 +304,15 @@ const confirmCropper = async () => {
 
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
-		const res = await uploadProjectIcon({ projectIcon: uploadFile });
+		const { result } = await uploadProjectIcon({ projectIcon: uploadFile });
 		baseStore.setCurProjectInfo({
 			project_id: projectInfo.project_id,
-			project_img: res.data.project_icon_path,
+			project_img: result,
 			project_name: projectInfo.project_name!,
 		});
-		projectInfo.project_img = res.data.project_icon_path;
+		projectInfo.project_img = result;
 
-		await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_img: res.data.project_icon_path });
+		await updateProjectBasicInfo({ project_id: baseStore.curProjectInfo.project_id!, project_img: result });
 		sourceFile = null;
 	}
 };
@@ -339,8 +338,9 @@ onMounted(async () => {
 
 <style scoped lang="less">
 .SettingMain-wrapper {
-	width: 90%;
-	margin-left: 0px;
+	position: relative;
+	width: 1200px;
+	margin: 0 auto;
 
 	.header {
 		height: 80px;
@@ -370,9 +370,7 @@ onMounted(async () => {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
-				// gap: 40%;
 				.left {
-					// flex: 3;
 					display: flex;
 					flex: 1 1;
 					align-items: flex-start;
@@ -384,7 +382,6 @@ onMounted(async () => {
 							font-weight: 500;
 						}
 						.title {
-							// flex: 0.5;
 							width: 300px;
 						}
 						.description {

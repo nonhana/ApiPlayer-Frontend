@@ -1,6 +1,6 @@
 <template>
 	<div class="ProjectDetails-wrapper">
-		<el-row type="flex" justify="space-between" style="width: 1300px">
+		<el-row type="flex" justify="space-between" style="width: 1350px">
 			<div><SideNav /></div>
 			<div style="display: flex">
 				<div>
@@ -66,7 +66,7 @@ watch(
 		}
 		activeName.value = 'first';
 	},
-	{ immediate: true, deep: true }
+	{ immediate: true }
 );
 </script>
 
@@ -74,13 +74,15 @@ watch(
 .ProjectDetails-wrapper {
 	position: relative;
 	background-color: #fff;
+	margin-bottom: 20px;
 	.main {
-		border: 1px solid #bdbdbd;
-		border-radius: 10px;
-		overflow: hidden;
+		width: 100%;
+		min-height: 950px;
+		border-left: 1px solid #bdbdbd;
+		border-bottom: 1px solid #bdbdbd;
+		border-right: 1px solid #bdbdbd;
 	}
 	.el-tabs--border-card {
-		min-width: 1000px;
 		.el-tabs__nav {
 			width: 100%;
 			.el-tabs__item {

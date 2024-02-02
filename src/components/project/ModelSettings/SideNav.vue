@@ -4,6 +4,7 @@
 			<el-icon size="20px"><Box /></el-icon>
 			<div>接口管理</div>
 		</div>
+		<div class="divider" />
 		<div class="item" @click="clickhandler(2)">
 			<el-icon size="20px"><Setting /></el-icon>
 			<div>项目设置</div>
@@ -52,15 +53,24 @@ const inviteMember = () => {
 <style scoped lang="less">
 .SideNav-wrapper {
 	width: 70px;
-	height: 1000px;
+	height: 100%;
+	min-height: 1000px;
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: center;
-	background-color: #f9fafb;
+	background-color: #fff;
 	font-size: 14px;
 	gap: 20px;
 	padding-top: 10px;
+	border-left: 1px solid #bdbdbd;
+	border-right: 1px solid #bdbdbd;
+	border-bottom: 1px solid #bdbdbd;
+	.divider {
+		width: 100%;
+		height: 1px;
+		background-color: #bdbdbd;
+	}
 	.item {
 		width: 60px;
 		height: 60px;

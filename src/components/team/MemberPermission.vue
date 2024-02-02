@@ -1,6 +1,6 @@
 <template>
 	<div class="dialog-div">
-		<el-dialog v-model="inviteDialog" title="邀请成员" width="400px">
+		<el-dialog v-model="inviteDialog" title="邀请成员" width="600px">
 			<template #header>
 				<div class="dialog-title">邀请加入 {{ baseStore.teamDetailedInfo.team_info.team_name }}</div>
 			</template>
@@ -14,15 +14,15 @@
 				</el-form-item>
 				<el-form-item label="" label-width="0">
 					<el-table :data="inviteForm.searchUserData" style="width: 100%" border>
-						<el-table-column prop="avatar" label="昵称" width="100">
+						<el-table-column prop="username" label="昵称" width="200">
 							<template #default="scope">
 								<div class="name-column">
 									<el-avatar :size="30" shape="square" :src="scope.row.avatar" />
-									<span class="row-name">{{ scope.row.name }}</span>
+									<span class="row-name">{{ scope.row.username }}</span>
 								</div>
 							</template>
 						</el-table-column>
-						<el-table-column prop="email" label="邮箱" width="150" />
+						<el-table-column prop="email" label="邮箱" width="200" />
 						<el-table-column align="center">
 							<template #default="scope">
 								<el-button type="primary" size="default" color="#59A8B9" auto-insert-space class="dialog-btn" @click="confirmInvite(scope.row)">
@@ -54,7 +54,7 @@
 				<el-input v-model="user.team_name" placeholder="请输入ta团队内的昵称" class="input-with-select" />
 			</el-form-item>
 			<el-form-item label="团队权限" prop="ability">
-				<el-select v-model="user.tag" placeholder="请选择ta的团队权限" class="select">
+				<el-select :disabled="user.tag === '团队所有者'" v-model="user.tag" placeholder="请选择ta的团队权限" class="select">
 					<el-option v-for="item in teamIdentities" :key="item.value" :label="item.label" :value="item.value" />
 				</el-select>
 			</el-form-item>
@@ -121,7 +121,7 @@
 		</div>
 		<div class="search-invite">
 			<div class="search">
-				<el-input v-model="searchContent" class="w-50 m-2" size="large" placeholder="搜索" :prefix-icon="Search" />
+				<el-input v-model="searchContent" size="large" placeholder="搜索" :prefix-icon="Search" />
 			</div>
 			<div v-if="baseStore.inviteMemberBtnVisible" class="invite">
 				<el-button type="primary" :icon="CirclePlusFilled" color="#59A8B9" class="invite-btn" @click="inviteMember">邀请成员</el-button>
@@ -145,7 +145,7 @@
 				<el-table-column prop="user_email" label="邮箱" width="350" />
 				<el-table-column label="团队权限" width="250" :filters="filters" :filter-method="filterTag" filter-placement="right">
 					<template #default="scope">
-						<el-tag :type="colorMap.get(identityMap.get(scope.row.user_identity))">{{ identityMap.get(scope.row.user_identity) }}</el-tag>
+						<el-tag :type="colorMap.get(identityMap.get(scope.row.user_identity)!)!">{{ identityMap.get(scope.row.user_identity) }}</el-tag>
 					</template>
 				</el-table-column>
 				<el-table-column v-if="baseStore.inviteMemberBtnVisible">
@@ -164,7 +164,7 @@ import { useStore } from '@/store';
 import { useRoute } from 'vue-router';
 import { searchUser } from '@/api/users';
 import { inviteUser, setMemberIdentity, removeMember } from '@/api/teams';
-import type { TeamIdentity } from '@/api/teams/types';
+import type { UserInfo } from '@/api/users/types';
 import type { User } from '@/utils/types';
 import { FormInstance, FormRules, ElMessage, ElMessageBox } from 'element-plus';
 import { Search, CirclePlusFilled } from '@element-plus/icons-vue';
@@ -192,7 +192,7 @@ const settingFormRules = reactive<FormRules<User>>({
 
 interface RuleForm {
 	username: string;
-	searchUserData: User[];
+	searchUserData: UserInfo[];
 }
 const inviteForm = reactive<RuleForm>({
 	username: '',
@@ -202,11 +202,36 @@ const inviteFormRules = reactive<FormRules<RuleForm>>({
 	username: [{ required: true, message: '请选择用户名', trigger: 'blur' }],
 });
 
-const colorMap = new Map().set('团队所有者', 'danger').set('团队管理者', 'warning').set('团队成员', 'success').set('游客', 'info');
-const identityMap = new Map().set(0, '团队所有者').set(1, '团队管理者').set(2, '团队成员').set(3, '游客');
-const identityMapReverse = new Map().set('团队所有者', 0).set('团队管理者', 1).set('团队成员', 2).set('游客', 3);
-const projectMap = new Map().set(0, '管理员').set(1, '编辑者').set(2, '只读成员').set(3, '禁止访问');
-const projectMapReverse = new Map().set('管理员', 0).set('编辑者', 1).set('只读成员', 2).set('禁止访问', 3);
+const colorMap: Map<string, 'danger' | 'warning' | 'success' | 'info'> = new Map([
+	['团队所有者', 'danger'],
+	['团队管理者', 'warning'],
+	['团队成员', 'success'],
+	['游客', 'info'],
+]);
+const identityMap: Map<number, string> = new Map([
+	[0, '团队所有者'],
+	[1, '团队管理者'],
+	[2, '团队成员'],
+	[3, '游客'],
+]);
+const identityMapReverse: Map<string, number> = new Map([
+	['团队所有者', 0],
+	['团队管理者', 1],
+	['团队成员', 2],
+	['游客', 3],
+]);
+const projectMap: Map<number, string> = new Map([
+	[0, '管理员'],
+	[1, '编辑者'],
+	[2, '只读成员'],
+	[3, '禁止访问'],
+]);
+const projectMapReverse: Map<string, number> = new Map([
+	['管理员', 0],
+	['编辑者', 1],
+	['只读成员', 2],
+	['禁止访问', 3],
+]);
 
 // 项目权限列表:0-管理员，1-编辑者，2-只读成员，3-禁止访问
 const projectIdentities = [
@@ -229,10 +254,6 @@ const projectIdentities = [
 ];
 // 团队权限列表:0-团队所有者，1-团队管理者，2-团队成员，3-游客
 const teamIdentities = [
-	{
-		value: '团队所有者',
-		label: '团队所有者',
-	},
 	{
 		value: '团队管理者',
 		label: '团队管理者',
@@ -275,14 +296,11 @@ const confirmInvite = async (user: any) => {
 	inviteDialog.value = false;
 };
 // 搜索用户
-const search = () => {
-	searchUser({ username: inviteForm.username }).then(async (res) => {
-		if (res.data) {
-			// 过滤掉已经在团队中的用户
-			const teamUserIds = baseStore.teamDetailedInfo.member_list.map((item) => item.user_id);
-			inviteForm.searchUserData = res.data.user_list.filter((item: any) => !teamUserIds.includes(item.user_id));
-		}
-	});
+const search = async () => {
+	const { result } = await searchUser({ username: inviteForm.username });
+	// 过滤掉已经在团队中的用户
+	const teamUserIds = baseStore.teamDetailedInfo.member_list.map((item) => item.user_id);
+	inviteForm.searchUserData = result.filter((item) => !teamUserIds.includes(item.user_id));
 };
 // 打开设置成员dialog并获取数据
 const openMemSetting = (row: any) => {
@@ -292,7 +310,7 @@ const openMemSetting = (row: any) => {
 	user.value.team_name = row.user_team_name;
 	user.value.avatar = row.user_img;
 	user.value.email = row.user_email;
-	user.value.tag = identityMap.get(row.user_identity);
+	user.value.tag = identityMap.get(row.user_identity)!;
 	// 拿到项目权限
 	let projectAbility: {
 		image: string;
@@ -305,7 +323,7 @@ const openMemSetting = (row: any) => {
 			projectAbility.push({
 				image: item.project_img,
 				title: item.project_name,
-				ability: projectMap.get(item.project_member_list[index].user_identity),
+				ability: projectMap.get(item.project_member_list[index].user_identity)!,
 			});
 		}
 	});
@@ -314,19 +332,17 @@ const openMemSetting = (row: any) => {
 // 确认修改成员权限
 const confirmSetting = async () => {
 	// 将user中的数据进行处理，转化成接口需要的数据格式
-	const data: TeamIdentity = {
+	const data = {
 		team_id: baseStore.teamDetailedInfo.team_info.team_id,
 		user_id: user.value.id,
 		team_user_name: user.value.team_name,
-		team_user_identity: identityMapReverse.get(user.value.tag),
-		team_project_indentity_list: user.value.projectAbility
-			? user.value.projectAbility.map((item) => {
-					return {
-						project_id: baseStore.teamDetailedInfo.project_list.find((project) => project.project_name === item.title)!.project_id,
-						project_user_identity: projectMapReverse.get(item.ability),
-					};
-			  })
-			: [],
+		team_user_identity: identityMapReverse.get(user.value.tag)!,
+		team_project_indentity_list: user.value.projectAbility.map((item) => {
+			return {
+				project_id: baseStore.teamDetailedInfo.project_list.find((project) => project.project_name === item.title)!.project_id,
+				project_user_identity: projectMapReverse.get(item.ability)!,
+			};
+		}),
 	};
 	await setMemberIdentity(data);
 	// 提交完成后，刷新数据

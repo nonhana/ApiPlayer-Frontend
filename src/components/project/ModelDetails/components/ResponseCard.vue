@@ -2,7 +2,7 @@
 	<div class="ResponseCard-wrapper">
 		<el-row>
 			<div>
-				<el-text class="mx-1" type="info">HTTP状态码：{{ props.context.http_status }}</el-text>
+				<el-text class="mx-1" type="info">HTTP状态码：{{ context.http_status }}</el-text>
 			</div>
 			<div>
 				<el-text class="mx-1" type="info">内容格式：JSON</el-text>
@@ -26,19 +26,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, toRefs, watch } from 'vue';
 import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
+import { ApiResponse } from '@/utils/types';
 import type { TreeNode, SchemaNode } from '@/utils/convertSchemaToTree';
-import type Node from 'element-plus/es/components/tree/src/model/node';
+import Node from 'element-plus/es/components/tree/src/model/node';
 
 // 从父组件拿到的数据
 const props = defineProps<{
-	context: {
-		response_id: number;
-		http_status: number;
-		response_body: any;
-	};
+	context: ApiResponse;
 }>();
+
+const { context } = toRefs(props);
 
 const treeData = ref<TreeNode[]>([]);
 
@@ -113,7 +112,7 @@ const renderContent = (
 };
 
 watch(
-	() => props.context,
+	context,
 	(newV, _) => {
 		// 拿到之后进行处理
 		let rootSchema: SchemaNode;
@@ -130,8 +129,9 @@ watch(
 
 <style scoped lang="less">
 .ResponseCard-wrapper {
-	width: 1000px;
+	width: 100%;
 	.cardA {
+		width: 100%;
 		.card-header {
 			display: flex;
 			justify-content: space-between;
@@ -145,7 +145,6 @@ watch(
 		}
 		.box-card {
 			height: 100%;
-			width: 100%;
 		}
 	}
 	.cardB {

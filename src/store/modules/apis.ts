@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
 import { getApiInfo } from '@/api/apis';
+import type { ApiDetailInfo } from '@/api/apis/types';
 
 export const useApiStore = defineStore('apiStore', {
 	state: () => {
 		return {
-			apiInfo: <any>{},
+			apiInfo: <ApiDetailInfo>{},
+			preUrl: <string>'',
 		};
 	},
 	actions: {
@@ -12,7 +14,10 @@ export const useApiStore = defineStore('apiStore', {
 			const res = await getApiInfo({
 				api_id: apiId,
 			});
-			this.apiInfo = res.data.api_info;
+			this.apiInfo = res.result;
+		},
+		setPreUrl(preUrl: string) {
+			this.preUrl = preUrl;
 		},
 	},
 	persist: true,

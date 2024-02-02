@@ -73,17 +73,13 @@
 			<el-text class="mx-1" size="large">返回响应</el-text>
 		</el-row>
 		<div v-if="apiResponses.length > 0">
-			<el-row>
-				<el-col :span="23">
-					<el-tabs v-model="activeName" type="card" class="doc-tabs">
-						<div v-for="(item, index) in apiResponses" :key="index">
-							<el-tab-pane :label="item.response_name" :name="index">
-								<ResponseCard :context="item" />
-							</el-tab-pane>
-						</div>
-					</el-tabs>
-				</el-col>
-			</el-row>
+			<el-tabs v-model="activeName" type="card" class="doc-tabs">
+				<div v-for="(item, index) in apiResponses" :key="index">
+					<el-tab-pane :label="item.response_name" :name="index">
+						<ResponseCard :context="item" />
+					</el-tab-pane>
+				</div>
+			</el-tabs>
 		</div>
 		<div v-else class="params-empty">
 			<span>{{ emptyResponseWarning }}</span>
@@ -91,18 +87,20 @@
 		<div style="height: 20px"></div>
 	</div>
 </template>
+
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useStore } from '@/store';
 import { getUserInfo } from '@/api/users';
 import type { TreeNode } from '@/utils/convertSchemaToTree';
 import { convertSchemaToTree } from '@/utils/convertSchemaToTree';
+import { ApiResponse } from '@/utils/types';
 import ResponseCard from '../components/ResponseCard.vue';
 import type Node from 'element-plus/es/components/tree/src/model/node';
 
 const { apiStore } = useStore();
 
-const apiResponses = ref<any[]>([]);
+const apiResponses = ref<ApiResponse[]>([]);
 const activeName = ref<number>(0);
 const apiPrincipalName = ref<string>('');
 const apiCreatorName = ref<string>('');
@@ -208,18 +206,18 @@ watch(
 					await getUserInfo({
 						user_id: newV.api_principal_id,
 					})
-				).data.result.userInfo.username;
+				).result.username;
 			}
 			apiCreatorName.value = (
 				await getUserInfo({
 					user_id: newV.api_creator_id,
 				})
-			).data.result.userInfo.username;
+			).result.username;
 			apiEditorName.value = (
 				await getUserInfo({
 					user_id: newV.api_editor_id,
 				})
-			).data.result.userInfo.username;
+			).result.username;
 			treeBuilding.value = true;
 			// 2. 处理请求体：JSON_Schema To TreeNode
 			if (newV.api_request_JSON) {

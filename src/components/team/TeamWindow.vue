@@ -25,7 +25,7 @@
 			</div>
 			<div v-if="isShowMiddleRight" class="middle-right">
 				<div>
-					<el-input v-model="searchContent" class="w-50 m-2" placeholder="搜索" :prefix-icon="Search" />
+					<el-input v-model="searchContent" placeholder="搜索" :prefix-icon="Search" />
 				</div>
 				<div>
 					<el-button
@@ -113,7 +113,6 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from '@/store';
 import { addProject, uploadProjectIcon } from '@/api/projects';
-import { ProjectRole } from '@/utils/projectPermission';
 import type { AddProjectForm } from '@/utils/types';
 import ProjectList from '@/components/team/ProjectList.vue';
 import MemberPermission from '@/components/team/MemberPermission.vue';
@@ -136,7 +135,6 @@ const cutImgDialog = ref<boolean>(false);
 const showTemplate = ref<boolean>(false);
 const gettingProject = ref<boolean>(false);
 const addProjectForm = ref<AddProjectForm>({
-	user_id: 0,
 	team_id: 0,
 	project_name: '',
 	project_img: '',
@@ -167,7 +165,6 @@ const handleClick = (tab: TabsPaneContext) => {
 const createProject = () => {
 	addProjectDialog.value = true;
 	addProjectForm.value = {
-		user_id: baseStore.user_info.user_id,
 		team_id: baseStore.teamDetailedInfo.team_info.team_id,
 		project_name: '',
 		project_img: '',
@@ -175,7 +172,7 @@ const createProject = () => {
 };
 const confirmCreate = async () => {
 	const res = await addProject(addProjectForm.value);
-	if (res.data.result_code === 0) {
+	if (res.result_code === 0) {
 		await baseStore.getTeamInfo(Number(route.params.team_id));
 		ElMessage.success('新建项目成功');
 	} else {
@@ -208,12 +205,8 @@ const confirmCropper = async () => {
 
 	if (croppedFile) {
 		croppedFileURL.value = URL.createObjectURL(croppedFile as Blob);
-		const res = await uploadProjectIcon({ projectIcon: uploadFile });
-		if (res.data.result_code === 0) {
-			addProjectForm.value.project_img = res.data.project_icon_path;
-		} else {
-			ElMessage.error('上传失败');
-		}
+		const { result } = await uploadProjectIcon({ projectIcon: uploadFile });
+		addProjectForm.value.project_img = result;
 	}
 };
 
@@ -225,7 +218,7 @@ watch(
 			await baseStore.getTeamInfo(Number(newV));
 			let projectRoleList: any = {};
 			for (let item of baseStore.teamDetailedInfo.project_list) {
-				const identity: ProjectRole = item.project_member_list.filter((it) => {
+				const identity = item.project_member_list.filter((it) => {
 					return it.user_id === baseStore.user_info.user_id;
 				})[0].user_identity;
 
@@ -271,12 +264,6 @@ watch(
 			right: 50px;
 			display: flex;
 			gap: 10px;
-		}
-
-		:deep(.el-input__inner) {
-			&::placeholder {
-				text-align: center;
-			}
 		}
 	}
 }

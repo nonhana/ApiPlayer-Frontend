@@ -85,11 +85,11 @@ import { validateEmail } from '@/utils/validate.ts';
 import type { FormRules } from 'element-plus';
 import { ElNotification } from 'element-plus';
 
-// 可以使用邮箱+密码登录，也可以使用电话号码+验证码登录
+// 使用邮箱+验证码+密码登录
 interface LoginRuleForm {
-	email?: string;
-	password?: string;
-	verify_code?: string;
+	email: string;
+	password: string;
+	verify_code: string;
 }
 // 使用邮箱进行注册
 interface RegisterRuleForm {
@@ -128,13 +128,13 @@ const registerRules = reactive<FormRules<RegisterRuleForm>>({
 });
 
 // 登录表单
-const userLoginForm = ref({
+const userLoginForm = ref<LoginRuleForm>({
 	email: '',
 	password: '',
 	verify_code: '',
 });
 // 注册表单
-const userRegisterForm = ref({
+const userRegisterForm = ref<RegisterRuleForm>({
 	email: '',
 	verify_code: '',
 	password: '',
@@ -168,11 +168,11 @@ const myLogin = async () => {
 	} else {
 		logining.value = true;
 		const res = await login({ email: userLoginForm.value.email, password: userLoginForm.value.password });
-		if (res.data.result_code === 0) {
-			localStorage.setItem('token', res.data.result.token);
-			const userInfoSource = (await getUserInfo({})).data.result.userInfo;
+		if (res.result_code === 0) {
+			localStorage.setItem('token', res.result);
+			const { result: userInfoSource } = await getUserInfo({});
 			const userInfo = {
-				user_id: userInfoSource.user_id ?? 1,
+				user_id: userInfoSource.user_id,
 				user_name: userInfoSource.username,
 				user_img: userInfoSource.avatar,
 				user_email: userInfoSource.email,
@@ -183,7 +183,7 @@ const myLogin = async () => {
 			router.push({ name: 'main' });
 			ElNotification({
 				title: '登录成功',
-				message: '欢迎回来！',
+				message: `欢迎回来，${userInfo.user_name}`,
 				type: 'success',
 			});
 		}
@@ -225,7 +225,7 @@ const myRegister = async () => {
 			password: userRegisterForm.value.password,
 		});
 
-		if (res.data.result_code === 0) {
+		if (res.result_code === 0) {
 			loginType.value = 0;
 			ElNotification({
 				title: '注册成功',
@@ -301,7 +301,7 @@ watch(loginType, (newV, _) => {
 		}
 		.tip {
 			margin-top: 20px;
-			font-family: Source Han Sans CN;
+			font-family: Microsoft YaHei;
 			font-size: 12px;
 			font-weight: normal;
 			color: #3d3d3d;
@@ -323,7 +323,7 @@ watch(loginType, (newV, _) => {
 			background: #59a8b9;
 			cursor: pointer;
 			transition: all 0.3s ease;
-			font-family: Source Han Sans CN;
+			font-family: Microsoft YaHei;
 			font-size: 16px;
 			font-weight: normal;
 			color: #fff;

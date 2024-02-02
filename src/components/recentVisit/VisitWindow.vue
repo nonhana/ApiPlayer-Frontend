@@ -28,63 +28,21 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/store';
 import { recentlyVisited, addRecentProject } from '@/api/projects';
+import { timeAgo } from '@/utils';
 
 const router = useRouter();
 const { baseStore } = useStore();
 
-const timeAgo = (dateTime: string) => {
-	// dateTime格式：2023-08-23T19:03:47.000Z
-	const minute = 1000 * 60;
-	const hour = minute * 60;
-	const day = hour * 24;
-	const week = day * 7;
-	const month = day * 30;
-	const now = new Date().getTime();
-
-	const dateTimeStampNumber = new Date(dateTime).getTime();
-	const diffValue = now - dateTimeStampNumber;
-
-	if (diffValue < 0) {
-		return '';
-	}
-
-	let result = '';
-	const minC = diffValue / minute;
-	const hourC = diffValue / hour;
-	const dayC = diffValue / day;
-	const weekC = diffValue / week;
-	const monthC = diffValue / month;
-
-	if (monthC >= 1 && monthC < 4) {
-		result = ' ' + parseInt(monthC.toString()) + '月前';
-	} else if (weekC >= 1 && weekC < 4) {
-		result = ' ' + parseInt(weekC.toString()) + '周前';
-	} else if (dayC >= 1 && dayC < 7) {
-		result = ' ' + parseInt(dayC.toString()) + '天前';
-	} else if (hourC >= 1 && hourC < 24) {
-		result = ' ' + parseInt(hourC.toString()) + '小时前';
-	} else if (minC >= 1 && minC < 60) {
-		result = ' ' + parseInt(minC.toString()) + '分钟前';
-	} else if (diffValue >= 0 && diffValue <= minute) {
-		result = '刚刚';
-	} else {
-		result = dateTime.split(' ')[0];
-	}
-	return result;
-};
-const getRecentlyVisited = async () => {
-	const res = await recentlyVisited({ user_id: baseStore.user_info.user_id });
-	if (res.data.result_code === 0) {
-		baseStore.setLastVisitedList(res.data.data);
-	}
-};
 const goDetail = (index: number) => {
 	router.push({ path: `/project/${baseStore.lastVisitedList[index].project_id}` });
-	addRecentProject({ user_id: baseStore.user_info.user_id, project_id: baseStore.lastVisitedList[index].project_id });
+	addRecentProject({ project_id: baseStore.lastVisitedList[index].project_id });
 };
 
-onMounted(() => {
-	getRecentlyVisited();
+onMounted(async () => {
+	const res = await recentlyVisited();
+	if (res.result_code === 0) {
+		baseStore.setLastVisitedList(res.result);
+	}
 });
 </script>
 
