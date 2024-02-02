@@ -108,6 +108,7 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from '@/store';
 import { updateApi, deleteApi } from '@/api/apis';
+import type { UpdateApiReq } from '@/api/apis/types';
 import type { RequestParams } from '@/utils/types';
 import ParamsAndHeader from '../components/ParamsAndHeader.vue';
 import JsonSchemaEditor from '../components/JsonSchemaEditor.vue';
@@ -249,9 +250,7 @@ const runApi = () => {
 };
 const saveApiInfo = async () => {
 	fullscreenLoading.value = true;
-	const saveBody: {
-		[key: string]: any;
-	} = {
+	const saveBody: UpdateApiReq = {
 		project_id: Number(route.params.project_id), // 默认参数：项目id
 		api_id: apiInfo.value.api_id, // 默认参数：接口id
 	};
@@ -263,6 +262,7 @@ const saveApiInfo = async () => {
 	if (editedResponse.value) {
 		saveBody.api_responses = apiInfo.value.api_responses.map((item) => {
 			return {
+				response_id: item.response_id,
 				http_status: Number(item.http_status),
 				response_name: item.response_name,
 				response_body: JSON.stringify(item.response_body),

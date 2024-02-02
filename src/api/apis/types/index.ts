@@ -68,7 +68,7 @@ export interface UpdateApiReq {
 		/**
 		 * 接口请求的方法
 		 */
-		api_method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+		api_method?: string;
 		/**
 		 * 接口的状态。0-开发中，1-测试中，2-已发布，3-将废弃
 		 */
@@ -98,7 +98,7 @@ export interface UpdateApiReq {
 	 * 接口返回响应体列表
 	 */
 	api_responses?: {
-		response_id: number;
+		response_id?: number;
 		http_status: number;
 		response_body: string;
 		response_name: string;
