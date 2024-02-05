@@ -109,6 +109,10 @@ export interface UpdateApiReq {
  */
 export interface RunApiReq {
 	/**
+	 * 发送请求的本机ip
+	 */
+	local_ip: string;
+	/**
 	 * 接口id
 	 */
 	api_id: number;

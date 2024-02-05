@@ -180,6 +180,9 @@ const myLogin = async () => {
 			} as UserInfo;
 			localStorage.setItem('userInfo', JSON.stringify(userInfo));
 			baseStore.setUserInfo(userInfo);
+			// 使用fetch+ipify API，获取用户的公网IP地址
+			const { ip } = await fetch('https://api.ipify.org?format=json').then((res) => res.json());
+			baseStore.setLocalIp(ip);
 			router.push({ name: 'main' });
 			ElNotification({
 				title: '登录成功',
@@ -218,6 +221,9 @@ const myRegister = async () => {
 		};
 		localStorage.setItem('userInfo', JSON.stringify(userInfo));
 		baseStore.setUserInfo(userInfo);
+		// 使用fetch+ipify API，获取用户的公网IP地址
+		const { ip } = await fetch('https://api.ipify.org?format=json').then((res) => res.json());
+		baseStore.setLocalIp(ip);
 
 		const res = await register({
 			email: userRegisterForm.value.email,

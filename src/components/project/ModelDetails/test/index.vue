@@ -86,7 +86,7 @@
 		<el-row>
 			<el-row>
 				<el-tabs v-model="responseActiveName" type="card" class="res-tabs">
-					<el-tab-pane :label="result.result_code ? map.get(result.result_code) : '尚未发送请求'" name="first">
+					<el-tab-pane :label="'接口运行状态：' + resCodeMap.get(result.result_code)" name="first">
 						<div>状态信息：{{ result.result_msg }}</div>
 						<el-scrollbar v-if="result.result">
 							<div style="height: 500px">
@@ -120,7 +120,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-chrome';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
-const { apiStore } = useStore();
+const { apiStore, baseStore } = useStore();
 const route = useRoute();
 
 // ace编辑器配置
@@ -144,7 +144,11 @@ const bodyActiveName = ref('bodyFirst');
 const responseActiveName = ref('first');
 const runningApi = ref<boolean>(false);
 
-const map = new Map().set(0, 'success').set(1, 'fail');
+const resCodeMap: Map<number, string> = new Map([
+	[-1, '尚未发送请求'],
+	[0, '成功'],
+	[1, '失败'],
+]);
 
 const requestParams = ref<RequestParams[]>([
 	{
@@ -199,10 +203,13 @@ const globalCookies = ref<any[]>([]);
 const globalQueryParams = ref<any[]>([]);
 
 const apiInfo = ref(apiStore.apiInfo);
-const result = ref({
-	result_code: 0,
+const result = reactive<{
+	result_code: number;
+	result_msg: string;
+	result?: any;
+}>({
+	result_code: -1,
 	result_msg: '',
-	result: '',
 });
 
 // mock数据，仅限Body-JSON
@@ -226,6 +233,7 @@ const executeMock = async () => {
 const runApi = async () => {
 	runningApi.value = true;
 	const requestBody = {
+		local_ip: baseStore.localIp,
 		api_id: apiInfo.value.api_id,
 		api_request_params: requestParams.value,
 		// 去掉所有的\n和\t
@@ -233,9 +241,9 @@ const runApi = async () => {
 	};
 	const res = await executeApi(requestBody);
 	if (res.result_code === 0) {
-		result.value.result_code = res.result_code;
-		result.value.result_msg = res.result_msg;
-		result.value.result = res.result.data;
+		result.result_code = res.result_code;
+		result.result_msg = res.result_msg;
+		result.result = res.result.data;
 		runningApi.value = false;
 		ElNotification({
 			title: '成功',
@@ -243,9 +251,9 @@ const runApi = async () => {
 			type: 'success',
 		});
 	} else {
-		result.value.result_code = res.result_code;
-		result.value.result_msg = res.result_msg;
-		result.value.result = res.result.data;
+		result.result_code = res.result_code;
+		result.result_msg = res.result_msg;
+		result.result = res.result.data;
 		runningApi.value = false;
 		ElNotification({
 			title: '失败',

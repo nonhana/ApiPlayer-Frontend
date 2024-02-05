@@ -13,6 +13,7 @@ export const useBaseStore = defineStore('baseStore', {
 			curTeamInfo: <TeamInfo>{},
 			curProjectInfo: <ProjectInfo>{},
 			projectRoleList: <Record<number, number>>{},
+			localIp: <string>'',
 		};
 	},
 	getters: {
@@ -62,6 +63,9 @@ export const useBaseStore = defineStore('baseStore', {
 		},
 		setProjectRoleList(projectRoleList: Record<number, number>): void {
 			this.projectRoleList = projectRoleList;
+		},
+		setLocalIp(ip: string): void {
+			this.localIp = ip;
 		},
 	},
 	persist: true,
