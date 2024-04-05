@@ -14,6 +14,10 @@
 
 > 目前该项目由仓库持有者： [@nonhana](https://github.com/nonhana) 进行更新维护。
 
+**最终大项目获奖：优秀奖**
+
+<img src="https://common-1319721118.cos.ap-shanghai.myqcloud.com/picgo/%E5%A4%A7%E9%A1%B9%E7%9B%AE%E8%8E%B7%E5%A5%96%E8%AF%81%E4%B9%A6%E8%AF%81%E4%B9%A6.jpg" alt="大项目获奖证书证书" style="zoom: 33%;" />
+
 ## 2. 项目说明
 
 具体可参见该项目的目录结构，以下作一些大概的说明：
