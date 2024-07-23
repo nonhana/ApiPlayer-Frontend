@@ -14,7 +14,9 @@
 
 **最终大项目获奖：优秀奖**
 
-<img src="https://common-1319721118.cos.ap-shanghai.myqcloud.com/picgo/%E5%A4%A7%E9%A1%B9%E7%9B%AE%E8%8E%B7%E5%A5%96%E8%AF%81%E4%B9%A6%E8%AF%81%E4%B9%A6-%E9%9A%90%E8%97%8F%E5%A7%93%E5%90%8D.jpg" alt="大项目获奖证书证书-隐藏姓名" width="400" />
+<div align="center">
+   <img src="https://common-1319721118.cos.ap-shanghai.myqcloud.com/picgo/%E5%A4%A7%E9%A1%B9%E7%9B%AE%E8%8E%B7%E5%A5%96%E8%AF%81%E4%B9%A6%E8%AF%81%E4%B9%A6-%E9%9A%90%E8%97%8F%E5%A7%93%E5%90%8D.jpg" alt="大项目获奖证书证书-隐藏姓名" width="400" />
+</div>
 
 ### 项目说明
 
